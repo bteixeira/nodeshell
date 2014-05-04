@@ -1,0 +1,14 @@
+All builtins and syntax that must be supported by shell syntax
+==============================================================
+
+General command calling with arguments (getDir is a JS function)
+	cd getDir()
+
+Piping output
+	ls | function wc(list) {console.log(list.length);}
+
+Calling already existent commands
+	git stash pop
+
+The challenge is always to efficiently determine where arguments end
+	git function () {return "merge";  } ( ) features/blablabla
