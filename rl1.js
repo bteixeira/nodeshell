@@ -24,7 +24,8 @@ rl.on('line', function(line) {
 		break;
 	}
 	*/
-	var result = parse(line);
+	//var result = parse(line);
+	var result = runLine(line);
 	console.log(result);
 	rl.setPrompt(getPrompt());
 	rl.prompt();
@@ -101,6 +102,7 @@ var SQ_STRING = 'SQ_STRING';
 var DQ_STRING = 'DQ_STRING';
 var REGEXP = 'REGEXP';
 
+/**/
 function tokenize (line) {
 	var state = START;
 	var nesting = [];
@@ -141,3 +143,35 @@ function tokenize (line) {
 				id += c;
 			}
 			// TODO illegals, such as '"
+		}
+/**/
+
+function runLine (line) {
+	var match = line.match(/^[a-zA-Z_0-9]+\s*/);
+	var cmd;
+	if (match && (cmd = getCmd(match[0].trim()))) {
+		// parse rest of line for JS expressions separated by WS, or literals
+		var args = findArguments(line.substr(match[0].length));
+		// run command with found arguments
+		args.map(function (val) {
+			//if (val.type === 'js') {
+			//	return eval(val.text);
+			//} else if (val.type === 'single') { // single identifier argument, could be var or literal
+				try {
+					//return eval(val.text);
+					return eval(val);
+				} catch (e) {
+					//return val.text;
+					return val;
+				}
+			//}
+		});
+		return cmd.apply(null, args);
+	} else {
+		//run whole line as JS
+		return eval(line);
+	}
+}
+
+function findArguments (line) {
+	

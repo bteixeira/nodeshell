@@ -10,5 +10,23 @@ Piping output
 Calling already existent commands
 	git stash pop
 
+
+Challenges
+==========
+
 The challenge is always to efficiently determine where arguments end
 	git function () {return "merge";  } ( ) features/blablabla
+	
+
+What should this do?
+	$ ls = 300
+	$ ls
+	
+	Should it list directories or print the value of ls?
+	A: let's let the command always have precedence, user can e.g. console.log(ls)
+	or something else. otherwise user would be able to ofuscate basic commands
+	very easily and bring the shell to an unusable state
+
+What happens when there is a command called "3"?
+A: again, let's assume it's a command. I have never seen commands with number as
+name but if there is one, we want to be able to run it.
