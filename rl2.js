@@ -1,9 +1,16 @@
 var readline = require('readline');
-var rl = readline.createInterface(process.stdin, process.stdout);
 var vm = require('vm');
 var util = require('util');
 var parsing = require(__dirname + '/src/parsing');
 var environment = require(__dirname + '/src/environment');
+
+var rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    completer: function (line) {
+        return ['cd stub pwd'.split(' '), line];
+    }
+});
 
 var getPrompt = function () {
     /* Due to apparent bug in readline, if you want a new line before the prompt
