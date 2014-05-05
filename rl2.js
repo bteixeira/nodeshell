@@ -3,6 +3,7 @@ var rl = readline.createInterface(process.stdin, process.stdout);
 var vm = require('vm');
 var util = require('util');
 var parsing = require(__dirname + '/src/parsing');
+var environment = require(__dirname + '/src/environment');
 
 var getPrompt = function () {
     /* Due to apparent bug in readline, if you want a new line before the prompt
@@ -55,6 +56,8 @@ function getCmd (cmd) {
     }
 }
 
+var ctx = vm.createContext(environment);
+
 function runLine (line) {
     var match = line.match(/^[a-zA-Z_0-9\-\.]+\s*/);
     var cmd;
@@ -65,7 +68,8 @@ function runLine (line) {
         args = args.map(function (val) {
             try {
                 console.log('evaling', val);
-                return eval(val);
+                //return eval(val);
+                return vm.runInContext(val, ctx);
             } catch (e) {
                 console.log(val, 'is not JS', e.message);
                 return val;
@@ -76,6 +80,7 @@ function runLine (line) {
         return cmd.apply(null, args);
     } else {
         //run whole line as JS
-        return eval(line);
+//        return eval(line);
+        return vm.runInContext(line, ctx);
     }
 }
