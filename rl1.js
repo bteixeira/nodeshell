@@ -102,56 +102,56 @@ var SQ_STRING = 'SQ_STRING';
 var DQ_STRING = 'DQ_STRING';
 var REGEXP = 'REGEXP';
 
-/**/
-function tokenize (line) {
-	var state = START;
-	var nesting = [];
-	var parts = []; // To return. Array of objects type+string, where type can be literal or js
-	var i, c, id, prev;
-	var first = true;
-	for (i = 0 ; i < line.length ; i++) {
-		c = line.charAt(i);
-		if (state === START) {
-			if (c === ' ') { // TODO generalize whitespace
-			} else if (c === '"') {
-				state = DQ_STRING;
-			} else if (c === "'") {
-				state = SQ_STRING);
-			} else if ('({['.indexOf(c) !== -1) {
-				nesting.append(c);
-			} else { // Everything else is identifier/reserver word.
-				state = IDENTIFIER;
-				id = c;
-			}
-			// TODO Regexp
-			// TODO illegals, such as )}]
-		} else if (state === IDENTIFIER) {
-			if (c === ' ') { // TODO generalize whitespace
-				if (words.indexOf(id) !== -1) {
-					prev = 'RESERVED';
-					first = false;
-				} else {
-					if (prev === IDENTIFIER && first) {
-						
-					prev = IDENTIFIER;
-				}
-				state = START;
-			} else if ('=|+-/*!&%><?^,:;.'.indexOf(c) !== -1) {
-				state = START; // for now we dont care about storing operators
-				prev = false;
-			} else {
-				id += c;
-			}
-			// TODO illegals, such as '"
-		}
-/**/
+///**/
+//function tokenize (line) {
+//	var state = START;
+//	var nesting = [];
+//	var parts = []; // To return. Array of objects type+string, where type can be literal or js
+//	var i, c, id, prev;
+//	var first = true;
+//	for (i = 0 ; i < line.length ; i++) {
+//		c = line.charAt(i);
+//		if (state === START) {
+//			if (c === ' ') { // TODO generalize whitespace
+//			} else if (c === '"') {
+//				state = DQ_STRING;
+//			} else if (c === "'") {
+//				state = SQ_STRING);
+//			} else if ('({['.indexOf(c) !== -1) {
+//				nesting.append(c);
+//			} else { // Everything else is identifier/reserver word.
+//				state = IDENTIFIER;
+//				id = c;
+//			}
+//			// TODO Regexp
+//			// TODO illegals, such as )}]
+//		} else if (state === IDENTIFIER) {
+//			if (c === ' ') { // TODO generalize whitespace
+//				if (words.indexOf(id) !== -1) {
+//					prev = 'RESERVED';
+//					first = false;
+//				} else {
+//					if (prev === IDENTIFIER && first) {
+//
+//					prev = IDENTIFIER;
+//				}
+//				state = START;
+//			} else if ('=|+-/*!&%><?^,:;.'.indexOf(c) !== -1) {
+//				state = START; // for now we dont care about storing operators
+//				prev = false;
+//			} else {
+//				id += c;
+//			}
+//			// TODO illegals, such as '"
+//		}
+///**/
 
 function runLine (line) {
 	var match = line.match(/^[a-zA-Z_0-9]+\s*/);
 	var cmd;
 	if (match && (cmd = getCmd(match[0].trim()))) {
 		// parse rest of line for JS expressions separated by WS, or literals
-		var args = findArguments(line.substr(match[0].length));
+		var args = findArguments(line, match[0].length);
 		// run command with found arguments
 		args.map(function (val) {
 			//if (val.type === 'js') {
@@ -173,5 +173,175 @@ function runLine (line) {
 	}
 }
 
-function findArguments (line) {
-	
+function findArguments (line, start) {
+	var stage = 1; // 1 or 2
+    var i, c, mark = 0;
+    var args = [];
+    var res;
+    for (i = start ; i < line.length ; i++) {
+        c = line.charAt(i);
+        if (c === ' ') {
+
+        } else if (stage === 1) {
+            if (/[a-zA-Z_$]/.test(c)) {
+                res = runIdentifier(line, i + 1);
+                i = res.i;
+                if (isReserved(res.id)) {
+                    if (res.id !== 'new' && res.id !== 'delete' && res.id !== 'typeof') {
+                        throw 'JS statement and not expression';
+                    } // else just stay in stage one
+                } else {
+                    stage = 2;
+                }
+            } else if (/[0-9]/.test(c)) {
+                i = runNumber(line, i + 1);
+                stage = 2;
+            } else if (c === '"') {
+                i = runDQString(line, i + 1);
+                stage = 2;
+            } else if (c === "'") {
+                i = runSQString(line, i + 1);
+                stage = 2;
+            } else if ('({['.indexOf(c) !== -1) {
+                i = runNesting(line, i);
+                stage = 2;
+            } else if (c !== '-' && c !== '!') {
+                throw 'No JS expression';
+            } // if - or ! just stay in stage one
+        } else if (stage === 2) {
+            if (c === '?') {
+                i = runToColon(line, i + 1);
+                stage = 1;
+            } else if (c === '(' || c === '[') {
+                i = runNesting(line, i);
+            } else if (c === '.') {
+                i = runIdentifier(line, i + 1).i;
+            } else if ('+-/*%><=!|&'.indexOf(c) !== -1) {
+                i = runBinOp(line, i);
+                stage = 1;
+            } else {
+                // FINALLY
+                args.push(line.substring(mark, i));
+                mark = i;
+                stage = 1;
+            }
+        }
+    }
+    if (mark < i) {
+        console.log('ERRONEOUS JS AT END');
+    }
+    return args;
+}
+
+function isReserved (word) {
+    var res = words.join(' ').indexOf(word) !== -1;
+    console.log(word, 'is', res ? '' : 'not', 'reserved');
+    return res;
+}
+
+function runIdentifier (line, start) {
+    var i = start;
+    while (/[a-zA-Z_$0-9]/.test(line.charAt(i))) {
+        i++;
+    }
+    return {i: i, id: line.substring(start, i)};
+}
+
+function runNumber (line, start) {
+    var i = start;
+    while (/[0-9]/.test(line.charAt(i))) {
+        i++;
+    }
+    return i;
+}
+
+function runDQString (line, start) {
+    var i, c, escaping = false;
+    for (i = start ; i < line.length ; i++) {
+        c = line.charAt(i);
+        if (escaping) {
+            escaping = false;
+        } else if (c === '\\') {
+            escaping = true;
+        } else if (c === '"') {
+            return i;
+        }
+    }
+    return i;
+}
+
+function runSQString (line, start) {
+    var i, c, escaping = false;
+    for (i = start ; i < line.length ; i++) {
+        c = line.charAt(i);
+        if (escaping) {
+            escaping = false;
+        } else if (c === '\\') {
+            escaping = true;
+        } else if (c === "'") {
+            return i;
+        }
+    }
+    return i;
+}
+
+function runNesting (line, start) {
+    var nesting = [line.charAt(start)];
+    var i, c;
+    for (i = start + 1 ; i < line.length ; i++) {
+        c = line.charAt(i);
+        if (c === '"') {
+            i = runDQString(line, i + 1);
+        } else if (c === "'") {
+            i = runSQString(line, i + 1);
+        } else if ('({['.indexOf(c) !== -1) {
+            nesting.push(c);
+        } else if (c === ')' && nesting[nesting.length] === '(') {
+            nesting.pop();
+        } else if (c === '}' && nesting[nesting.length] === '{') {
+            nesting.pop();
+        } else if (c === ']' && nesting[nesting.length] === '[') {
+            nesting.pop();
+        }
+        if (!nesting.length) {
+            return i;
+        }
+    }
+    return i;
+}
+
+function runToColon (line, start) {
+    var nesting = [];
+    var i, c;
+    for (i = start ; i < line.length ; i++) {
+        c = line.charAt(i);
+        if (c === '"') {
+            i = runDQString(line, i + 1);
+        } else if (c === "'") {
+            i = runSQString(line, i + 1);
+        } else if ('({['.indexOf(c) !== -1) {
+            nesting.push(c);
+        } else if (c === ')' && nesting[nesting.length] === '(') {
+            nesting.pop();
+        } else if (c === '}' && nesting[nesting.length] === '{') {
+            nesting.pop();
+        } else if (c === ']' && nesting[nesting.length] === '[') {
+            nesting.pop();
+        } else if (c === ':') {
+            return i;
+        }
+    }
+    return i;
+}
+
+function runBinOp (line, start) {
+    var sub = line.substring(start, start + 3);
+    if (sub === '===' || sub === '!==') {
+        return start + 3;
+    }
+    sub = line.substring(start, start + 2);
+    if (sub === '==' || sub === '!=' || sub === '||' || sub === '&&' || sub === '>=' || sub === '<=') {
+        return start + 2;
+    }
+    return start + 1;
+}
