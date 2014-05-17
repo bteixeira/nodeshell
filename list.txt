@@ -32,3 +32,23 @@ A: again, let's assume it's a command. I have never seen commands with number as
 name but if there is one, we want to be able to run it.
 
 "Can your shell show man pages?"
+  --> YES IT CAN
+
+
+Architecture
+============
+
+Input
+    gets keystrokes, there is a mapping of key to functionality
+
+Parser
+    the functionality to accept the command (enter key) instructs to pass the current line(s) to the parser
+    The parser extracts a command plus arguments, or runs JS
+
+Environment
+    There must be an API with access to:
+        all the commands as functions (and everything that is in the path)
+        all the nodejs globals, including process, buffer, require, etc
+        a set of objects that allow overriding behaviour and attaching event handlers; even the parser should be
+        available in this way. Make it such that you can override or extend parts of the parsing, or all of it together
+        (dangerous, but let's think about it later)
