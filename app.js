@@ -6,6 +6,14 @@ var commands = new Commands();
 var Parser = require(__dirname + '/src/parser');
 var Line = require(__dirname + '/src/line');
 
+var getPrompt = function () {
+    /* Due to apparent bug in readline, if you want a new line before the prompt
+     * you should print it directly. Otherwise when you press backspace an
+     * aditional new line will be printed. */
+    console.log();
+    return process.cwd() + '$ ';
+};
+
 var line = new Line({
     output: process.stdout,
     acceptCB: function (line) {
@@ -15,6 +23,7 @@ var line = new Line({
         } catch (ex) {
             console.error(ex.toString());
         }
+        this.setPrompt(getPrompt());
         this._refreshLine();
     }
 });
@@ -38,6 +47,7 @@ function runUserFile () {
 }
 runUserFile();
 
+line.setPrompt(getPrompt());
 line._refreshLine();
 
 stdin.on('keypress', function (ch, key) { return keyHandler.handleKey(ch, key); });

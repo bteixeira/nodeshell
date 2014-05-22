@@ -2,7 +2,7 @@
 var readline = require('readline');
 var Stream = require('stream');
 
-var Line = function (options) {
+var Line = function Line (options) {
     /**/
     // TODO make some of these private
     this.output = options.output;
@@ -22,6 +22,12 @@ var Line = function (options) {
 //    iface.on('line')
 };
 
+Line.prototype.setPrompt = function(prompt) {
+    this._prompt = prompt;
+    this._promptLength = prompt.length;
+//    this._refreshLine();
+};
+
 Interface.prototype.prompt = function(preserveCursor) {
     if (this.paused) this.resume();
     if (this.terminal) {
@@ -35,6 +41,7 @@ Interface.prototype.prompt = function(preserveCursor) {
 Line.prototype.accept = function () {
     var line = this.line;
     this.clearLine();
+//    console.log('!!!', this.setPrompt);
     this.acceptCB.call(this, line);
 };
 
