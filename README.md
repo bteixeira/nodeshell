@@ -1,10 +1,12 @@
 nodeshell
 =========
 
-What do you do when you get tired of your shell?
+What do you do when you get tired of your shell?  
 That's right, you make your own.
 
-This project was born out of some disappointment with the customization possibilities of nowadays shells.
+
+
+This project was born out of some disappointment with the customization possibilities of nowadays shells.  
 Shells like Bash and Zshell work quite well and are armed with a bunch of features, but they are really hard to customize if you're not up for reading epic size documentation and learn all the quirks and corner cases of weird mini-languages created haphazardly for a single purpose.
 <!--After reading the whole User Guide on Zsh, I still felt like I didn't really know how to start making my own customization if I wasn't willing to just accept what Oh-My-Zsh provides out of the box.-->
 
@@ -18,3 +20,7 @@ So I guess it's up to me.-->
 
 <!--We'll start simple and just have a command line that takes usual commands as well as inline JS.
 Then we'll go crazy.-->
+
+**Need to define:**
+* Global API (objects and methods available)
+* Built-ins
