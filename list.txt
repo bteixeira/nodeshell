@@ -52,3 +52,28 @@ Environment
         a set of objects that allow overriding behaviour and attaching event handlers; even the parser should be
         available in this way. Make it such that you can override or extend parts of the parsing, or all of it together
         (dangerous, but let's think about it later)
+
+Builtins
+    cd
+    'source'
+        (could be a command or something like '.' ?)
+    alias
+        for compat
+    bg, fg, jobs
+        let's think about it later
+    exit
+    mkdir ?
+        isn't this in the path?
+    print/echo
+        compat?
+    kill
+        useful, might be the first thing you remember in an emergency
+    read?
+        useful?
+    umask?
+    whish?
+    where?
+    help?
+        never hurts
+
+Should we include most of the built ins from bash and zsh to allow maximum compat? should there be some compatibility mode that emulated them? this could probably be achieved easily.
