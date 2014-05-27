@@ -6,8 +6,8 @@ var Parser = function (options) {
 //    console.log('what is this?', this);
 };
 
-Parser.prototype.exec = function (line) {
-    return runLine(line, this.commands);
+Parser.prototype.exec = function (line, cb) {
+    return runLine(line, this.commands, cb);
 };
 
 var ctx = vm.createContext({
@@ -15,7 +15,7 @@ var ctx = vm.createContext({
 });
 
 /***** COPIED FROM PROTO *****/
-function runLine (line, commands) {
+function runLine (line, commands, cb) {
     var match = line.match(/^[a-zA-Z_0-9\-\.]+\s*/);
     var cmd;
     if (match && (cmd = commands.getCmd(match[0].trim()))) {
@@ -34,7 +34,7 @@ function runLine (line, commands) {
         });
         console.log('Transformed these args');
         console.log(util.inspect(args));
-        return cmd.apply(null, args);
+        return cmd.apply(null, args, cb);
     } else {
         //run whole line as JS
 //        return eval(line);

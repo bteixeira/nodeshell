@@ -18,13 +18,14 @@ var line = new Line({
     output: process.stdout,
     acceptCB: function (line) {
         try {
-            var result = parser.exec(line);
+            var result = parser.exec(line, function () {
+                this.setPrompt(getPrompt());
+                this._refreshLine();
+            });
             console.log(result);
         } catch (ex) {
             console.error(ex.toString());
         }
-        this.setPrompt(getPrompt());
-        this._refreshLine();
     }
 });
 var parser = new Parser({

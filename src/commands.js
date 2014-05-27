@@ -49,10 +49,13 @@ function addCmd (file) {
 }
 
 function run (file, args) {
-    spawn(file, args, {
+    var child = spawn(file, args, {
         cwd: process.cwd(),
         env: process.env,
         stdio: 'inherit'
+    });
+    child.on('exit', function (status) {
+        cb(status);
     });
 }
 
