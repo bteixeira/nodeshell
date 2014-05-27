@@ -56,7 +56,7 @@ Environment
 Builtins
     cd
     'source'
-        (could be a command or something like '.' ?)
+        (could be a command or something like '.' ?) (or 'require' ^^)
     alias
         for compat
     bg, fg, jobs
