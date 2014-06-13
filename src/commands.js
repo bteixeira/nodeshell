@@ -3,93 +3,106 @@ var path = require('path');
 
 var spawn = require('child_process').spawn;
 
-var Commands = function () {
+var Commands = function (options) {
 
-};
+    var me = this;
 
-var commands = {
-    cd: cd,
-    stub: stub,
-    exit: exit,
-    all: all
-};
+//    me.cb = options.cb;
 
-var cache = {};
+    me.commands = {
+        cd: cd,
+        stub: stub,
+        exit: exit,
+        all: function (cb, args) {
+            console.log(Object.keys(me.commands));
+            cb();
+        }
+    };
 
-var paths = process.env.PATH.split(path.delimiter);
-paths.forEach(function (dir) {
-    console.log(dir);
-    var files;
-    try {
-        files = fs.readdirSync(dir);
-    } catch (ex) {
-        return;
-    }
-    files.forEach(function (file) {
-        file = path.resolve(dir, file);
-//        console.log('\t', file);
-        var stat;
+    me.cache = {};
+
+    me.paths = process.env.PATH.split(path.delimiter);
+    me.paths.forEach(function (dir) {
+        console.log(dir);
+        var files;
         try {
-            stat = fs.statSync(file);
+            files = fs.readdirSync(dir);
         } catch (ex) {
+            return;
         }
-        if (stat && stat.mode & 0111) { // test for *any* of the execute bits
-            addCmd(file);
-        }
+        files.forEach(function (file) {
+            file = path.resolve(dir, file);
+//          console.log('\t', file);
+            var stat;
+            try {
+                stat = fs.statSync(file);
+            } catch (ex) {
+            }
+            if (stat && stat.mode & 0111) { // test for *any* of the execute bits
+                me.addCmd(file);
+            }
+        });
     });
-});
+};
 
-function addCmd (file) {
+
+Commands.prototype.addCmd = function (file) {
     var name = path.basename(file);
 //    console.log('adding', file);
-    if (! (name in commands)) {
-        cache[name] = file;
-        commands[name] = makeCmd(file);
+    if (!(name in this.commands)) {
+        this.cache[name] = file;
+        this.commands[name] = makeCmd(file);
     }
-}
+};
 
-function run (file, args) {
+function run(file, args, cb) {
     var child = spawn(file, args, {
         cwd: process.cwd(),
         env: process.env,
         stdio: 'inherit'
     });
     child.on('exit', function (status) {
+//        this.cb(status);
         cb(status);
     });
 }
 
-function makeCmd (file) {
-    return function () {
+function makeCmd(file) {
+    return function (cb, args) {
 //        console.log('will now run', file);
-        run (file, Array.prototype.slice.call(arguments, 0));
+//        run(file, Array.prototype.slice.call(arguments, 0));
+        run(file, args, cb);
     }
 }
 
-function cd (dir) {
+function cd(cb, args) {
     //console.log ('changing to', dir);
-    return process.chdir(dir);
+    var result = process.chdir(args[0]);
+    cb(result);
 }
 
-function stub () {
+function stub(cb, args) {
     console.log('This is simply a stub command.');
-    console.log('You gave me these arguments:', arguments);
+    console.log('You gave me these arguments:', args);
+    cb();
 }
 
-function exit () {
+function exit() {
     process.exit();
 }
 
-function all () {
-    console.log(Object.keys(commands));
-}
-
-Commands.prototype.getCmd = function (cmd) {
-    return commands[cmd];
-};
+//Commands.prototype.getCmd = function (cmd) {
+//    return this.commands[cmd];
+//};
 
 Commands.prototype.isCmd = function (candidate) {
-    return !!this.getCmd(candidate);
+//    return !!this.getCmd(candidate);
+    return candidate in this.commands;
+};
+
+Commands.prototype.runCmd = function (cmd, args, cb) {
+//    return run(cmd, args, cb);
+    return this.commands[cmd](cb, args);
 };
 
 module.exports = Commands;

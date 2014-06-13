@@ -4,10 +4,11 @@ var vm = require('vm');
 var Parser = function (options) {
     this.commands = options.commands;
 //    console.log('what is this?', this);
+    this.cb = options.cb;
 };
 
-Parser.prototype.exec = function (line, cb) {
-    return runLine(line, this.commands, cb);
+Parser.prototype.exec = function (line) {
+    return runLine(line, this.commands, this.cb);
 };
 
 var ctx = vm.createContext({
@@ -17,8 +18,10 @@ var ctx = vm.createContext({
 /***** COPIED FROM PROTO *****/
 function runLine (line, commands, cb) {
     var match = line.match(/^[a-zA-Z_0-9\-\.]+\s*/);
+    var result;
     var cmd;
-    if (match && (cmd = commands.getCmd(match[0].trim()))) {
+    match && (cmd = match[0].trim());
+    if (match && commands.isCmd(cmd)) {
         // parse rest of line for JS expressions in parentheses, or literals
         var args = parseArguments(line, match[0].length);
         // run command with found arguments
@@ -26,7 +29,9 @@ function runLine (line, commands, cb) {
             try {
                 console.log('evaling', val);
                 //return eval(val);
-                return vm.runInContext(val, ctx);
+                result = vm.runInContext(val, ctx);
+                cb();
+                return result;
             } catch (e) {
                 console.log(val, 'is not JS', e.message);
                 return val;
@@ -34,11 +39,14 @@ function runLine (line, commands, cb) {
         });
         console.log('Transformed these args');
         console.log(util.inspect(args));
-        return cmd.apply(null, args, cb);
+//        return cmd.apply(null, args);
+        return commands.runCmd(cmd, args, cb);
     } else {
         //run whole line as JS
 //        return eval(line);
-        return vm.runInContext(line, ctx);
+        result =  vm.runInContext(line, ctx);
+        cb();
+        return result;
     }
 }
 
