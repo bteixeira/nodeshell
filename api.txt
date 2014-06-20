@@ -1,0 +1,17 @@
+[M] CommandSet
+
+    .getCmd(name)
+        returns Command or undefined
+
+    .addFile(filename)
+
+    .addDir(directory)
+        calls .addFile on all files
+
+    .addPath([path str])
+        if path is omitted, get it from environment
+
+    .addFun(cmdName, fun / {obj})
+
+    .ctor
+        adds all builtins (hardcoded)
