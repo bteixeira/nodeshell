@@ -1,8 +1,8 @@
 var Pointer = require(__dirname + '/linepointer');
-var TokenJS = require(__dirname + '/../ast/TokenJS');
-var TokenCMD = require(__dirname + '/../ast/TokenCMD');
-var TokenLiteral = require(__dirname + '/../ast/TokenLiteral');
-var TokenERR = require(__dirname + '/../ast/TokenERR');
+var TokenJS = require(__dirname + '/../ast/NodeJS');
+var TokenCMD = require(__dirname + '/../ast/NodeCMD');
+var TokenLiteral = require(__dirname + '/../ast/NodeLiteral');
+var TokenERR = require(__dirname + '/../ast/NodeERR');
 
 var Parser = function (commandSet) {
     this.commandSet = commandSet;
