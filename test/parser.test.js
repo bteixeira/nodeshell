@@ -1,6 +1,6 @@
 var assert = require('assert');
-var Parser = require(__dirname + '/../src/ast/parser');
-var Pointer = require(__dirname + '/../src/ast/linepointer');
+var Parser = require(__dirname + '/../src/parser/parser');
+var Pointer = require(__dirname + '/../src/parser/linepointer');
 var commandsStub = require(__dirname + '/../test/commandsStub');
 
 describe('Parser', function () {

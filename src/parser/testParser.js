@@ -1,7 +1,7 @@
 var Parser = require(__dirname + '/parser');
-var Printer = require(__dirname + '/visitorPrinter');
+var Printer = require(__dirname + '/../ast/visitorPrinter');
 
-var commandsStub = require(__dirname + '/../test/commandsStub');
+var commandsStub = require(__dirname + '/../../test/commandsStub');
 
 var parser = new Parser(commandsStub);
 var printer = new Printer();
