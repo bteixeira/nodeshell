@@ -1,6 +1,6 @@
 var TokenCMD = function (name, args) {
     this.name = name;
-    this.args = args;
+    this.args = args || [];
 };
 
 TokenCMD.prototype.type = 'CMD';

@@ -1,32 +1,38 @@
 var Commands = require(__dirname + '/commandsStub');
 var Pointer = require(__dirname + '/linepointer');
 var TokenJS = require(__dirname + '/TokenJS');
-var TokenCMD = require(__dirname + '/TokenJS');
-var TokenLiteral = require(__dirname + '/TokenJS');
+var TokenCMD = require(__dirname + '/TokenCMD');
+var TokenLiteral = require(__dirname + '/TokenLiteral');
+var TokenERR = require(__dirname + '/TokenERR');
 
 var Parser = function () {
-
 };
 
 Parser.prototype.parse = function (input) {
 
     var pointer = new Pointer(input);
-    pointer.skipWS();
-    pointer.mark();
-    pointer.skipNonWS();
-
-    var first = pointer.getMarked();
     var token;
 
-    if (Commands.isCmd(first)) {
-        token = new TokenCMD(first);
+    try {
         pointer.skipWS();
-        while (pointer.hasMore()) {
-            token.addArg(this.parseArg());
+        pointer.setMark();
+        pointer.skipNonWS();
+
+        var first = pointer.getMarked();
+
+
+        if (Commands.isCmd(first)) {
+            token = new TokenCMD(first);
             pointer.skipWS();
+            while (pointer.hasMore()) {
+                token.addArg(this.parseArg(pointer));
+                pointer.skipWS();
+            }
+        } else {
+            token = new TokenJS(input.trim());
         }
-    } else {
-        token = new TokenJS(input.trim());
+    } catch (ex) {
+        token = new TokenERR(ex, pointer);
     }
 
     return token;
@@ -37,18 +43,21 @@ Parser.prototype.parseArg = function (pointer) {
 
     if (c === '(') { // JS
         pointer.next();
-        pointer.mark();
-        //...
+        pointer.setMark();
         this.skipJS(pointer); // will set cursor at matching ')'
         var code = pointer.getMarked().trim();
         pointer.next();
         return new TokenJS(code);
     } else {
-        pointer.mark();
+        pointer.setMark();
         pointer.skipNonWS();
         return new TokenLiteral(pointer.getMarked());
     }
 };
+
+// TODO QUALIFY THESE AS EXPORTS SO THAT EXTERNAL CODE CAN REFERENCE THEM
+var NON_MATCHING = 'Found closing brace without matching opening brace';
+var UNTERMINATED = 'Unterminated JS (opening brace without matching closing brace)'; // TODO LET TOP-LEVEL KNOW WHICH BRACE AND WHERE
 
 Parser.prototype.skipJS = function (pointer) {
 
@@ -62,18 +71,33 @@ Parser.prototype.skipJS = function (pointer) {
             if (stack.slice(-1)[0] === '(') {
                 stack.pop();
             } else if (!stack.length) {
+                pointer.prev();
                 return;
+            } else {
+                throw NON_MATCHING;
             }
-        } else if (c === '}' && stack.slice(-1)[0] === '{') {
-            stack.pop();
-        } else if (c === ']' && stack.slice(-1)[0] === '[') {
-            stack.pop();
+        } else if (c === '}') {
+            if (stack.slice(-1)[0] === '{') {
+                stack.pop();
+            } else {
+                throw NON_MATCHING;
+            }
+        } else if (c === ']') {
+            if (stack.slice(-1)[0] === '[') {
+                stack.pop();
+            } else {
+                throw NON_MATCHING;
+            }
         } else if (c === '"') {
-            pointer.skipTo('"');
+            pointer.skipTo('"'); // TODO ERROR QUOTE COULD BE ESCAPED
             pointer.next();
         } else if (c === "'") {
-            pointer.skipTo("'");
+            pointer.skipTo("'"); // TODO ERROR QUOTE COULD BE ESCAPED
             pointer.next();
         }
     }
+
+    throw UNTERMINATED;
 };
+
+module.exports = Parser;

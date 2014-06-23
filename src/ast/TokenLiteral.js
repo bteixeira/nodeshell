@@ -4,4 +4,4 @@ var TokenLiteral = function (text) {
 
 TokenLiteral.prototype.type = 'Literal';
 
-TokenLiteral.exports = TokenLiteral;
+module.exports = TokenLiteral;

@@ -15,19 +15,21 @@ VisitorPrinter.prototype.visitJS = function (token) {
 };
 
 VisitorPrinter.prototype.visitCMD = function (token) {
-    this.log('CMD: ' + token.name);
-    this.log('(args follow)');
+    this.log('CMD (' + token.args.length + ' args): ' + token.name);
     this.indent += 1;
     var me = this;
-    token.args.each(function (arg) {
+    token.args.forEach(function (arg) {
         me.visit(arg);
     });
     this.indent -= 1;
-    this.log('(args done)');
 };
 
 VisitorPrinter.prototype.visitLiteral = function (token) {
     this.log('LITERAL: ' + token.text);
+};
+
+VisitorPrinter.prototype.visitERR = function (token) {
+    this.log('ERROR: ' + token.msg + ', at column ' + token.pos + ' "' + token.char + '"');
 };
 
 VisitorPrinter.prototype.visit = function (token) {

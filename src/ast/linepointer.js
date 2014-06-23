@@ -6,7 +6,13 @@ var Pointer = module.exports = function (line) {
 
 Pointer.prototype.next = function () {
     var c = this.line.charAt(this.pos);
-    this.pos = Math.max(pos + 1, this.line.length);
+    this.pos = Math.min(this.pos + 1, this.line.length);
+    return c;
+};
+
+Pointer.prototype.prev = function () {
+    var c = this.line.charAt(this.pos);
+    this.pos = Math.max(this.pos - 1, 0);
     return c;
 };
 
@@ -19,7 +25,7 @@ Pointer.prototype.skipTo = function (re) {
         re = new RegExp('[' + re + ']');
     }
     var c = this.line[this.pos];
-    while (!re.test(c)) {
+    while (!re.test(c) && this.pos < this.line.length) {
         this.pos += 1;
         c = this.line[this.pos];
     }
@@ -33,7 +39,7 @@ Pointer.prototype.skipNonWS = function () {
     this.skipTo(/\s/);
 };
 
-Pointer.prototype.mark = function () {
+Pointer.prototype.setMark = function () {
     this.mark = this.pos;
 };
 
