@@ -1,6 +1,9 @@
 var Parser = require(__dirname + '/parser');
-var parser = new Parser();
 var Printer = require(__dirname + '/visitorPrinter');
+
+var commandsStub = require(__dirname + '/../test/commandsStub');
+
+var parser = new Parser(commandsStub);
 var printer = new Printer();
 
 process.stdin.on('data', function (line) {

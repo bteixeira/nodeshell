@@ -1,11 +1,11 @@
-var Commands = require(__dirname + '/commandsStub');
 var Pointer = require(__dirname + '/linepointer');
 var TokenJS = require(__dirname + '/TokenJS');
 var TokenCMD = require(__dirname + '/TokenCMD');
 var TokenLiteral = require(__dirname + '/TokenLiteral');
 var TokenERR = require(__dirname + '/TokenERR');
 
-var Parser = function () {
+var Parser = function (commandSet) {
+    this.commandSet = commandSet;
 };
 
 Parser.prototype.parse = function (input) {
@@ -21,7 +21,7 @@ Parser.prototype.parse = function (input) {
         var first = pointer.getMarked();
 
 
-        if (Commands.isCmd(first)) {
+        if (this.commandSet.isCmd(first)) {
             token = new TokenCMD(first);
             pointer.skipWS();
             while (pointer.hasMore()) {

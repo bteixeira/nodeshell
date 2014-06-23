@@ -1,10 +1,11 @@
 var assert = require('assert');
 var Parser = require(__dirname + '/../src/ast/parser');
 var Pointer = require(__dirname + '/../src/ast/linepointer');
+var commandsStub = require(__dirname + '/../test/commandsStub');
 
 describe('Parser', function () {
 
-    var parser = new Parser();
+    var parser = new Parser(commandsStub);
 
     it('skips JS [(getThing()) anotherArg]', function () {
         var pointer = new Pointer('(getThing()) anotherArg');
