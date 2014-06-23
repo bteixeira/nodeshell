@@ -1,6 +1,10 @@
+var Visitor = require(__dirname + '/../visitor');
+
 var VisitorPrinter = function () {
     this.indent = 0;
 };
+
+VisitorPrinter.prototype = new Visitor();
 
 function print(indent, msg) {
     console.log(new Array(indent + 1).join('\t') + msg);
@@ -30,12 +34,6 @@ VisitorPrinter.prototype.visitLiteral = function (token) {
 
 VisitorPrinter.prototype.visitERR = function (token) {
     this.log('ERROR: ' + token.msg + ', at column ' + token.pos + ' "' + token.char + '"');
-};
-
-VisitorPrinter.prototype.visit = function (token) {
-    var methodName = 'visit' + token.type;
-    var method = this[methodName];
-    method.call(this, token);
 };
 
 module.exports = VisitorPrinter;
