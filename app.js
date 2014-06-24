@@ -1,10 +1,11 @@
-
+var vm = require('vm');
 var readline = require('readline');
 var KeyHandler = require(__dirname + '/src/keyhandler');
 var Commands = require(__dirname + '/src/commands');
 var commands = new Commands();
-var Parser = require(__dirname + '/src/parser');
+var Parser = require(__dirname + '/src/parser/parser');
 var Line = require(__dirname + '/src/line');
+var Executer = require(__dirname + '/src/visitorExecuter');
 
 var getPrompt = function () {
     /* Due to apparent bug in readline, if you want a new line before the prompt
@@ -14,23 +15,36 @@ var getPrompt = function () {
     return process.cwd() + '$ ';
 };
 
+var ctx = vm.createContext({
+    process: process
+});
+
+var executer = new Executer(commands, ctx, function (result) {
+    console.log(result);
+    line.setPrompt(getPrompt());
+    line._refreshLine();
+});
+
 var line = new Line({
     output: process.stdout,
     acceptCB: function (line) {
         try {
-            var result = parser.exec(line);
-            console.log(result);
+//            var result = parser.exec(line);
+            var ast = parser.parse(line);
+            executer.visit(ast);
+
         } catch (ex) {
             console.error(ex.toString());
         }
     }
 });
 var parser = new Parser({
-    commands: commands,
-    cb: function () {
-        line.setPrompt(getPrompt());
-        line._refreshLine();
-    }
+    commands: commands
+//    ,
+//    cb: function () {
+//        line.setPrompt(getPrompt());
+//        line._refreshLine();
+//    }
 });
 var stdin = process.stdin;
 

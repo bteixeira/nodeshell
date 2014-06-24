@@ -20,7 +20,6 @@ Parser.prototype.parse = function (input) {
 
         var first = pointer.getMarked();
 
-
         if (this.commandSet.isCmd(first)) {
             token = new TokenCMD(first);
             pointer.skipWS();

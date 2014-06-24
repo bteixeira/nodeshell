@@ -1,7 +1,10 @@
+var vm = require('vm');
 var Visitor = require(__dirname + '/visitor');
 
-var VisitorExecuter = function (commandSet) {
+var VisitorExecuter = function (commandSet, context, callback) {
     this.commandSet = commandSet;
+    this.context = context;
+    this.callback = callback;
 };
 
 VisitorExecuter.prototype = new Visitor();
@@ -9,6 +12,7 @@ VisitorExecuter.prototype = new Visitor();
 VisitorPrinter.prototype.visitJS = function (token) {
     var fun = new Function (token.code);
     // TODO Run JS
+    result = vm.runInContext(val, ctx);
 };
 
 VisitorPrinter.prototype.visitCMD = function (token) {
