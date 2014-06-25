@@ -1,4 +1,5 @@
 var vm = require('vm');
+var util = require('util');
 var readline = require('readline');
 var KeyHandler = require(__dirname + '/src/keyhandler');
 var Commands = require(__dirname + '/src/commands');
@@ -19,33 +20,36 @@ var ctx = vm.createContext({
     process: process
 });
 
-var executer = new Executer(commands, ctx, function (result) {
+function doneCB (result) {
     console.log(result);
     line.setPrompt(getPrompt());
     line._refreshLine();
-});
+}
+
+var executer = new Executer(commands, ctx);
 
 var line = new Line({
     output: process.stdout,
     acceptCB: function (line) {
-        try {
+//        try {
 //            var result = parser.exec(line);
             var ast = parser.parse(line);
-            executer.visit(ast);
+            executer.visit(ast, doneCB);
 
-        } catch (ex) {
-            console.error(ex.toString());
-        }
+//        } catch (ex) {
+//            console.error(ex.toString());
+//            doneCB(util.inspect(ex));
+//        }
     }
 });
-var parser = new Parser({
-    commands: commands
+var parser = new Parser(
+    commands
 //    ,
 //    cb: function () {
 //        line.setPrompt(getPrompt());
 //        line._refreshLine();
 //    }
-});
+);
 var stdin = process.stdin;
 
 readline.emitKeypressEvents(stdin);

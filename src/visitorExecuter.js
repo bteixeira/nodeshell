@@ -1,36 +1,36 @@
 var vm = require('vm');
 var Visitor = require(__dirname + '/visitor');
 
-var VisitorExecuter = function (commandSet, context, callback) {
+var VisitorExecuter = function (commandSet, context) {
     this.commandSet = commandSet;
     this.context = context;
-    this.callback = callback;
 };
 
 VisitorExecuter.prototype = new Visitor();
 
-VisitorPrinter.prototype.visitJS = function (token) {
+VisitorExecuter.prototype.visitJS = function (token, callback) {
     var fun = new Function (token.code);
-    // TODO Run JS
     result = vm.runInContext(val, ctx);
+    callback(result);
 };
 
-VisitorPrinter.prototype.visitCMD = function (token) {
-    var cmd = this.commandSet.getCmd(token.name);
+VisitorExecuter.prototype.visitCMD = function (token, callback) {
+    var me = this;
     var argValues = [];
     token.args.forEach(function (arg) {
-        argValues.push(this.visit(arg));
+        me.visit(arg, function (result) {
+            argValues.push(result); // FIXME This is not very generic, right now I know that all calls other than CMD are sync
+        })
     });
-    cmd.run(argValues); // TODO CALLBACK??
+    this.commandSet.runCmd(token.name, argValues, callback);
 };
 
-VisitorPrinter.prototype.visitLiteral = function (token) {
-    return token.text;
+VisitorExecuter.prototype.visitLiteral = function (token, callback) {
+    callback(token.text);
 };
 
-VisitorPrinter.prototype.visitERR = function (token) {
-    console.log('ERROR: ' + token.msg + ', at column ' + token.pos + ' "' + token.char + '"');
-    // TODO RETURN OR CALLBACK
+VisitorExecuter.prototype.visitERR = function (token) {
+    throw 'ERROR: ' + token.msg + ', at column ' + token.pos + ' "' + token.char + '"';
 };
 
 module.exports = VisitorExecuter;

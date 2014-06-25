@@ -23,7 +23,7 @@ var Commands = function (options) {
 
     me.paths = process.env.PATH.split(path.delimiter);
     me.paths.forEach(function (dir) {
-        console.log(dir);
+//        console.log(dir);
         var files;
         try {
             files = fs.readdirSync(dir);
