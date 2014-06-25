@@ -6,4 +6,8 @@ var NodeERR = function (msg, pointer) {
 
 NodeERR.prototype.type = 'ERR';
 
+NodeERR.prototype.toString = function () {
+    return this.msg + ', at column ' + this.pos + ' "' + this.char + '"';
+};
+
 module.exports = NodeERR;

@@ -7,6 +7,8 @@ var commands = new Commands();
 var Parser = require(__dirname + '/src/parser/parser');
 var Line = require(__dirname + '/src/line');
 var Executer = require(__dirname + '/src/visitorExecuter');
+var ErrorWrapper = require(__dirname + '/src/ErrorWrapper');
+require('colors');
 
 var getPrompt = function () {
     /* Due to apparent bug in readline, if you want a new line before the prompt
@@ -34,7 +36,11 @@ var extend = util._extend;
 var ctx = vm.createContext(permanent);
 
 var inspect = function (what) {
-    return util.inspect.call(this, what, {colors: true});
+    if (what instanceof ErrorWrapper) {
+        return what.toString().red;
+    } else {
+        return util.inspect.call(this, what, {colors: true});
+    }
 };
 
 function doneCB (result) {
