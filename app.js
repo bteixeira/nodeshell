@@ -20,8 +20,12 @@ var ctx = vm.createContext({
     process: process
 });
 
+var inspect = function (what) {
+    return util.inspect.call(this, what, {colors: true});
+};
+
 function doneCB (result) {
-    console.log(result);
+    console.log(inspect(result));
     line.setPrompt(getPrompt());
     line._refreshLine();
 }
