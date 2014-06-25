@@ -4,20 +4,21 @@ var KeyHandler = function (options) {
 };
 
 KeyHandler.prototype.handleKey = function (ch, key) {
-//    if (key && (key.name === 'enter' || key.name === 'return')) {
-//        this.line.accept();
-//    } else if (ch) {
-//        this.line.insert(ch);
-//    }
     _ttyWrite.call(this.line, ch, key);
 };
 
 module.exports = KeyHandler;
 
 
-
 /* Rip off from readline */
 var _ttyWrite = function(s, key) {
+
+    var me = this;
+    function notImplemented () {
+        console.log('NO HISTORY OR AUTOCOMPLETE IMPLEMENTED YET');
+        me._refreshLine();
+    }
+
     key = key || {};
 
     // Ignore escape key - Fixes #2876
@@ -94,11 +95,13 @@ var _ttyWrite = function(s, key) {
             break;
 
         case 'n': // next history item
-            this._historyNext();
+//            this._historyNext();
+            notImplemented();
             break;
 
         case 'p': // previous history item
-            this._historyPrev();
+//            this._historyPrev();
+            notImplemented();
             break;
 
         case 'z':
@@ -129,7 +132,7 @@ var _ttyWrite = function(s, key) {
 
         case 'w': // delete backwards to a word boundary
         case 'backspace':
-            this._deleteWordLeft();
+            this.deleteWordLeft();
             break;
 
         case 'delete': // delete forward to a word boundary
@@ -137,11 +140,11 @@ var _ttyWrite = function(s, key) {
             break;
 
         case 'left':
-            this._wordLeft();
+            this.moveWordLeft();
             break;
 
         case 'right':
-            this._wordRight();
+            this.moveWordRight();
             break;
         }
 
@@ -150,11 +153,11 @@ var _ttyWrite = function(s, key) {
 
         switch (key.name) {
         case 'b': // backward word
-            this._wordLeft();
+            this.moveWordLeft();
             break;
 
         case 'f': // forward word
-            this._wordRight();
+            this.moveWordRight();
             break;
 
         case 'd': // delete forward word
@@ -163,7 +166,7 @@ var _ttyWrite = function(s, key) {
             break;
 
         case 'backspace': // delete backwards to a word boundary
-            this._deleteWordLeft();
+            this.deleteWordLeft();
             break;
         }
 
@@ -192,11 +195,11 @@ var _ttyWrite = function(s, key) {
             break;
 
         case 'delete':
-            this._deleteRight();
+            this.deleteRight();
             break;
 
         case 'tab': // tab completion
-            this._tabComplete();
+            notImplemented();
             break;
 
         case 'left':
@@ -216,11 +219,11 @@ var _ttyWrite = function(s, key) {
             break;
 
         case 'up':
-            this._historyPrev();
+            notImplemented();
             break;
 
         case 'down':
-            this._historyNext();
+            notImplemented();
             break;
 
         default:

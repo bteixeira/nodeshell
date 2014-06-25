@@ -1,8 +1,7 @@
-
 var readline = require('readline');
 var Stream = require('stream');
 
-var Line = function Line (options) {
+var Line = function Line(options) {
     /**/
     // TODO make some of these private
     this.output = options.output;
@@ -22,16 +21,20 @@ var Line = function Line (options) {
 //    iface.on('line')
 };
 
-Line.prototype.setPrompt = function(prompt) {
+Line.prototype.setPrompt = function (prompt) {
     this._prompt = prompt;
     this._promptLength = prompt.length;
 //    this._refreshLine();
 };
 
-Interface.prototype.prompt = function(preserveCursor) {
-    if (this.paused) this.resume();
+Interface.prototype.prompt = function (preserveCursor) {
+    if (this.paused) {
+        this.resume();
+    }
     if (this.terminal) {
-        if (!preserveCursor) this.cursor = 0;
+        if (!preserveCursor) {
+            this.cursor = 0;
+        }
         this._refreshLine();
     } else {
         this.output.write(this._prompt);
@@ -48,11 +51,11 @@ Line.prototype.accept = function () {
 Line.prototype.insert = function (str/*, pos*/) {
     var c = str;
     /*
-    this.line += str;
-    this.output.write(str);
-};
-Interface.prototype._insertString = function(c) {
-*/
+     this.line += str;
+     this.output.write(str);
+     };
+     Interface.prototype._insertString = function(c) {
+     */
     //BUG: Problem when adding tabs with following content.
     //     Perhaps the bug is in _refreshLine(). Not sure.
     //     A hack would be to insert spaces instead of literal '\t'.
@@ -76,18 +79,41 @@ Interface.prototype._insertString = function(c) {
     }
 };
 
-Line.prototype.moveLeft = function () {};
+Line.prototype.moveLeft = function () {
+};
 
-Line.prototype.moveRight = function () {};
+Line.prototype.moveWordLeft = function () {
+    if (this.cursor > 0) {
+        var leading = this.line.slice(0, this.cursor);
+        var match = leading.match(/([^\w\s]+|\w+|)\s*$/);
+        this._moveCursor(-match[0].length);
+    }
+};
+
+Line.prototype.moveRight = function () {
+};
+
+Line.prototype.moveWordRight = function () {
+    if (this.cursor < this.line.length) {
+        var trailing = this.line.slice(this.cursor);
+        var match = trailing.match(/^(\s+|\W+|\w+)\s*/);
+        this._moveCursor(match[0].length);
+    }
+};
+
 //Interface.prototype._moveCursor = function(dx) {
-Line.prototype._moveCursor = function(dx) {
+Line.prototype._moveCursor = function (dx) {
     var oldcursor = this.cursor;
     var oldPos = this._getCursorPos();
     this.cursor += dx;
 
     // bounds check
-    if (this.cursor < 0) this.cursor = 0;
-    if (this.cursor > this.line.length) this.cursor = this.line.length;
+    if (this.cursor < 0) {
+        this.cursor = 0;
+    }
+    if (this.cursor > this.line.length) {
+        this.cursor = this.line.length;
+    }
 
     var newPos = this._getCursorPos();
 
@@ -103,12 +129,12 @@ Line.prototype._moveCursor = function(dx) {
 
 Line.prototype.deleteLeft = function () {
     /*
-    this.moveLeft();
-    this.insert(' ');
-    this.moveRight();
-};
-Interface.prototype._deleteLeft = function() {
-*/
+     this.moveLeft();
+     this.insert(' ');
+     this.moveRight();
+     };
+     Interface.prototype._deleteLeft = function() {
+     */
     if (this.cursor > 0 && this.line.length > 0) {
         this.line = this.line.slice(0, this.cursor - 1) +
             this.line.slice(this.cursor, this.line.length);
@@ -118,51 +144,41 @@ Interface.prototype._deleteLeft = function() {
     }
 };
 
-Line.prototype.deleteRight = function () {};
-
-Line.prototype.deleteWordLeft = function () {};
-
-Line.prototype.deleteWordRight = function () {};
-
-Line.prototype.deleteLineLeft = function () {};
-
-Line.prototype.deleteLineRight = function () {};
-
-Line.prototype.deleteLine = function () {};
-
-Line.prototype.getLine = function () {
-    return this.line;
-};
-
-Interface.prototype._wordLeft = function() {
-    if (this.cursor > 0) {
-        var leading = this.line.slice(0, this.cursor);
-        var match = leading.match(/([^\w\s]+|\w+|)\s*$/);
-        this._moveCursor(-match[0].length);
-    }
-};
-
-
-Interface.prototype._wordRight = function() {
-    if (this.cursor < this.line.length) {
-        var trailing = this.line.slice(this.cursor);
-        var match = trailing.match(/^(\s+|\W+|\w+)\s*/);
-        this._moveCursor(match[0].length);
-    }
-};
-
-
-
-
-
-Interface.prototype._deleteRight = function() {
+Line.prototype.deleteRight = function () {
     this.line = this.line.slice(0, this.cursor) +
         this.line.slice(this.cursor + 1, this.line.length);
     this._refreshLine();
 };
 
+Line.prototype.deleteWordLeft = function () {
+    if (this.cursor > 0) {
+        var leading = this.line.slice(0, this.cursor);
+        var match = leading.match(/([^\w\s]+|\w+|)\s*$/);
+        leading = leading.slice(0, leading.length - match[0].length);
+        this.line = leading + this.line.slice(this.cursor, this.line.length);
+        this.cursor = leading.length;
+        this._refreshLine();
+    }
+};
 
-Interface.prototype._deleteWordLeft = function() {
+Line.prototype.deleteWordRight = function () {
+};
+
+Line.prototype.deleteLineLeft = function () {
+};
+
+Line.prototype.deleteLineRight = function () {
+};
+
+Line.prototype.deleteLine = function () {
+};
+
+Line.prototype.getLine = function () {
+    return this.line;
+};
+
+
+Interface.prototype._deleteWordLeft = function () {
     if (this.cursor > 0) {
         var leading = this.line.slice(0, this.cursor);
         var match = leading.match(/([^\w\s]+|\w+|)\s*$/);
@@ -174,7 +190,7 @@ Interface.prototype._deleteWordLeft = function() {
 };
 
 
-Interface.prototype._deleteWordRight = function() {
+Interface.prototype._deleteWordRight = function () {
     if (this.cursor < this.line.length) {
         var trailing = this.line.slice(this.cursor);
         var match = trailing.match(/^(\s+|\W+|\w+)\s*/);
@@ -185,21 +201,21 @@ Interface.prototype._deleteWordRight = function() {
 };
 
 
-Interface.prototype._deleteLineLeft = function() {
+Interface.prototype._deleteLineLeft = function () {
     this.line = this.line.slice(this.cursor);
     this.cursor = 0;
     this._refreshLine();
 };
 
 
-Interface.prototype._deleteLineRight = function() {
+Interface.prototype._deleteLineRight = function () {
     this.line = this.line.slice(0, this.cursor);
     this._refreshLine();
 };
 
 
 //Interface.prototype.clearLine = function() {
-Line.prototype.clearLine = function() {
+Line.prototype.clearLine = function () {
     this._moveCursor(+Infinity);
     this.output.write('\r\n');
     this.line = '';
@@ -216,10 +232,8 @@ Line.prototype.clearLine = function() {
 module.exports = Line;
 
 
-
-
 //Interface.prototype._refreshLine = function() {
-Line.prototype._refreshLine = function() {
+Line.prototype._refreshLine = function () {
     var columns = this.columns;
 
     // line length
@@ -262,7 +276,7 @@ Line.prototype._refreshLine = function() {
     this.prevRows = cursorPos.rows;
 };
 //Interface.prototype._getCursorPos = function() {
-Line.prototype._getCursorPos = function() {
+Line.prototype._getCursorPos = function () {
 //    var columns = this.columns;
     var columns = this.output.columns;
 //    console.log(columns);
@@ -332,7 +346,7 @@ var inherits = require('util').inherits;
 var EventEmitter = require('events').EventEmitter;
 
 
-exports.createInterface = function(input, output, completer, terminal) {
+exports.createInterface = function (input, output, completer, terminal) {
     var rl;
     if (arguments.length === 1) {
         rl = new Interface(input);
@@ -360,7 +374,9 @@ function Interface(input, output, completer, terminal) {
         input = input.input;
     }
 
-    completer = completer || function() { return []; };
+    completer = completer || function () {
+        return [];
+    };
 
     if (typeof completer !== 'function') {
         throw new TypeError('Argument \'completer\' must be a function');
@@ -378,7 +394,7 @@ function Interface(input, output, completer, terminal) {
     this.input = input;
 
     // Check arity, 2 - for async, 1 for sync
-    this.completer = completer.length === 2 ? completer : function(v, callback) {
+    this.completer = completer.length === 2 ? completer : function (v, callback) {
         callback(null, completer(v));
     };
 
@@ -405,7 +421,7 @@ function Interface(input, output, completer, terminal) {
     if (!this.terminal) {
         input.on('data', ondata);
         input.on('end', onend);
-        self.once('close', function() {
+        self.once('close', function () {
             input.removeListener('data', ondata);
             input.removeListener('end', onend);
         });
@@ -432,7 +448,7 @@ function Interface(input, output, completer, terminal) {
         this.historyIndex = -1;
 
         output.on('resize', onresize);
-        self.once('close', function() {
+        self.once('close', function () {
             input.removeListener('keypress', onkeypress);
             output.removeListener('resize', onresize);
         });
@@ -443,11 +459,11 @@ function Interface(input, output, completer, terminal) {
 
 inherits(Interface, EventEmitter);
 
-Interface.prototype.__defineGetter__('columns', function() {
+Interface.prototype.__defineGetter__('columns', function () {
     return this.output.columns || Infinity;
 });
 
-Interface.prototype.setPrompt = function(prompt, length) {
+Interface.prototype.setPrompt = function (prompt, length) {
     this._prompt = prompt;
     if (length) {
         this._promptLength = length;
@@ -459,17 +475,21 @@ Interface.prototype.setPrompt = function(prompt, length) {
 };
 
 
-Interface.prototype._setRawMode = function(mode) {
+Interface.prototype._setRawMode = function (mode) {
     if (typeof this.input.setRawMode === 'function') {
         return this.input.setRawMode(mode);
     }
 };
 
 
-Interface.prototype.prompt = function(preserveCursor) {
-    if (this.paused) this.resume();
+Interface.prototype.prompt = function (preserveCursor) {
+    if (this.paused) {
+        this.resume();
+    }
     if (this.terminal) {
-        if (!preserveCursor) this.cursor = 0;
+        if (!preserveCursor) {
+            this.cursor = 0;
+        }
         this._refreshLine();
     } else {
         this.output.write(this._prompt);
@@ -477,7 +497,7 @@ Interface.prototype.prompt = function(preserveCursor) {
 };
 
 
-Interface.prototype.question = function(query, cb) {
+Interface.prototype.question = function (query, cb) {
     if (typeof cb === 'function') {
         if (this._questionCallback) {
             this.prompt();
@@ -491,7 +511,7 @@ Interface.prototype.question = function(query, cb) {
 };
 
 
-Interface.prototype._onLine = function(line) {
+Interface.prototype._onLine = function (line) {
     if (this._questionCallback) {
         var cb = this._questionCallback;
         this._questionCallback = null;
@@ -503,14 +523,18 @@ Interface.prototype._onLine = function(line) {
 };
 
 
-Interface.prototype._addHistory = function() {
-    if (this.line.length === 0) return '';
+Interface.prototype._addHistory = function () {
+    if (this.line.length === 0) {
+        return '';
+    }
 
     if (this.history.length === 0 || this.history[0] !== this.line) {
         this.history.unshift(this.line);
 
         // Only store so many
-        if (this.history.length > kHistorySize) this.history.pop();
+        if (this.history.length > kHistorySize) {
+            this.history.pop();
+        }
     }
 
     this.historyIndex = -1;
@@ -518,7 +542,7 @@ Interface.prototype._addHistory = function() {
 };
 
 
-Interface.prototype._refreshLine = function() {
+Interface.prototype._refreshLine = function () {
     var columns = this.columns;
 
     // line length
@@ -561,8 +585,10 @@ Interface.prototype._refreshLine = function() {
 };
 
 
-Interface.prototype.close = function() {
-    if (this.closed) return;
+Interface.prototype.close = function () {
+    if (this.closed) {
+        return;
+    }
     this.pause();
     if (this.terminal) {
         this._setRawMode(false);
@@ -572,30 +598,36 @@ Interface.prototype.close = function() {
 };
 
 
-Interface.prototype.pause = function() {
-    if (this.paused) return;
+Interface.prototype.pause = function () {
+    if (this.paused) {
+        return;
+    }
     this.input.pause();
     this.paused = true;
     this.emit('pause');
 };
 
 
-Interface.prototype.resume = function() {
-    if (!this.paused) return;
+Interface.prototype.resume = function () {
+    if (!this.paused) {
+        return;
+    }
     this.input.resume();
     this.paused = false;
     this.emit('resume');
 };
 
 
-Interface.prototype.write = function(d, key) {
-    if (this.paused) this.resume();
+Interface.prototype.write = function (d, key) {
+    if (this.paused) {
+        this.resume();
+    }
     this.terminal ? this._ttyWrite(d, key) : this._normalWrite(d);
 };
 
 // \r\n, \n, or \r followed by something other than \n
 var lineEnding = /\r?\n|\r(?!\n)/;
-Interface.prototype._normalWrite = function(b) {
+Interface.prototype._normalWrite = function (b) {
     if (b === undefined) {
         return;
     }
@@ -617,7 +649,7 @@ Interface.prototype._normalWrite = function(b) {
         // either '' or (concievably) the unfinished portion of the next line
         string = lines.pop();
         this._line_buffer = string;
-        lines.forEach(function(line) {
+        lines.forEach(function (line) {
             this._onLine(line);
         }, this);
     } else if (string) {
@@ -626,7 +658,7 @@ Interface.prototype._normalWrite = function(b) {
     }
 };
 
-Interface.prototype._insertString = function(c) {
+Interface.prototype._insertString = function (c) {
     //BUG: Problem when adding tabs with following content.
     //     Perhaps the bug is in _refreshLine(). Not sure.
     //     A hack would be to insert spaces instead of literal '\t'.
@@ -651,11 +683,11 @@ Interface.prototype._insertString = function(c) {
     }
 };
 
-Interface.prototype._tabComplete = function() {
+Interface.prototype._tabComplete = function () {
     var self = this;
 
     self.pause();
-    self.completer(self.line.slice(0, self.cursor), function(err, rv) {
+    self.completer(self.line.slice(0, self.cursor), function (err, rv) {
         self.resume();
 
         if (err) {
@@ -671,7 +703,7 @@ Interface.prototype._tabComplete = function() {
                 self._insertString(completions[0].slice(completeOn.length));
             } else {
                 self.output.write('\r\n');
-                var width = completions.reduce(function(a, b) {
+                var width = completions.reduce(function (a, b) {
                     return a.length > b.length ? a : b;
                 }).length + 2;  // 2 space padding
                 var maxColumns = Math.floor(self.columns / width) || 1;
@@ -689,7 +721,11 @@ Interface.prototype._tabComplete = function() {
 
                 // If there is a common prefix to all matches, then apply that
                 // portion.
-                var f = completions.filter(function(e) { if (e) return e; });
+                var f = completions.filter(function (e) {
+                    if (e) {
+                        return e;
+                    }
+                });
                 var prefix = commonPrefix(f);
                 if (prefix.length > completeOn.length) {
                     self._insertString(prefix.slice(completeOn.length));
@@ -743,7 +779,7 @@ function commonPrefix(strings) {
 }
 
 
-Interface.prototype._wordLeft = function() {
+Interface.prototype._wordLeft = function () {
     if (this.cursor > 0) {
         var leading = this.line.slice(0, this.cursor);
         var match = leading.match(/([^\w\s]+|\w+|)\s*$/);
@@ -752,7 +788,7 @@ Interface.prototype._wordLeft = function() {
 };
 
 
-Interface.prototype._wordRight = function() {
+Interface.prototype._wordRight = function () {
     if (this.cursor < this.line.length) {
         var trailing = this.line.slice(this.cursor);
         var match = trailing.match(/^(\s+|\W+|\w+)\s*/);
@@ -761,7 +797,7 @@ Interface.prototype._wordRight = function() {
 };
 
 
-Interface.prototype._deleteLeft = function() {
+Interface.prototype._deleteLeft = function () {
     if (this.cursor > 0 && this.line.length > 0) {
         this.line = this.line.slice(0, this.cursor - 1) +
             this.line.slice(this.cursor, this.line.length);
@@ -772,14 +808,14 @@ Interface.prototype._deleteLeft = function() {
 };
 
 
-Interface.prototype._deleteRight = function() {
+Interface.prototype._deleteRight = function () {
     this.line = this.line.slice(0, this.cursor) +
         this.line.slice(this.cursor + 1, this.line.length);
     this._refreshLine();
 };
 
 
-Interface.prototype._deleteWordLeft = function() {
+Interface.prototype._deleteWordLeft = function () {
     if (this.cursor > 0) {
         var leading = this.line.slice(0, this.cursor);
         var match = leading.match(/([^\w\s]+|\w+|)\s*$/);
@@ -791,7 +827,7 @@ Interface.prototype._deleteWordLeft = function() {
 };
 
 
-Interface.prototype._deleteWordRight = function() {
+Interface.prototype._deleteWordRight = function () {
     if (this.cursor < this.line.length) {
         var trailing = this.line.slice(this.cursor);
         var match = trailing.match(/^(\s+|\W+|\w+)\s*/);
@@ -802,20 +838,20 @@ Interface.prototype._deleteWordRight = function() {
 };
 
 
-Interface.prototype._deleteLineLeft = function() {
+Interface.prototype._deleteLineLeft = function () {
     this.line = this.line.slice(this.cursor);
     this.cursor = 0;
     this._refreshLine();
 };
 
 
-Interface.prototype._deleteLineRight = function() {
+Interface.prototype._deleteLineRight = function () {
     this.line = this.line.slice(0, this.cursor);
     this._refreshLine();
 };
 
 
-Interface.prototype.clearLine = function() {
+Interface.prototype.clearLine = function () {
     this._moveCursor(+Infinity);
     this.output.write('\r\n');
     this.line = '';
@@ -824,14 +860,14 @@ Interface.prototype.clearLine = function() {
 };
 
 
-Interface.prototype._line = function() {
+Interface.prototype._line = function () {
     var line = this._addHistory();
     this.clearLine();
     this._onLine(line);
 };
 
 
-Interface.prototype._historyNext = function() {
+Interface.prototype._historyNext = function () {
     if (this.historyIndex > 0) {
         this.historyIndex--;
         this.line = this.history[this.historyIndex];
@@ -847,7 +883,7 @@ Interface.prototype._historyNext = function() {
 };
 
 
-Interface.prototype._historyPrev = function() {
+Interface.prototype._historyPrev = function () {
     if (this.historyIndex + 1 < this.history.length) {
         this.historyIndex++;
         this.line = this.history[this.historyIndex];
@@ -859,7 +895,7 @@ Interface.prototype._historyPrev = function() {
 
 
 // Returns current cursor's position and line
-Interface.prototype._getCursorPos = function() {
+Interface.prototype._getCursorPos = function () {
     var columns = this.columns;
     var cursorPos = this.cursor + this._promptLength;
     var cols = cursorPos % columns;
@@ -870,14 +906,18 @@ Interface.prototype._getCursorPos = function() {
 
 // This function moves cursor dx places to the right
 // (-dx for left) and refreshes the line if it is needed
-Interface.prototype._moveCursor = function(dx) {
+Interface.prototype._moveCursor = function (dx) {
     var oldcursor = this.cursor;
     var oldPos = this._getCursorPos();
     this.cursor += dx;
 
     // bounds check
-    if (this.cursor < 0) this.cursor = 0;
-    if (this.cursor > this.line.length) this.cursor = this.line.length;
+    if (this.cursor < 0) {
+        this.cursor = 0;
+    }
+    if (this.cursor > this.line.length) {
+        this.cursor = this.line.length;
+    }
 
     var newPos = this._getCursorPos();
 
@@ -892,11 +932,13 @@ Interface.prototype._moveCursor = function(dx) {
 
 
 // handle a write from the tty
-Interface.prototype._ttyWrite = function(s, key) {
+Interface.prototype._ttyWrite = function (s, key) {
     key = key || {};
 
     // Ignore escape key - Fixes #2876
-    if (key.name == 'escape') return;
+    if (key.name == 'escape') {
+        return;
+    }
 
     if (key.ctrl && key.shift) {
         /* Control and shift pressed */
@@ -977,12 +1019,14 @@ Interface.prototype._ttyWrite = function(s, key) {
             break;
 
         case 'z':
-            if (process.platform == 'win32') break;
+            if (process.platform == 'win32') {
+                break;
+            }
             if (EventEmitter.listenerCount(this, 'SIGTSTP') > 0) {
                 this.emit('SIGTSTP');
             } else {
-                process.once('SIGCONT', (function(self) {
-                    return function() {
+                process.once('SIGCONT', (function (self) {
+                    return function () {
                         // Don't raise events if stream has already been abandoned.
                         if (!self.paused) {
                             // Stream must be paused and resumed after SIGCONT to catch
@@ -1050,8 +1094,9 @@ Interface.prototype._ttyWrite = function(s, key) {
         /* No modifier keys used */
 
         // \r bookkeeping is only relevant if a \n comes right after.
-        if (this._sawReturn && key.name !== 'enter')
+        if (this._sawReturn && key.name !== 'enter') {
             this._sawReturn = false;
+        }
 
         switch (key.name) {
         case 'return':  // carriage return, i.e. \r
@@ -1060,10 +1105,12 @@ Interface.prototype._ttyWrite = function(s, key) {
             break;
 
         case 'enter':
-            if (this._sawReturn)
+            if (this._sawReturn) {
                 this._sawReturn = false;
-            else
+            }
+            else {
                 this._line();
+            }
             break;
 
         case 'backspace':
@@ -1103,8 +1150,9 @@ Interface.prototype._ttyWrite = function(s, key) {
             break;
 
         default:
-            if (Buffer.isBuffer(s))
+            if (Buffer.isBuffer(s)) {
                 s = s.toString('utf-8');
+            }
 
             if (s) {
                 var lines = s.split(/\r\n|\n|\r/);
@@ -1123,20 +1171,23 @@ Interface.prototype._ttyWrite = function(s, key) {
 exports.Interface = Interface;
 
 
-
 /**
  * accepts a readable Stream instance and makes it emit "keypress" events
  */
 
 function emitKeypressEvents(stream) {
-    if (stream._keypressDecoder) return;
+    if (stream._keypressDecoder) {
+        return;
+    }
     var StringDecoder = require('string_decoder').StringDecoder; // lazy load
     stream._keypressDecoder = new StringDecoder('utf8');
 
     function onData(b) {
         if (EventEmitter.listenerCount(stream, 'keypress') > 0) {
             var r = stream._keypressDecoder.write(b);
-            if (r) emitKey(stream, r);
+            if (r) {
+                emitKey(stream, r);
+            }
         } else {
             // Nobody's watching anyway
             stream.removeListener('data', onData);
@@ -1278,104 +1329,265 @@ function emitKey(stream, s) {
         // Parse the key itself
         switch (code) {
             /* xterm/gnome ESC O letter */
-        case 'OP': key.name = 'f1'; break;
-        case 'OQ': key.name = 'f2'; break;
-        case 'OR': key.name = 'f3'; break;
-        case 'OS': key.name = 'f4'; break;
+        case 'OP':
+            key.name = 'f1';
+            break;
+        case 'OQ':
+            key.name = 'f2';
+            break;
+        case 'OR':
+            key.name = 'f3';
+            break;
+        case 'OS':
+            key.name = 'f4';
+            break;
 
             /* xterm/rxvt ESC [ number ~ */
-        case '[11~': key.name = 'f1'; break;
-        case '[12~': key.name = 'f2'; break;
-        case '[13~': key.name = 'f3'; break;
-        case '[14~': key.name = 'f4'; break;
+        case '[11~':
+            key.name = 'f1';
+            break;
+        case '[12~':
+            key.name = 'f2';
+            break;
+        case '[13~':
+            key.name = 'f3';
+            break;
+        case '[14~':
+            key.name = 'f4';
+            break;
 
             /* from Cygwin and used in libuv */
-        case '[[A': key.name = 'f1'; break;
-        case '[[B': key.name = 'f2'; break;
-        case '[[C': key.name = 'f3'; break;
-        case '[[D': key.name = 'f4'; break;
-        case '[[E': key.name = 'f5'; break;
+        case '[[A':
+            key.name = 'f1';
+            break;
+        case '[[B':
+            key.name = 'f2';
+            break;
+        case '[[C':
+            key.name = 'f3';
+            break;
+        case '[[D':
+            key.name = 'f4';
+            break;
+        case '[[E':
+            key.name = 'f5';
+            break;
 
             /* common */
-        case '[15~': key.name = 'f5'; break;
-        case '[17~': key.name = 'f6'; break;
-        case '[18~': key.name = 'f7'; break;
-        case '[19~': key.name = 'f8'; break;
-        case '[20~': key.name = 'f9'; break;
-        case '[21~': key.name = 'f10'; break;
-        case '[23~': key.name = 'f11'; break;
-        case '[24~': key.name = 'f12'; break;
+        case '[15~':
+            key.name = 'f5';
+            break;
+        case '[17~':
+            key.name = 'f6';
+            break;
+        case '[18~':
+            key.name = 'f7';
+            break;
+        case '[19~':
+            key.name = 'f8';
+            break;
+        case '[20~':
+            key.name = 'f9';
+            break;
+        case '[21~':
+            key.name = 'f10';
+            break;
+        case '[23~':
+            key.name = 'f11';
+            break;
+        case '[24~':
+            key.name = 'f12';
+            break;
 
             /* xterm ESC [ letter */
-        case '[A': key.name = 'up'; break;
-        case '[B': key.name = 'down'; break;
-        case '[C': key.name = 'right'; break;
-        case '[D': key.name = 'left'; break;
-        case '[E': key.name = 'clear'; break;
-        case '[F': key.name = 'end'; break;
-        case '[H': key.name = 'home'; break;
+        case '[A':
+            key.name = 'up';
+            break;
+        case '[B':
+            key.name = 'down';
+            break;
+        case '[C':
+            key.name = 'right';
+            break;
+        case '[D':
+            key.name = 'left';
+            break;
+        case '[E':
+            key.name = 'clear';
+            break;
+        case '[F':
+            key.name = 'end';
+            break;
+        case '[H':
+            key.name = 'home';
+            break;
 
             /* xterm/gnome ESC O letter */
-        case 'OA': key.name = 'up'; break;
-        case 'OB': key.name = 'down'; break;
-        case 'OC': key.name = 'right'; break;
-        case 'OD': key.name = 'left'; break;
-        case 'OE': key.name = 'clear'; break;
-        case 'OF': key.name = 'end'; break;
-        case 'OH': key.name = 'home'; break;
+        case 'OA':
+            key.name = 'up';
+            break;
+        case 'OB':
+            key.name = 'down';
+            break;
+        case 'OC':
+            key.name = 'right';
+            break;
+        case 'OD':
+            key.name = 'left';
+            break;
+        case 'OE':
+            key.name = 'clear';
+            break;
+        case 'OF':
+            key.name = 'end';
+            break;
+        case 'OH':
+            key.name = 'home';
+            break;
 
             /* xterm/rxvt ESC [ number ~ */
-        case '[1~': key.name = 'home'; break;
-        case '[2~': key.name = 'insert'; break;
-        case '[3~': key.name = 'delete'; break;
-        case '[4~': key.name = 'end'; break;
-        case '[5~': key.name = 'pageup'; break;
-        case '[6~': key.name = 'pagedown'; break;
+        case '[1~':
+            key.name = 'home';
+            break;
+        case '[2~':
+            key.name = 'insert';
+            break;
+        case '[3~':
+            key.name = 'delete';
+            break;
+        case '[4~':
+            key.name = 'end';
+            break;
+        case '[5~':
+            key.name = 'pageup';
+            break;
+        case '[6~':
+            key.name = 'pagedown';
+            break;
 
             /* putty */
-        case '[[5~': key.name = 'pageup'; break;
-        case '[[6~': key.name = 'pagedown'; break;
+        case '[[5~':
+            key.name = 'pageup';
+            break;
+        case '[[6~':
+            key.name = 'pagedown';
+            break;
 
             /* rxvt */
-        case '[7~': key.name = 'home'; break;
-        case '[8~': key.name = 'end'; break;
+        case '[7~':
+            key.name = 'home';
+            break;
+        case '[8~':
+            key.name = 'end';
+            break;
 
             /* rxvt keys with modifiers */
-        case '[a': key.name = 'up'; key.shift = true; break;
-        case '[b': key.name = 'down'; key.shift = true; break;
-        case '[c': key.name = 'right'; key.shift = true; break;
-        case '[d': key.name = 'left'; key.shift = true; break;
-        case '[e': key.name = 'clear'; key.shift = true; break;
+        case '[a':
+            key.name = 'up';
+            key.shift = true;
+            break;
+        case '[b':
+            key.name = 'down';
+            key.shift = true;
+            break;
+        case '[c':
+            key.name = 'right';
+            key.shift = true;
+            break;
+        case '[d':
+            key.name = 'left';
+            key.shift = true;
+            break;
+        case '[e':
+            key.name = 'clear';
+            key.shift = true;
+            break;
 
-        case '[2$': key.name = 'insert'; key.shift = true; break;
-        case '[3$': key.name = 'delete'; key.shift = true; break;
-        case '[5$': key.name = 'pageup'; key.shift = true; break;
-        case '[6$': key.name = 'pagedown'; key.shift = true; break;
-        case '[7$': key.name = 'home'; key.shift = true; break;
-        case '[8$': key.name = 'end'; key.shift = true; break;
+        case '[2$':
+            key.name = 'insert';
+            key.shift = true;
+            break;
+        case '[3$':
+            key.name = 'delete';
+            key.shift = true;
+            break;
+        case '[5$':
+            key.name = 'pageup';
+            key.shift = true;
+            break;
+        case '[6$':
+            key.name = 'pagedown';
+            key.shift = true;
+            break;
+        case '[7$':
+            key.name = 'home';
+            key.shift = true;
+            break;
+        case '[8$':
+            key.name = 'end';
+            key.shift = true;
+            break;
 
-        case 'Oa': key.name = 'up'; key.ctrl = true; break;
-        case 'Ob': key.name = 'down'; key.ctrl = true; break;
-        case 'Oc': key.name = 'right'; key.ctrl = true; break;
-        case 'Od': key.name = 'left'; key.ctrl = true; break;
-        case 'Oe': key.name = 'clear'; key.ctrl = true; break;
+        case 'Oa':
+            key.name = 'up';
+            key.ctrl = true;
+            break;
+        case 'Ob':
+            key.name = 'down';
+            key.ctrl = true;
+            break;
+        case 'Oc':
+            key.name = 'right';
+            key.ctrl = true;
+            break;
+        case 'Od':
+            key.name = 'left';
+            key.ctrl = true;
+            break;
+        case 'Oe':
+            key.name = 'clear';
+            key.ctrl = true;
+            break;
 
-        case '[2^': key.name = 'insert'; key.ctrl = true; break;
-        case '[3^': key.name = 'delete'; key.ctrl = true; break;
-        case '[5^': key.name = 'pageup'; key.ctrl = true; break;
-        case '[6^': key.name = 'pagedown'; key.ctrl = true; break;
-        case '[7^': key.name = 'home'; key.ctrl = true; break;
-        case '[8^': key.name = 'end'; key.ctrl = true; break;
+        case '[2^':
+            key.name = 'insert';
+            key.ctrl = true;
+            break;
+        case '[3^':
+            key.name = 'delete';
+            key.ctrl = true;
+            break;
+        case '[5^':
+            key.name = 'pageup';
+            key.ctrl = true;
+            break;
+        case '[6^':
+            key.name = 'pagedown';
+            key.ctrl = true;
+            break;
+        case '[7^':
+            key.name = 'home';
+            key.ctrl = true;
+            break;
+        case '[8^':
+            key.name = 'end';
+            key.ctrl = true;
+            break;
 
             /* misc. */
-        case '[Z': key.name = 'tab'; key.shift = true; break;
-        default: key.name = 'undefined'; break;
+        case '[Z':
+            key.name = 'tab';
+            key.shift = true;
+            break;
+        default:
+            key.name = 'undefined';
+            break;
 
         }
     } else if (s.length > 1 && s[0] !== '\x1b') {
         // Got a longer-than-one string of characters.
         // Probably a paste, since it wasn't a control sequence.
-        Array.prototype.forEach.call(s, function(c) {
+        Array.prototype.forEach.call(s, function (c) {
             emitKey(stream, c);
         });
         return;
@@ -1401,11 +1613,13 @@ function emitKey(stream, s) {
  */
 
 function cursorTo(stream, x, y) {
-    if (typeof x !== 'number' && typeof y !== 'number')
+    if (typeof x !== 'number' && typeof y !== 'number') {
         return;
+    }
 
-    if (typeof x !== 'number')
+    if (typeof x !== 'number') {
         throw new Error("Can't set cursor row without also setting it's column");
+    }
 
     if (typeof y !== 'number') {
         stream.write('\x1b[' + (x + 1) + 'G');
