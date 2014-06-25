@@ -31,6 +31,7 @@ node app.js
 
 That should take you to a command line.  
 Here you can do the following:
+
 1. Write valid Javascript expressions to be evaluated; or
 2. Write a command followed by arguments. Arguments can be:
     1. Literal arguments as you do in any other shell (e.g., `git clone` or `cd nodeshell`); or
