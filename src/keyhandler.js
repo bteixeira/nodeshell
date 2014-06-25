@@ -136,10 +136,6 @@ var _ttyWrite = function(s, key) {
             this._deleteWordRight();
             break;
 
-        case 'backspace':
-            this._deleteWordLeft();
-            break;
-
         case 'left':
             this._wordLeft();
             break;
@@ -192,7 +188,6 @@ var _ttyWrite = function(s, key) {
             break;
 
         case 'backspace':
-//            this._deleteLeft();
             this.deleteLeft();
             break;
 
