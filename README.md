@@ -29,14 +29,15 @@ git clone https://github.com/bteixeira/nodeshell.git && cd nodeshell
 node app.js
 ```
 
-That should take you to a command line.
+That should take you to a command line.  
 Here you can do the following:
-# Write valid Javascript expressions to be evaluated; or
-# Write a command followed by arguments. Arguments can be:
-## Literal arguments as you do in any other shell (e.g., `git clone` or `cd nodeshell`); or
-## Javascript expressions in parentheses
+1. Write valid Javascript expressions to be evaluated; or
+2. Write a command followed by arguments. Arguments can be:
+    1. Literal arguments as you do in any other shell (e.g., `git clone` or `cd nodeshell`); or
+    2. Javascript expressions in parentheses
 
 Try it out!
+
 ```
 $ var getDir = function () {return '.'}  
 undefined  
@@ -56,7 +57,10 @@ app.js  LICENSE  README.md  src  test
 * Global API (objects and methods available)
 * Built-ins
 
+**Rewrite:**
+
 A couple of pieces are still remnants of the first prototype I made and have to be rewritten (not even refactored):
+
 * CommandSet (commands.js)
 * KeyHandler
 * Line
