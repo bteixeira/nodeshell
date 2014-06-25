@@ -16,9 +16,22 @@ var getPrompt = function () {
     return process.cwd() + '$ ';
 };
 
-var ctx = vm.createContext({
-    process: process
-});
+var permanent = {
+    process: process,
+    Buffer: Buffer,
+    setTimeout: setTimeout,
+    setInterval: setInterval,
+    clearTimeout: clearTimeout,
+    clearInterval: clearInterval,
+    setImmediate: setImmediate,
+    clearImmediate: clearImmediate,
+    console: console,
+    require: require
+};
+
+var extend = util._extend;
+
+var ctx = vm.createContext(permanent);
 
 var inspect = function (what) {
     return util.inspect.call(this, what, {colors: true});
@@ -26,6 +39,7 @@ var inspect = function (what) {
 
 function doneCB (result) {
     console.log(inspect(result));
+    extend(ctx, permanent);
     line.setPrompt(getPrompt());
     line._refreshLine();
 }

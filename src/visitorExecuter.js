@@ -10,7 +10,7 @@ VisitorExecuter.prototype = new Visitor();
 
 VisitorExecuter.prototype.visitJS = function (token, callback) {
     var fun = new Function (token.code);
-    result = vm.runInContext(token.code, this.context);
+    result = vm.runInNewContext(token.code, this.context);
     callback(result);
 };
 

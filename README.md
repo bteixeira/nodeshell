@@ -54,6 +54,9 @@ api.txt  app.js  LICENSE  list.txt  proto  README.md  src  test
 0
 ```
 
+Current Issues
+--------------
+
 **Need to define:**
 * Global API (objects and methods available)
 * Built-ins
