@@ -40,18 +40,18 @@ Here you can do the following:
 Try it out!
 
 ```
-$ var getDir = function () {return '.'}  
-undefined  
-  
-$ cd ..  
-undefined  
-  
-$ cd (getDir())  
-undefined  
-  
-$ ls  
-app.js  LICENSE  README.md  src  test  
-0  
+$ var getDir = function () {return 'nodeshell';}
+undefined
+
+$ cd ..
+undefined
+
+$ cd (getDir())
+undefined
+
+$ ls
+api.txt  app.js  LICENSE  list.txt  proto  README.md  src  test
+0
 ```
 
 **Need to define:**
