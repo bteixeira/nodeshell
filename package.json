@@ -1,0 +1,29 @@
+{
+  "name": "nodeshell",
+  "version": "0.0.1",
+  "description": "A shell replacement based on node",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/bteixeira/nodeshell.git"
+  },
+  "keywords": [
+    "node",
+    "shell"
+  ],
+  "author": "Bruno Teixeira",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bteixeira/nodeshell/issues"
+  },
+  "homepage": "https://github.com/bteixeira/nodeshell",
+  "dependencies": {
+    "colors": "~0.6.2"
+  }
+}
