@@ -51,12 +51,16 @@ Commands.prototype.addCmd = function (file) {
 };
 
 function run(file, args, cb) {
+    process.stdin.setRawMode(false);
+    process.stdin.pause();
     var child = spawn(file, args, {
         cwd: process.cwd(),
         env: process.env,
         stdio: 'inherit'
     });
     child.on('exit', function (status) {
+        process.stdin.resume();
+        process.stdin.setRawMode(true);
         cb(status);
     });
 }

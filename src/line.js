@@ -585,7 +585,8 @@ Interface.prototype._refreshLine = function () {
 };
 
 
-Interface.prototype.close = function () {
+Line.prototype.close = function () {
+//    Interface.prototype.close = function () {
     if (this.closed) {
         return;
     }

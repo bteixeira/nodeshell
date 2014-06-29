@@ -1,3 +1,4 @@
+var EventEmitter = require('events').EventEmitter;
 
 var KeyHandler = function (options) {
     this.line = options.line;

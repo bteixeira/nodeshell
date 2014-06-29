@@ -31,6 +31,11 @@ var permanent = {
     require: require
 };
 
+process.on('SIGINT', function() {
+//    console.log('Do something useful here.');
+//    server.close();
+});
+
 var extend = util._extend;
 
 var ctx = vm.createContext(permanent);
@@ -95,3 +100,4 @@ line.setPrompt(getPrompt());
 line._refreshLine();
 
 stdin.on('keypress', function (ch, key) { return keyHandler.handleKey(ch, key); });
+
