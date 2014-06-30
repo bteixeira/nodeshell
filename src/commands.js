@@ -29,21 +29,34 @@ var Commands = function () {
         }
         files.forEach(function (file) {
             file = path.resolve(dir, file);
-            var stat;
-            try {
-                stat = fs.statSync(file);
-            } catch (ex) {
-            }
-            if (stat && stat.mode & 0111) { // test for *any* of the execute bits
+            if (isExecutable(file)) {
                 me.addCmd(file);
             }
+
         });
     });
 };
 
+function isExecutable(file) {
+    if (process.platform === 'win32') {
+        return /\.(exe|bat)$/.test(file);
+    }
+    var stat;
+    try {
+        stat = fs.statSync(file);
+    } catch (ex) {
+    }
+    if (stat && stat.mode & 0111) { // test for *any* of the execute bits
+        return true
+    }
+    return false;
+}
 
 Commands.prototype.addCmd = function (file) {
     var name = path.basename(file);
+    if (process.platform === 'win32') {
+        name = name.substr(0, name.lastIndexOf('.'));
+    }
     if (!(name in this.commands)) {
         this.cache[name] = file;
         this.commands[name] = makeCmd(file);
