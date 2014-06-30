@@ -8,6 +8,7 @@ var Parser = require(__dirname + '/src/parser/parser');
 var Line = require(__dirname + '/src/line');
 var Executer = require(__dirname + '/src/visitorExecuter');
 var ErrorWrapper = require(__dirname + '/src/ErrorWrapper');
+var History = require(__dirname + '/src/History');
 require('colors');
 
 var getPrompt = function () {
@@ -30,6 +31,8 @@ var permanent = {
     console: console,
     require: require
 };
+
+var history = new History(line);
 
 process.on('SIGINT', function() {
 //    console.log('Do something useful here.');
@@ -60,25 +63,16 @@ var executer = new Executer(commands, ctx);
 var line = new Line({
     output: process.stdout,
     acceptCB: function (line) {
-//        try {
-//            var result = parser.exec(line);
             var ast = parser.parse(line);
             executer.visit(ast, doneCB);
-
-//        } catch (ex) {
-//            console.error(ex.toString());
-//            doneCB(util.inspect(ex));
-//        }
     }
 });
 var parser = new Parser(
     commands
-//    ,
-//    cb: function () {
-//        line.setPrompt(getPrompt());
-//        line._refreshLine();
-//    }
 );
+
+var history = new History(line);
+
 var stdin = process.stdin;
 
 readline.emitKeypressEvents(stdin);
@@ -86,9 +80,8 @@ readline.emitKeypressEvents(stdin);
 stdin.setRawMode(true);
 
 var keyHandler = new KeyHandler({
-    input: stdin,
-    output: process.stdout,
-    line: line
+    line: line,
+    history: history
 });
 
 function runUserFile () {

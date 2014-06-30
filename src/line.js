@@ -171,12 +171,20 @@ Line.prototype.deleteLineRight = function () {
 };
 
 Line.prototype.deleteLine = function () {
+    this.line = '';
+    this.cursor = 0;
+    this._refreshLine();
 };
 
 Line.prototype.getLine = function () {
     return this.line;
 };
 
+Line.prototype.setLine = function (line) {
+    this.line = line;
+    this.cursor = line.length;
+    this._refreshLine();
+};
 
 Interface.prototype._deleteWordLeft = function () {
     if (this.cursor > 0) {

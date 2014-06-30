@@ -2,21 +2,22 @@ var EventEmitter = require('events').EventEmitter;
 
 var KeyHandler = function (options) {
     this.line = options.line;
+    this.history = options.history;
 };
 
 KeyHandler.prototype.handleKey = function (ch, key) {
-    _ttyWrite.call(this.line, ch, key);
+    _ttyWrite.call(this.line, ch, key, this.history);
 };
 
 module.exports = KeyHandler;
 
 
 /* Rip off from readline */
-var _ttyWrite = function(s, key) {
+var _ttyWrite = function(s, key, history) {
 
     var me = this;
     function notImplemented () {
-        console.log('NO HISTORY OR AUTOCOMPLETE IMPLEMENTED YET');
+        console.log('NO AUTOCOMPLETE IMPLEMENTED YET');
         me._refreshLine();
     }
 
@@ -96,13 +97,11 @@ var _ttyWrite = function(s, key) {
             break;
 
         case 'n': // next history item
-//            this._historyNext();
-            notImplemented();
+            history.next();
             break;
 
         case 'p': // previous history item
-//            this._historyPrev();
-            notImplemented();
+            history.prev();
             break;
 
         case 'z':
@@ -181,6 +180,8 @@ var _ttyWrite = function(s, key) {
         case 'return':  // carriage return, i.e. \r
             this._sawReturn = true;
 //            this._line();
+            history.push();
+            history.rewind();
             this.accept();
             break;
 
@@ -220,11 +221,11 @@ var _ttyWrite = function(s, key) {
             break;
 
         case 'up':
-            notImplemented();
+            history.prev();
             break;
 
         case 'down':
-            notImplemented();
+            history.next();
             break;
 
         default:
