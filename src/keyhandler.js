@@ -3,17 +3,18 @@ var EventEmitter = require('events').EventEmitter;
 var KeyHandler = function (options) {
     this.line = options.line;
     this.history = options.history;
+    this.autocompleter = options.autocompleter;
 };
 
 KeyHandler.prototype.handleKey = function (ch, key) {
-    _ttyWrite.call(this.line, ch, key, this.history);
+    _ttyWrite.call(this.line, ch, key, this.history, this.autocompleter);
 };
 
 module.exports = KeyHandler;
 
 
 /* Rip off from readline */
-var _ttyWrite = function(s, key, history) {
+var _ttyWrite = function(s, key, history, autocompleter) {
 
     var me = this;
     function notImplemented () {
@@ -201,7 +202,7 @@ var _ttyWrite = function(s, key, history) {
             break;
 
         case 'tab': // tab completion
-            notImplemented();
+            autocompleter.complete();
             break;
 
         case 'left':

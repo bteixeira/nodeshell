@@ -9,9 +9,15 @@ var Autocompleter = function (line, context, commands) {
 Autocompleter.prototype.complete = function () {
     var completions = this.getCompletions(this.line.getLine());
     // TODO print below the prompt and show prompt again
+
+    console.log('\n' + completions.join('\t'));
+    this.line._refreshLine();
 };
 
 Autocompleter.prototype.getCompletions = function (input) {
+
+    return ['bananas', 'bad mo fo', 'orly'];
+
     var idxDot = input.lastIndexOf('.');
     var idxSpc = input.lastIndexOf(' ');
     if (idxDot > idxSpc) { // completing property // TODO NOT NECESSARILY, DOT MAY BE PART OF FILE NAME OR DIRECTORY STRUCTURE BUT LET'S IGNORE THAT UNTIL WE HAVE THE TOKENIZER IN PLACE
@@ -40,3 +46,5 @@ Autocompleter.prototype.getCommands = function (prefix) {
 Autocompleter.prototype.getProperties = function (obj, prefix) {
     // TODO enumerate properties of obj
 };
+
+module.exports = Autocompleter;

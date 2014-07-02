@@ -9,6 +9,7 @@ var Line = require(__dirname + '/src/line');
 var Executer = require(__dirname + '/src/visitorExecuter');
 var ErrorWrapper = require(__dirname + '/src/ErrorWrapper');
 var History = require(__dirname + '/src/History');
+var Autocompleter = require(__dirname + '/src/Autocompleter');
 require('colors');
 
 var getPrompt = function () {
@@ -31,8 +32,6 @@ var permanent = {
     console: console,
     require: require
 };
-
-var history = new History(line);
 
 process.on('SIGINT', function() {
 //    console.log('Do something useful here.');
@@ -81,7 +80,8 @@ stdin.setRawMode(true);
 
 var keyHandler = new KeyHandler({
     line: line,
-    history: history
+    history: history,
+    autocompleter: new Autocompleter(line)
 });
 
 function runUserFile () {

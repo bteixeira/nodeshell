@@ -1,0 +1,74 @@
+ROADMAP
+=======
+1. Basic Autocomplete
+2. Allow redefining the prompt through API
+3. Remaining exceptions -> Always a stack trace on exit due to file close. Do some heavy testing and try to find more.
+4. Clean and put more tests in place. Create a stable release.
+
+W. Aliases (this might need the Commands rewrite...)
+X. Tokenizer. Must deliver sequence of tokens and not AST directly. Must detect unfinished tokens (needed for multi-line
+    and proper autocomplete). Must consider paths and that it is possible to run an executable on this or another
+    directory.
+Y. Multi-line input
+Z. Autocomplete overhaul
+
+IDEA HEAP
+=========
+
+Piping output
+	ls | function wc(list) {console.log(list.length);}
+
+There must be a way to pipe the output of a command into a variable, or even to get it inline
+
+I want to have a status line with completions and such. One way to achieve this would be to have virtual windows on the
+    screen, have (rectangular) areas with different content and assign the line reader to one of them.
+
+I want completion as user is typing. Show list of possible commands like I3 does. Do the same for possible completions
+    of everything else.
+
+I want on-the-fly highlighting. Show the command and arguments in different colors. Highlight Javascript.
+
+
+Architecture
+============
+
+Input
+    gets keystrokes, there is a mapping of key to functionality
+
+Parser
+    the functionality to accept the command (enter key) instructs to pass the current line(s) to the parser
+    The parser extracts a command plus arguments, or runs JS
+
+Environment
+    There must be an API with access to:
+        all the commands as functions (and everything that is in the path)
+        all the nodejs globals, including process, buffer, require, etc
+        a set of objects that allow overriding behaviour and attaching event handlers; even the parser should be
+        available in this way. Make it such that you can override or extend parts of the parsing, or all of it together
+        (dangerous, but let's think about it later)
+
+Builtins
+    cd
+    'source'
+        (could be a command or something like '.' ?) (or 'require' ^^)
+    alias
+        for compat
+    bg, fg, jobs
+        let's think about it later
+    exit
+    mkdir ?
+        isn't this in the path?
+    print/echo
+        compat?
+    kill
+        useful, might be the first thing you remember in an emergency
+    read?
+        useful?
+    umask?
+    whish?
+    where?
+    help?
+        never hurts
+
+Should we include most of the built ins from bash and zsh to allow maximum compat? should there be some compatibility
+mode that emulated them? this could probably be achieved easily.
