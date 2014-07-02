@@ -17,7 +17,7 @@ var getPrompt = function () {
      * you should print it directly. Otherwise when you press backspace an
      * aditional new line will be printed. */
     console.log();
-    return process.cwd() + '$ ';
+    return process.cwd() + ' \u2B21  '; // or \u2B22
 };
 
 var permanent = {
