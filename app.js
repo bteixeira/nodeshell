@@ -81,7 +81,7 @@ stdin.setRawMode(true);
 var keyHandler = new KeyHandler({
     line: line,
     history: history,
-    autocompleter: new Autocompleter(line)
+    autocompleter: new Autocompleter(line, ctx)
 });
 
 function runUserFile () {

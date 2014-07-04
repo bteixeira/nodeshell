@@ -28,6 +28,9 @@ I want completion as user is typing. Show list of possible commands like I3 does
 
 I want on-the-fly highlighting. Show the command and arguments in different colors. Highlight Javascript.
 
+If the prompt is a function and not a string like in other shells, that's really nice because it's powerful but if that
+    is a blocking or never-ending function then everything crumbles down.
+
 
 Architecture
 ============

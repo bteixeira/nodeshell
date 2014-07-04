@@ -13,7 +13,7 @@ VisitorExecuter.prototype.visitJS = function (token, callback) {
     var result;
     try {
         new Function (token.code);
-        result = vm.runInNewContext(token.code, this.context);
+        result = vm.runInContext(token.code, this.context);
     } catch (ex) {
         result = new ErrorWrapper(ex);
     }
