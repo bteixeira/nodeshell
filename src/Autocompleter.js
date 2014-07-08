@@ -1,4 +1,6 @@
 var vm = require('vm');
+var path = require('path');
+var fs = require('fs');
 
 var Autocompleter = function (line, context, commands) {
     this.line = line;
@@ -9,65 +11,88 @@ var Autocompleter = function (line, context, commands) {
 // TODO FOR THIS TO BE MODULAR IT HAS TO BE ABLE TO DEFINE SETS OF COMPLETIONS. ALL THIS HAS TO BE MUCH MORE GENERIC.
 
 Autocompleter.prototype.complete = function () {
-    var completions = this.getCompletions(this.line.getLine(), this.line.cursor);
+    var comps = this.getCompletions(this.line.getLine(), this.line.cursor);
 
-    if (completions && completions.length) {
-        console.log('\n' + completions.join('\t'));
+    if (!comps.completions.length) {
+        return
+    }
+
+    if (comps.completions.length === 1 && comps.length > 0) {
+        this.line.insert(comps.completions[0].substring(comps.length));
+    } else {
+        console.log('\n' + comps.completions.join('\t') + '\n');
         this.line._refreshLine();
     }
 };
 
+// TODO Current approach will not complete paths with . or .. which is very lacking
+
 Autocompleter.prototype.getCompletions = function (input, cursor) {
 
-//    return ['bananas', 'bad mo fo', 'orly'];
-
     var idxDot = input.lastIndexOf('.', cursor);
-    var idxSpc = input.lastIndexOf(' ', cursor);
+    var idxSpc = input.lastIndexOf(' ', cursor);// TODO CAN ACTUALLY BE ANY WHITESPACE, THIS WON'T FLY
 
     if (idxDot > idxSpc) { // completing property // TODO NOT NECESSARILY, DOT MAY BE PART OF FILE NAME OR DIRECTORY STRUCTURE BUT LET'S IGNORE THAT UNTIL WE HAVE THE TOKENIZER IN PLACE
-        // TODO EXTRACT LARGEST SEQUENCE OF [\.a-zA-Z0-9_\[\]$] before idxDot (can not start with digit)
-        // TODO eval this, catch and ignore any exceptions
-        // TODO if eval'd successfully, return this.getProperties(evald, input.substr(idxDot))
-        var subs = input.substring(0, idxDot);
-//        var re = /[\.a-zA-Z0-9\$\[\]]+$/;
         var re = /([a-zA-Z\$_]+[\.a-zA-Z0-9\$_\[\]]*)\.([a-zA-Z0-9_\$]*)$/;
         try {
-            var ex = re.exec(subs);
+            /* Extract the value we are trying to complete */
+            var ex = re.exec(input.substring(0, cursor));
             try {
                 var obj = vm.runInContext(ex[1], this.context);
             } catch (e) {
-                return [e.toString() + ' completing ' + ex[1] + ' prefix ' + ex[2]];
+                /* Value to complete threw exception */
+                return {completions: [e.toString() + ' completing ' + ex[1] + ' prefix ' + ex[2]], length: -1};
             }
             var prefix = ex[2];
             var comps = this.getProperties(obj, prefix);
             if (!comps.length) {
-//                throw 1;
-                return ['No completions for ' + ex[1] + ' starting with ' + prefix];
+                return {completions: ['No completions for ' + ex[1] + ' starting with ' + prefix], length: -1};
             }
+            return {
+                completions: comps,
+                length: prefix.length
+            };
         } catch (e) {
-//            return ['No completions for ' + val];
-//            return [];
-//            console.log(e); // TODO DELETE ME
-            return [e.toString()];
+            return {completions: [e.toString()], length: -1};
         }
-    } else { // TODO completing command, file/dir or variable
+    } else if (idxSpc === -1) {
+        prefix = input.substring(0, cursor);
+        /* If begginning of input, either var or command */
+        return {
+            completions: this.getCommands(prefix).concat(this.getVars(prefix)),
+            length: prefix.length
+        };
+    } else {
+        prefix = input.substring(idxSpc + 1, cursor);
+        // TODO completing file/dir or variable
         // TODO if starting with (, is variable
-        // TODO if begginning of input, either var or command
         // TODO else is file or dir
-        return ['bananas', 'bad mo fo', 'orly'];
+        return {
+            // TODO THIS DOES NOT EVEN COMPLETE PATHS, WHAT A DISGRACE
+            completions: this.getFiles(prefix).concat(this.getVars(prefix)),
+            length: prefix.length
+        };
     }
 };
 
 Autocompleter.prototype.getFiles = function (prefix) {
     // TODO resolve prefix as a path relative to process.getCwd()
-};
-
-Autocompleter.prototype.getVars = function (prefix) {
-    // TODO list properties of this.context
+    var idx = prefix.lastIndexOf(path.sep);
+    var dir = prefix.substring(0, idx);
+    var filePrefix = prefix.substring(idx + 1);
+    var path_ = path.resolve(process.cwd(), dir);
+    var files = fs.readdirSync(path_);
+    return files.filter(function (file) {
+        return (file.lastIndexOf(filePrefix, 0) === 0);
+    });
 };
 
 Autocompleter.prototype.getCommands = function (prefix) {
-    // TODO list commands from this.command
+    return this.getProperties(this.commands.commands, prefix);
+};
+
+Autocompleter.prototype.getVars = function (prefix) {
+    return this.getProperties(this.context, prefix);
 };
 
 Autocompleter.prototype.getProperties = function (obj, prefix) {
@@ -79,8 +104,6 @@ Autocompleter.prototype.getProperties = function (obj, prefix) {
     }
 
     return props;
-
-//    return Object.keys(obj);
 };
 
 module.exports = Autocompleter;
