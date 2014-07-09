@@ -22,6 +22,8 @@ EXCEPTIONS
 IDEA HEAP
 =========
 
+FFS make the shell expand ~ into home dir
+
 Piping output
 	ls | function wc(list) {console.log(list.length);}
 

@@ -3,13 +3,13 @@ var util = require('util');
 var readline = require('readline');
 var KeyHandler = require(__dirname + '/src/keyhandler');
 var Commands = require(__dirname + '/src/commands');
-var commands = new Commands();
 var Parser = require(__dirname + '/src/parser/parser');
 var Line = require(__dirname + '/src/line');
 var Executer = require(__dirname + '/src/visitorExecuter');
 var ErrorWrapper = require(__dirname + '/src/ErrorWrapper');
 var History = require(__dirname + '/src/History');
 var Autocompleter = require(__dirname + '/src/Autocompleter');
+var utils = require('./src/utils');
 require('colors');
 
 var getPrompt = function () {
@@ -65,6 +65,7 @@ function doneCB (result) {
     line._refreshLine();
 }
 
+var commands = new Commands(ctx);
 var executer = new Executer(commands, ctx);
 
 var line = new Line({
@@ -93,11 +94,14 @@ var keyHandler = new KeyHandler({
 });
 
 function runUserFile () {
-    console.log('this is supposed to read and execute user scripts');
+    var NSH_FILE = '.nsh.js';
+    var home = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+    utils.sourceSync(home + '/' + NSH_FILE, ctx);
+    utils.sourceSync('./' + NSH_FILE, ctx);
 }
 runUserFile();
 
-line.setPrompt(getPrompt());
+line.setPrompt(ctx.prompt());
 line._refreshLine();
 
 stdin.on('keypress', function (ch, key) { return keyHandler.handleKey(ch, key); });

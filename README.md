@@ -55,6 +55,18 @@ api.txt  app.js  LICENSE  list.txt  proto  README.md  src  test
 0
 ```
 
+What else does it do?
+---------------------
+If a file named `.nsh.js` exists in your home directory, it will be executed on startup. If a file with the same name
+exists in the local directory, it will be executed after that.
+
+To change the text used as prompt, change the value of the `prompt` global variable inside your shell. If it is a
+function, it will be executed (synchronously -- be careful!) every time the prompt has to be shown, and its return value
+used for the prompt. If you assign any other truthy value, that value will be converted to a string and used as the
+prompt. If you assign a falsy value to `prompt`, then it is restored to the default prompt.
+
+A sample `.nsh.js` file is included which sets up a prompt with a little more information than the default.
+
 Current Issues
 --------------
 

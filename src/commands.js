@@ -1,9 +1,10 @@
 var fs = require('fs');
 var path = require('path');
+var utils = require('./utils');
 
 var spawn = require('child_process').spawn;
 
-var Commands = function () {
+var Commands = function (context) {
 
     var me = this;
 
@@ -14,6 +15,14 @@ var Commands = function () {
         all: function (cb, args) {
             console.log(Object.keys(me.commands));
             cb();
+        },
+        source: function (cb, args) {
+            if (!args.length) {
+                cb();
+                return;
+            }
+            var value = utils.sourceSync(args[0], context);
+            cb(value);
         }
     };
 
