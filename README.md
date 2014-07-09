@@ -27,7 +27,7 @@ How to get it and run it
 ```
 git clone https://github.com/bteixeira/nodeshell.git && cd nodeshell
 npm install
-node app.js
+node shell
 ```
 
 That should take you to a command line.  
@@ -51,7 +51,7 @@ $ cd (getDir())
 undefined
 
 $ ls
-api.txt  app.js  LICENSE  list.txt  proto  README.md  src  test
+LICENSE  node_modules  package.json  proto  README.md  shell.js  src  test  TODO.txt
 0
 ```
 

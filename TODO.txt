@@ -46,6 +46,9 @@ Make Javascript be the means to something and not a dictator. CoffeeScript and s
 There will be some performance concerns. There is lots of as-you-type parsing. Try this out on a RaspberryPi and do some
     performance tests, see how many times per second it can parse a complex multi-line input.
 
+Currently, user files can only have JS. Consider if it would nice to support also commands and anything you could run on
+    the command line.
+
 
 Architecture
 ============

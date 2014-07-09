@@ -2,7 +2,7 @@
   "name": "nodeshell",
   "version": "0.0.1",
   "description": "A shell replacement based on node",
-  "main": "app.js",
+  "main": "shell.js",
   "directories": {
     "test": "test"
   },
