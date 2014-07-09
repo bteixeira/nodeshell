@@ -41,6 +41,7 @@ process.on('SIGINT', function() {
 var extend = util._extend;
 
 var ctx = vm.createContext(permanent);
+ctx.prompt = getPrompt;
 
 var inspect = function (what) {
     if (what instanceof ErrorWrapper) {
@@ -53,7 +54,14 @@ var inspect = function (what) {
 function doneCB (result) {
     console.log(inspect(result));
     extend(ctx, permanent);
-    line.setPrompt(getPrompt());
+    if (!ctx.prompt) {
+        ctx.prompt = getPrompt;
+    }
+    if (typeof ctx.prompt === 'function') {
+        line.setPrompt(ctx.prompt());
+    } else {
+        line.setPrompt(String(ctx.prompt));
+    }
     line._refreshLine();
 }
 

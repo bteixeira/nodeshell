@@ -26,6 +26,7 @@ How to get it and run it
 
 ```
 git clone https://github.com/bteixeira/nodeshell.git && cd nodeshell
+npm install
 node app.js
 ```
 
@@ -56,8 +57,6 @@ api.txt  app.js  LICENSE  list.txt  proto  README.md  src  test
 
 Current Issues
 --------------
-
-Need a proper `package.json`. Currently we're using `colors` and it has to be installed by hand.
 
 **Need to define:**
 * Global API (objects and methods available)
