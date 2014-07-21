@@ -1,8 +1,8 @@
 ROADMAP
 =======
-1. Basic Autocomplete
-2. Allow redefining the prompt through API
-3. Allow running user script on startup
+V. Basic Autocomplete
+V. Allow redefining the prompt through API
+V. Allow running user script on startup
 4. Remaining exceptions -> Always a stack trace on exit due to file close. Do some heavy testing and try to find more.
 5. Clean and put more tests in place. Create a stable release.
 
@@ -12,6 +12,9 @@ X. Tokenizer. Must deliver sequence of tokens and not AST directly. Must detect 
     directory.
 Y. Multi-line input
 Z. Autocomplete overhaul
+-. Let prompt have colors (this will be nice to show the branch name)
+-. Allow storing the output of commands. I want to do "git symbolic-ref --short -q HEAD" to get the branch name (only
+    works on recent versions of git)
 
 EXCEPTIONS
 ==========
@@ -43,8 +46,8 @@ If the prompt is a function and not a string like in other shells, that's really
 Make Javascript be the means to something and not a dictator. CoffeeScript and such should be easy to integrate. There
     should be examples and/or plugins to show how to be able to use CoffeeScript as the main language.
 
-There will be some performance concerns. There is lots of as-you-type parsing. Try this out on a RaspberryPi and do some
-    performance tests, see how many times per second it can parse a complex multi-line input.
+There will be some performance concerns. There is lots of as-you-type processing. Try this out on a RaspberryPi and do
+    some performance tests, see how many times per second it can parse a complex multi-line input.
 
 Currently, user files can only have JS. Consider if it would nice to support also commands and anything you could run on
     the command line.

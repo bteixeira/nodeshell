@@ -56,7 +56,7 @@ Parser.prototype.parseArg = function (pointer) {
 
 // TODO QUALIFY THESE AS EXPORTS SO THAT EXTERNAL CODE CAN REFERENCE THEM
 var NON_MATCHING = 'Found closing brace without matching opening brace';
-var UNTERMINATED = 'Unterminated JS (opening brace without matching closing brace)'; // TODO LET TOP-LEVEL KNOW WHICH BRACE AND WHERE
+var UNTERMINATED = 'Unterminated JS (opening brace without matching closing brace)'; // TODO LET UPPER-LEVEL KNOW WHICH BRACE AND WHERE
 
 Parser.prototype.skipJS = function (pointer) {
 
