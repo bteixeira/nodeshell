@@ -1,4 +1,4 @@
-var Visitor = require(__dirname + '/../visitor');
+var Visitor = require('./visitor');
 
 var VisitorPrinter = function () {
     this.indent = 0;
