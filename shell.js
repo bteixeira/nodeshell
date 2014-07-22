@@ -105,4 +105,3 @@ line.setPrompt(ctx.prompt());
 line._refreshLine();
 
 stdin.on('keypress', function (ch, key) { return keyHandler.handleKey(ch, key); });
-

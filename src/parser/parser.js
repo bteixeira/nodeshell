@@ -1,4 +1,4 @@
-var Pointer = require(__dirname + '/linepointer');
+var Pointer = require(__dirname + '/linePointer');
 var TokenJS = require(__dirname + '/../ast/NodeJS');
 var TokenCMD = require(__dirname + '/../ast/NodeCMD');
 var TokenLiteral = require(__dirname + '/../ast/NodeLiteral');

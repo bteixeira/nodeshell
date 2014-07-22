@@ -9,3 +9,7 @@ exports.sourceSync = function (filename, context) {
     var contents = fs.readFileSync(filename);
     return vm.runInContext(contents, context);
 };
+
+exports.isString = function (candidate) {
+    return typeof candidate === 'string' || candidate instanceof String;
+};
