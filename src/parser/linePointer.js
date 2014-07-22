@@ -2,6 +2,9 @@
  * Keeps track of the position in a string. Useful for tokenizers.
  * Provides pointers to two positions in the string: the current position (or "pointer"), and the "mark". This allows
  * keeping rack of a position to which you might want to come back later, or process a substring of the string.
+ *
+ * Because the only state maintained are the two pointers, you can access and change them directly as properties of the
+ * object returned by the constructor.
  */
 
 var utils = require('../utils');

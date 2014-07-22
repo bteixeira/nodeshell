@@ -37,14 +37,6 @@ allFiles('test', function (filename) {
     }
 });
 
-// Get a new Istanbul reporter which outputs both summary and details, but to the console only
-var reporter = new istanbul.Reporter();
-reporter.add('text');
-reporter.add('text-summary');
-
-// For merging reports
-var collector = new istanbul.Collector();
-
 // istanbul works with this global, I think it is possible to get rid of it but couldn't figure it out
 var coverageVar = '$$cov_' + new Date().getTime() + '$$';
 var instrumenter = new istanbul.Instrumenter({
@@ -75,9 +67,12 @@ istanbul.matcherFor({
                 console.error('No coverage information was collected, exit without writing coverage information');
                 return;
             }
+
+            // For merging reports
+            var collector = new istanbul.Collector();
             collector.add(global[coverageVar]);
 
-            // BaselineCollector approach copied from the "instrument" command in istanbul, I intend to change it
+            // BaselineCollector approach copied from the "instrument" command in istanbul
             function BaselineCollector(instrumenter) {
                 this.instrumenter = instrumenter;
                 this.collector = new istanbul.Collector();
@@ -110,6 +105,9 @@ istanbul.matcherFor({
             });
             collector.add(instrumenter.getCoverage());
 
-            reporter.write(collector, true, function () {}); // reporter seems to need a callback even in sync mode
+            // Get a new Istanbul reporter which outputs both summary and details, but to the console only
+            var reporter = new istanbul.Reporter();
+            reporter.addAll('text text-summary lcov json'.split(' '));
+            reporter.write(collector, false, function () {}); // reporter seems to always need a callback
         });
     });
