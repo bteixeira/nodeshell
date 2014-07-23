@@ -147,6 +147,4 @@ describe('Parser', function () {
         assert.equal(ast.code, '~(function () {}).toString(); //-1');
     });
 
-
-
 });

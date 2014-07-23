@@ -47,9 +47,8 @@ VisitorExecuter.prototype.visitLiteral = function (token, callback) {
     callback(token.text);
 };
 
-VisitorExecuter.prototype.visitERR = function (token) {
-//    throw 'ERROR: ' + token.msg + ', at column ' + token.pos + ' "' + token.char + '"';
-    return new ErrorWrapper(token);
+VisitorExecuter.prototype.visitERR = function (token, callback) {
+    callback(new ErrorWrapper(token));
 };
 
 module.exports = VisitorExecuter;
