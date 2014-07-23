@@ -5,7 +5,7 @@ var commandsStub = require('../../test/commandsStub');
 
 describe('Parser', function () {
 
-    var parser = new Parser(commandsStub);
+    var parser = new Parser(commandsStub.isCmd);
 
     it('skips JS [(getThing()) anotherArg]', function () {
         var pointer = new Pointer('(getThing()) anotherArg');

@@ -1,11 +1,20 @@
 var Pointer = require('./linePointer');
+
 var NodeJS = require('../ast/nodes/nodeJS');
 var NodeCMD = require('../ast/nodes/nodeCMD');
 var NodeLiteral = require('../ast/nodes/nodeLiteral');
 var NodeERR = require('../ast/nodes/nodeERR');
 
-var Parser = function (commandSet) {
-    this.commandSet = commandSet;
+/**
+ * A parser for lines of input in the shell.
+ * Use the parse method to parse a string of input. It returns the top-most node of the AST. All other methods should
+ * not be needed and will probably be removed in the future.
+ *
+ * @param checkCmd a function which, given a string, returns true if that string is the name of a command
+ * @constructor
+ */
+var Parser = function (checkCmd) {
+    this.isCmd = checkCmd;
 };
 
 Parser.prototype.parse = function (input) {
@@ -20,7 +29,7 @@ Parser.prototype.parse = function (input) {
 
         var first = pointer.getMarked();
 
-        if (this.commandSet.isCmd(first)) {
+        if (this.isCmd(first)) {
             token = new NodeCMD(first);
             pointer.skipWS();
             while (pointer.hasMore()) {
@@ -37,6 +46,12 @@ Parser.prototype.parse = function (input) {
     return token;
 };
 
+/**
+ * Given a line pointer, parses a command argument (either JS or literal) starting from the current position of the
+ * pointer. Returns an AST node with the argument. Moves the pointer to the character after the argument.
+ * @param pointer
+ * @returns {*} AST node, either JS or literal
+ */
 Parser.prototype.parseArg = function (pointer) {
     var c = pointer.peek();
 
@@ -58,6 +73,10 @@ Parser.prototype.parseArg = function (pointer) {
 var NON_MATCHING = 'Found closing brace without matching opening brace';
 var UNTERMINATED = 'Unterminated JS (opening brace without matching closing brace)'; // TODO LET UPPER-LEVEL KNOW WHICH BRACE AND WHERE
 
+/**
+ * Given a line pointer, moves the pointer to the end of the javascript fragment at the current position of the pointer.
+ * @param pointer
+ */
 Parser.prototype.skipJS = function (pointer) {
 
     var stack = [];
