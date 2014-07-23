@@ -1,6 +1,6 @@
 var vm = require('vm');
 var Visitor = require('./visitor');
-var ErrorWrapper = require('../../ErrorWrapper');
+var ErrorWrapper = require('../../errorWrapper');
 
 var VisitorExecuter = function (commandSet, context) {
     this.commandSet = commandSet;

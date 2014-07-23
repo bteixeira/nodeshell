@@ -1,14 +1,14 @@
 var vm = require('vm');
 var util = require('util');
 var readline = require('readline');
-var KeyHandler = require(__dirname + '/src/keyhandler');
-var Commands = require(__dirname + '/src/commands');
-var Parser = require(__dirname + '/src/parser/parser');
-var Line = require(__dirname + '/src/line');
-var Executer = require(__dirname + '/src/visitorExecuter');
-var ErrorWrapper = require(__dirname + '/src/ErrorWrapper');
-var History = require(__dirname + '/src/History');
-var Autocompleter = require(__dirname + '/src/Autocompleter');
+var KeyHandler = require('./src/keyhandler');
+var Commands = require('./src/commands');
+var Parser = require('./src/parser/parser');
+var Line = require('./src/line');
+var Executer = require('./src/ast/visitors/visitorExecuter');
+var ErrorWrapper = require('./src/errorWrapper');
+var History = require('./src/history');
+var Autocompleter = require('./src/autocompleter');
 var utils = require('./src/utils');
 require('colors');
 

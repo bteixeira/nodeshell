@@ -13,8 +13,8 @@ var NodeERR = require('../ast/nodes/nodeERR');
  * @param checkCmd a function which, given a string, returns true if that string is the name of a command
  * @constructor
  */
-var Parser = function (checkCmd) {
-    this.isCmd = checkCmd;
+var Parser = function (commandSet) {
+    this.commandSet = commandSet;
 };
 
 Parser.prototype.parse = function (input) {
@@ -29,7 +29,7 @@ Parser.prototype.parse = function (input) {
 
         var first = pointer.getMarked();
 
-        if (this.isCmd(first)) {
+        if (this.commandSet.isCmd(first)) {
             token = new NodeCMD(first);
             pointer.skipWS();
             while (pointer.hasMore()) {

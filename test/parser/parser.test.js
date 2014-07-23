@@ -5,7 +5,7 @@ var commandsStub = require('../../test/commandsStub');
 
 describe('Parser', function () {
 
-    var parser = new Parser(commandsStub.isCmd);
+    var parser = new Parser(commandsStub);
 
     it('skips JS [(getThing()) anotherArg]', function () {
         var pointer = new Pointer('(getThing()) anotherArg');
@@ -101,6 +101,29 @@ describe('Parser', function () {
         assert.equal(ast.msg, 'Found closing brace without matching opening brace');
     });
 
+    it('throws error on JS argument with non matching curly brace [git ( arr=["checkout"]; arr[0} )]', function () {
+        var js = ' arr=["checkout"]; arr[0} ';
+        var ast = parser.parse('git (' + js + ')');
+
+        assert.equal(ast.type, 'ERR');
+        assert.equal(ast.msg, 'Found closing brace without matching opening brace');
+    });
+
+    it('throws error on JS argument with non matching square brace [git ( (function(){ return \'checkout\';])() )]', function () {
+        var js = ' (function(){ return \'checkout\';])() ';
+        var ast = parser.parse('git (' + js + ')');
+
+        assert.equal(ast.type, 'ERR');
+        assert.equal(ast.msg, 'Found closing brace without matching opening brace');
+    });
+
+    it('throws error on unterminated JS argument [git ("checkout"]', function () {
+        var ast = parser.parse('git ("checkout"');
+
+        assert.equal(ast.type, 'ERR');
+        assert.equal(ast.msg, 'Unterminated JS (opening brace without matching closing brace)');
+    });
+
     it('handles command with JS and literal arguments, whitespace all around [  git \t ( getGit ()   ; )  lalala ]', function () {
 
         var ast = parser.parse('  git \t ( getGit ()   ; )  lalala ');
@@ -115,5 +138,15 @@ describe('Parser', function () {
         assert.equal(ast.args[1].type, 'Literal');
         assert.equal(ast.args[1].text, 'lalala');
     });
+
+    it('handles line with only javascript [ ~(function () {}).toString(); //-1 ]', function () {
+
+        var ast = parser.parse('~(function () {}).toString(); //-1');
+
+        assert.equal(ast.type, 'JS');
+        assert.equal(ast.code, '~(function () {}).toString(); //-1');
+    });
+
+
 
 });
