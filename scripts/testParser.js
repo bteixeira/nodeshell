@@ -1,5 +1,5 @@
 var Parser = require('../src/parser/parser');
-var Printer = require('../src/ast/visitorPrinter');
+var Printer = require('../src/ast/visitors/visitorPrinter');
 
 var commandsStub = require('../test/commandsStub');
 

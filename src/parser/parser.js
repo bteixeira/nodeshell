@@ -1,8 +1,8 @@
-var Pointer = require(__dirname + '/linePointer');
-var TokenJS = require(__dirname + '/../ast/NodeJS');
-var TokenCMD = require(__dirname + '/../ast/NodeCMD');
-var TokenLiteral = require(__dirname + '/../ast/NodeLiteral');
-var TokenERR = require(__dirname + '/../ast/NodeERR');
+var Pointer = require('./linePointer');
+var NodeJS = require('../ast/nodes/nodeJS');
+var NodeCMD = require('../ast/nodes/nodeCMD');
+var NodeLiteral = require('../ast/nodes/nodeLiteral');
+var NodeERR = require('../ast/nodes/nodeERR');
 
 var Parser = function (commandSet) {
     this.commandSet = commandSet;
@@ -21,17 +21,17 @@ Parser.prototype.parse = function (input) {
         var first = pointer.getMarked();
 
         if (this.commandSet.isCmd(first)) {
-            token = new TokenCMD(first);
+            token = new NodeCMD(first);
             pointer.skipWS();
             while (pointer.hasMore()) {
                 token.addArg(this.parseArg(pointer));
                 pointer.skipWS();
             }
         } else {
-            token = new TokenJS(input.trim());
+            token = new NodeJS(input.trim());
         }
     } catch (ex) {
-        token = new TokenERR(ex, pointer);
+        token = new NodeERR(ex, pointer);
     }
 
     return token;
@@ -46,11 +46,11 @@ Parser.prototype.parseArg = function (pointer) {
         this.skipJS(pointer); // will set cursor at matching ')'
         var code = pointer.getMarked().trim();
         pointer.next();
-        return new TokenJS(code);
+        return new NodeJS(code);
     } else {
         pointer.setMark();
         pointer.skipNonWS();
-        return new TokenLiteral(pointer.getMarked());
+        return new NodeLiteral(pointer.getMarked());
     }
 };
 

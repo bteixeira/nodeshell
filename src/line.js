@@ -1,5 +1,5 @@
 var readline = require('readline');
-var Stream = require('stream');
+//var Stream = require('stream');
 
 var Line = function Line(options) {
     /**/

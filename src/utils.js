@@ -1,6 +1,6 @@
 var fs = require('fs');
 var vm = require('vm');
-var ErrorWrapper = require('./ErrorWrapper');
+var ErrorWrapper = require('./errorWrapper');
 
 exports.sourceSync = function (filename, context) {
     if (!fs.existsSync(filename)) {
