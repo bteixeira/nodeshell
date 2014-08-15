@@ -1,82 +1,72 @@
 var readline = require('readline');
+var util = require('util');
+var EventEmitter = require('events').EventEmitter;
 
-var Line = function Line(options) {
-    // TODO make some of these private
-    this.output = options.output;
-    this.acceptCB = options.acceptCB;
+var LineReader = function LineReader(output) {
+    this.output = output;
+
     this.line = '';
     this.cursor = 0;
 
+    // TODO make some of these private
     this._prompt = '>>> ';
     this._promptLength = 4;
-    this.terminal = true;
     this._sawReturn = false;
 
     /**/
 
 };
 
-Line.prototype.setPrompt = function (prompt) {
+util.inherits(LineReader, EventEmitter);
+
+/**
+ * Sets the prompt that will be displayed on next line refresh. Does not refresh the line.
+ * @param prompt
+ */
+LineReader.prototype.setPrompt = function (prompt) {
     this._prompt = prompt;
     this._promptLength = prompt.length;
-//    this._refreshLine();
 };
 
-Line.prototype.accept = function () {
+/** TODO get rid of this, line reader does not need to know about accepting lines so move this out of here. That way we
+ * can implement multi-line inputs.
+ */
+LineReader.prototype.accept = function () {
     var line = this.line;
-    this.clearLine();
-    this.acceptCB.call(this, line);
+    this.newLine();
+    this.emit('accept', line);
 };
 
-Line.prototype.insert = function (str/*, pos*/) {
-    var c = str;
+LineReader.prototype.insert = function (str/*, pos*/) {
     //BUG: Problem when adding tabs with following content.
-    //     Perhaps the bug is in _refreshLine(). Not sure.
+    //     Perhaps the bug is in refreshLine(). Not sure.
     //     A hack would be to insert spaces instead of literal '\t'.
     if (this.cursor < this.line.length) {
-        var beg = this.line.slice(0, this.cursor);
+        var begin = this.line.slice(0, this.cursor);
         var end = this.line.slice(this.cursor, this.line.length);
-        this.line = beg + c + end;
-        this.cursor += c.length;
-        this._refreshLine();
+        this.line = begin + str + end;
+        this.cursor += str.length;
+        this.refreshLine();
     } else {
-        this.line += c;
-        this.cursor += c.length;
-        if (this._getCursorPos().cols === 0) {
-            this._refreshLine();
+        this.line += str;
+        this.cursor += str.length;
+        if (this.getCursorPos().cols === 0) {
+            this.refreshLine();
         } else {
-            this.output.write(c);
+            this.output.write(str);
         }
         // a hack to get the line refreshed if it's needed
-        this._moveCursor(0);
+        this.moveCursor(0);
     }
 };
 
-Line.prototype.moveLeft = function () {
-};
-
-Line.prototype.moveWordLeft = function () {
-    if (this.cursor > 0) {
-        var leading = this.line.slice(0, this.cursor);
-        var match = leading.match(/([^\w\s]+|\w+|)\s*$/);
-        this._moveCursor(-match[0].length);
-    }
-};
-
-Line.prototype.moveRight = function () {
-};
-
-Line.prototype.moveWordRight = function () {
-    if (this.cursor < this.line.length) {
-        var trailing = this.line.slice(this.cursor);
-        var match = trailing.match(/^(\s+|\W+|\w+)\s*/);
-        this._moveCursor(match[0].length);
-    }
-};
-
-Line.prototype._moveCursor = function (dx) {
+/**
+ * Move the cursor
+ * @param dx the number of characters to move
+ */
+LineReader.prototype.moveCursor = function (dx) {
     var oldcursor = this.cursor;
-    var oldPos = this._getCursorPos();
+    var oldPos = this.getCursorPos();
     this.cursor += dx;
 
     // bounds check
@@ -87,80 +77,162 @@ Line.prototype._moveCursor = function (dx) {
         this.cursor = this.line.length;
     }
 
-    var newPos = this._getCursorPos();
+    var newPos = this.getCursorPos();
 
     // check if cursors are in the same line
     if (oldPos.rows === newPos.rows) {
         readline.moveCursor(this.output, this.cursor - oldcursor, 0);
         this.prevRows = newPos.rows;
     } else {
-        this._refreshLine();
+        this.refreshLine();
     }
 };
 
-Line.prototype.deleteLeft = function () {
+LineReader.prototype.moveToEnd = function () {
+    this.moveCursor(+Infinity);
+};
+
+LineReader.prototype.moveToStart = function () {
+    this.moveCursor(-1);
+};
+
+LineReader.prototype.moveLeft = function () {
+    this.moveCursor(-1);
+};
+
+LineReader.prototype.moveRight = function () {
+    this.moveCursor(1);
+};
+
+/**
+ * Deletes the character to the left of the cursor.
+ */
+LineReader.prototype.deleteLeft = function () {
     if (this.cursor > 0 && this.line.length > 0) {
         this.line = this.line.slice(0, this.cursor - 1) +
             this.line.slice(this.cursor, this.line.length);
 
         this.cursor--;
-        this._refreshLine();
+        this.refreshLine();
     }
 };
 
-Line.prototype.deleteRight = function () {
+/**
+ * Deletes the character to the right of the cursor.
+ */
+LineReader.prototype.deleteRight = function () {
     this.line = this.line.slice(0, this.cursor) +
         this.line.slice(this.cursor + 1, this.line.length);
-    this._refreshLine();
+    this.refreshLine();
 };
 
-Line.prototype.deleteWordLeft = function () {
+LineReader.prototype.moveWordLeft = function () {
+    if (this.cursor > 0) {
+        var leading = this.line.slice(0, this.cursor);
+        var match = leading.match(/([^\w\s]+|\w+|)\s*$/);
+        this.moveCursor(-match[0].length);
+    }
+};
+
+LineReader.prototype.moveWordRight = function () {
+    if (this.cursor < this.line.length) {
+        var trailing = this.line.slice(this.cursor);
+        var match = trailing.match(/^(\s+|\W+|\w+)\s*/);
+        this.moveCursor(match[0].length);
+    }
+};
+
+
+// TODO RULES FOR WORD BOUNDARIES AND HOW MUCH TO DELETE ARE NOT CONSISTENT AND GENERALLY SUCK. IMPROVE THIS (still using node's code)
+/**
+ * Deletes the word to the left of the cursor.
+ */
+LineReader.prototype.deleteWordLeft = function () {
     if (this.cursor > 0) {
         var leading = this.line.slice(0, this.cursor);
         var match = leading.match(/([^\w\s]+|\w+|)\s*$/);
         leading = leading.slice(0, leading.length - match[0].length);
         this.line = leading + this.line.slice(this.cursor, this.line.length);
         this.cursor = leading.length;
-        this._refreshLine();
+        this.refreshLine();
     }
 };
 
-Line.prototype.deleteWordRight = function () {
+/**
+ * Deletes the word to the right of the cursor.
+ */
+LineReader.prototype.deleteWordRight = function () {
+    if (this.cursor < this.line.length) {
+        var trailing = this.line.slice(this.cursor);
+        var match = trailing.match(/^(\s+|\W+|\w+)\s*/);
+        this.line = this.line.slice(0, this.cursor) +
+            trailing.slice(match[0].length);
+        this.refreshLine();
+    }
 };
 
-Line.prototype.deleteLineLeft = function () {
+/**
+ * Deletes all characters to the left of the cursor.
+ */
+LineReader.prototype.deleteLineLeft = function () {
 };
 
-Line.prototype.deleteLineRight = function () {
+/**
+ * Deletes all characters to the right of the cursor.
+ */
+LineReader.prototype.deleteLineRight = function () {
 };
 
-Line.prototype.deleteLine = function () {
+/**
+ * Deletes all characters on the line.
+ */
+LineReader.prototype.deleteLine = function () {
     this.line = '';
     this.cursor = 0;
-    this._refreshLine();
+    this.refreshLine();
 };
 
-Line.prototype.getLine = function () {
+/**
+ * Gets the currently inserted text.
+ * @returns {string}
+ */
+LineReader.prototype.getLine = function () {
     return this.line;
 };
 
-Line.prototype.setLine = function (line) {
+/**
+ * Sets the current text. Moves the cursor to the end.
+ * @param line
+ */
+LineReader.prototype.setLine = function (line) {
     this.line = line;
     this.cursor = line.length;
-    this._refreshLine();
+    this.refreshLine();
 };
 
-Line.prototype.clearLine = function () {
-    this._moveCursor(+Infinity);
+/**
+ * Takes the line as accepted and prints a new prompt.
+ */
+LineReader.prototype.newLine = function () {
+    this.moveToEnd();
     this.output.write('\r\n');
     this.line = '';
     this.cursor = 0;
     this.prevRows = 0;
 };
 
-module.exports = Line;
+/**
+ * Go into continuation prompt. Used for multi-line inputs, i.e., when user pressed enter but has not finished the
+ * command or expression
+ */
+LineReader.prototype.startContinuation = function () {
+    // TODO
+};
 
-Line.prototype._refreshLine = function () {
+/**
+ * Reprints the prompt and the currently inserted text.
+ */
+LineReader.prototype.refreshLine = function () {
     var columns = this.columns;
 
     // line length
@@ -170,7 +242,7 @@ Line.prototype._refreshLine = function () {
     var lineRows = (lineLength - lineCols) / columns;
 
     // cursor position
-    var cursorPos = this._getCursorPos();
+    var cursorPos = this.getCursorPos();
 
     // first move to the bottom of the current line, based on cursor pos
     var prevRows = this.prevRows || 0;
@@ -179,9 +251,9 @@ Line.prototype._refreshLine = function () {
     }
 
     // Cursor to left edge.
-    exports.cursorTo(this.output, 0);
+    readline.cursorTo(this.output, 0);
     // erase data
-    exports.clearScreenDown(this.output);
+    readline.clearScreenDown(this.output);
 
     // Write the prompt and the current buffer content.
     this.output.write(line);
@@ -192,7 +264,7 @@ Line.prototype._refreshLine = function () {
     }
 
     // Move cursor to original position.
-    exports.cursorTo(this.output, cursorPos.cols);
+    readline.cursorTo(this.output, cursorPos.cols);
 
     var diff = lineRows - cursorPos.rows;
     if (diff > 0) {
@@ -201,30 +273,22 @@ Line.prototype._refreshLine = function () {
 
     this.prevRows = cursorPos.rows;
 };
-Line.prototype._getCursorPos = function () {
+
+/**
+ * Returns the current two-dimension cursor position starting from the line where the prompt is. This is *not* the
+ * cursor position on the screen.
+ *
+ * @returns {{cols: number, rows: number}}
+ */
+LineReader.prototype.getCursorPos = function () {
     var columns = this.output.columns;
     var cursorPos = this.cursor + this._promptLength;
     var cols = cursorPos % columns;
     var rows = (cursorPos - cols) / columns;
-    return {cols: cols, rows: rows};
+    return {
+        cols: cols,
+        rows: rows
+    };
 };
-function cursorTo(stream, x, y) {
-    if (typeof x !== 'number' && typeof y !== 'number') {
-        return;
-    }
 
-    if (typeof x !== 'number') {
-        throw new Error("Can't set cursor row without also setting it's column");
-    }
-
-    if (typeof y !== 'number') {
-        stream.write('\x1b[' + (x + 1) + 'G');
-    } else {
-        stream.write('\x1b[' + (y + 1) + ';' + (x + 1) + 'H');
-    }
-}
-exports.cursorTo = cursorTo;
-function clearScreenDown(stream) {
-    stream.write('\x1b[0J');
-}
-exports.clearScreenDown = clearScreenDown;
+module.exports = LineReader;

@@ -105,7 +105,7 @@ istanbul.matcherFor({
             });
             collector.add(instrumenter.getCoverage());
 
-            // Get a new Istanbul reporter which outputs both summary and details, but to the console only
+            // Get a new Istanbul reporter which outputs both summary and details, on the console and on filesystem
             var reporter = new istanbul.Reporter();
             reporter.addAll('text text-summary lcov json'.split(' '));
             reporter.write(collector, false, function () {}); // reporter seems to always need a callback

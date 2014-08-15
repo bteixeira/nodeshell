@@ -4,7 +4,7 @@ var readline = require('readline');
 var KeyHandler = require('./src/keyhandler');
 var Commands = require('./src/commands');
 var Parser = require('./src/parser/parser');
-var Line = require('./src/line');
+var LineReader = require('./src/line');
 var Executer = require('./src/ast/visitors/visitorExecuter');
 var ErrorWrapper = require('./src/errorWrapper');
 var History = require('./src/history');
@@ -62,19 +62,18 @@ function doneCB (result) {
     } else {
         line.setPrompt(String(ctx.prompt));
     }
-    line._refreshLine();
+    line.refreshLine();
 }
 
 var commands = new Commands(ctx);
 var executer = new Executer(commands, ctx);
 
-var line = new Line({
-    output: process.stdout,
-    acceptCB: function (line) {
-            var ast = parser.parse(line);
-            executer.visit(ast, doneCB);
-    }
+var line = new LineReader(process.stdout);
+line.on('accept', function (line) {
+    var ast = parser.parse(line);
+    executer.visit(ast, doneCB);
 });
+
 var parser = new Parser(
     commands
 );
@@ -102,6 +101,6 @@ function runUserFile () {
 runUserFile();
 
 line.setPrompt(ctx.prompt());
-line._refreshLine();
+line.refreshLine();
 
 stdin.on('keypress', function (ch, key) { return keyHandler.handleKey(ch, key); });

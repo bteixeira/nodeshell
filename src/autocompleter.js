@@ -21,7 +21,7 @@ Autocompleter.prototype.complete = function () {
         this.line.insert(comps.completions[0].substring(comps.length));
     } else {
         console.log('\n' + comps.completions.join('\t') + '\n');
-        this.line._refreshLine();
+        this.line.refreshLine();
     }
 };
 

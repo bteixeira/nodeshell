@@ -19,7 +19,7 @@ var _ttyWrite = function(s, key, history, autocompleter) {
     var me = this;
     function notImplemented () {
         console.log('NO AUTOCOMPLETE IMPLEMENTED YET');
-        me._refreshLine();
+        me.refreshLine();
     }
 
     key = key || {};
@@ -68,7 +68,7 @@ var _ttyWrite = function(s, key, history, autocompleter) {
         case 'u': // delete the whole line
             this.cursor = 0;
             this.line = '';
-            this._refreshLine();
+            this.refreshLine();
             break;
 
         case 'k': // delete from current to end of line
@@ -76,25 +76,25 @@ var _ttyWrite = function(s, key, history, autocompleter) {
             break;
 
         case 'a': // go to the start of the line
-            this._moveCursor(-Infinity);
+            this.moveCursor(-Infinity);
             break;
 
         case 'e': // go to the end of the line
-            this._moveCursor(+Infinity);
+            this.moveCursor(+Infinity);
             break;
 
         case 'b': // back one character
-            this._moveCursor(-1);
+            this.moveCursor(-1);
             break;
 
         case 'f': // forward one character
-            this._moveCursor(+1);
+            this.moveCursor(+1);
             break;
 
         case 'l': // clear the whole screen
             exports.cursorTo(this.output, 0, 0);
             exports.clearScreenDown(this.output);
-            this._refreshLine();
+            this.refreshLine();
             break;
 
         case 'n': // next history item
@@ -123,7 +123,7 @@ var _ttyWrite = function(s, key, history, autocompleter) {
                         // the correct position.
                         // See https://github.com/joyent/node/issues/3295.
                         self._setRawMode(true);
-                        self._refreshLine();
+                        self.refreshLine();
                     };
                 })(this));
                 this._setRawMode(false);
@@ -206,19 +206,19 @@ var _ttyWrite = function(s, key, history, autocompleter) {
             break;
 
         case 'left':
-            this._moveCursor(-1);
+            this.moveCursor(-1);
             break;
 
         case 'right':
-            this._moveCursor(+1);
+            this.moveCursor(+1);
             break;
 
         case 'home':
-            this._moveCursor(-Infinity);
+            this.moveCursor(-Infinity);
             break;
 
         case 'end':
-            this._moveCursor(+Infinity);
+            this.moveCursor(+Infinity);
             break;
 
         case 'up':
