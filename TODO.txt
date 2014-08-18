@@ -16,11 +16,13 @@ Z. Autocomplete overhaul
 -. Allow storing the output of commands. I want to do "git symbolic-ref --short -q HEAD" to get the branch name (only
     works on recent versions of git)
 
-EXCEPTIONS
+EXCEPTIONS & PROBLEMS
 ==========
 
 * On CTRL+C or CTRL+D
 * On cd to nonexistent dir
+* require('colors') does not allow 'lalla'.red, probably something to do with different environments (String.prototype
+    is not the same in nodeland and userland)
 
 IDEA HEAP
 =========

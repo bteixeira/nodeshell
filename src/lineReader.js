@@ -2,22 +2,70 @@ var readline = require('readline');
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 
+/**
+ * LineReader keeps track of user inserted characters and handles the cursor position. Takes an output stream as
+ * parameter.
+ *
+ * Note that this class only holds the state of the currently inserted text. Anything to do with key bindings should be
+ * implemented outside, in code which can make use of this class's methods for managing text and cursor.
+ *
+ * Much of this code was ripped off from NodeJS's own readline module. Although it provides some handy snippets, this
+ * code might change in the future. Readline provides way too much functionality that in Nsh should be somewhere else,
+ * and that's why we've written this class instead of reusing readline it. Some exported features of Readline are still
+ * called from here.
+ *
+ * @param output
+ * @constructor
+ */
 var LineReader = function LineReader(output) {
     this.output = output;
 
     this.line = '';
     this.cursor = 0;
 
-    // TODO make some of these private
-    this._prompt = '>>> ';
-    this._promptLength = 4;
-    this._sawReturn = false;
+    this.setPrompt('>>> ');
 
-    /**/
+    this._sawReturn = false;
 
 };
 
 util.inherits(LineReader, EventEmitter);
+
+/**
+ * Counts the length of a string skipping escape sequences, such as ones to set the text color of the terminal.
+ * http://en.wikipedia.org/wiki/ANSI_escape_code#Sequence_elements
+ * @param str
+ */
+function countLength(str) {
+    var ch;
+    var length = 0;
+    var status = 0; // 0 = normal | 1 = escape char found in the previous loop | 2 = in multi-char escape sequence
+    for (var i = 0; i < str.length; i++) {
+
+        ch = str.charAt(i).charCodeAt(0);
+
+        if (status === 0) {
+            if (ch === 27) { // escape char
+                status = 1;
+            } else {
+                length += 1;
+            }
+        } else if (status === 1) {
+            if (ch === 91) { // valid escape sequence
+                status = 2;
+            } else if (ch > 63 && ch < 96) { // left bracket, introduces multi-character sequence
+                status = 0;
+            } else { // invalid, I don't know why the escape char is here and I'll assume it's supposed to be printed or something
+                length += 2; // count both the escape and the current character
+            }
+        } else if (status === 2) {
+            if (ch > 63 && ch < 127) { // end of sequence
+                status = 0;
+            } // else nothing. The sequence is not finished yet. I hope it finishes some time.
+        }
+    }
+    return length;
+}
 
 /**
  * Sets the prompt that will be displayed on next line refresh. Does not refresh the line.
@@ -25,7 +73,9 @@ util.inherits(LineReader, EventEmitter);
  */
 LineReader.prototype.setPrompt = function (prompt) {
     this._prompt = prompt;
-    this._promptLength = prompt.length;
+    var lines = prompt.split(/[\r\n]/);
+    var lastLine = lines[lines.length - 1];
+    this._promptLength = countLength(lastLine);
 };
 
 /** TODO get rid of this, line reader does not need to know about accepting lines so move this out of here. That way we
@@ -37,7 +87,11 @@ LineReader.prototype.accept = function () {
     this.emit('accept', line);
 };
 
-LineReader.prototype.insert = function (str/*, pos*/) {
+/**
+ * Inserts test at the current cursor position. Moves the cursor accordingly.
+ * @param str
+ */
+LineReader.prototype.insert = function (str) {
     //BUG: Problem when adding tabs with following content.
     //     Perhaps the bug is in refreshLine(). Not sure.
     //     A hack would be to insert spaces instead of literal '\t'.
@@ -175,12 +229,17 @@ LineReader.prototype.deleteWordRight = function () {
  * Deletes all characters to the left of the cursor.
  */
 LineReader.prototype.deleteLineLeft = function () {
+    this.line = this.line.slice(this.cursor);
+    this.cursor = 0;
+    this.refreshLine();
 };
 
 /**
  * Deletes all characters to the right of the cursor.
  */
 LineReader.prototype.deleteLineRight = function () {
+    this.line = this.line.slice(0, this.cursor);
+    this._refreshLine();
 };
 
 /**

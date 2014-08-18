@@ -13,11 +13,7 @@ var utils = require('./src/utils');
 require('colors');
 
 var getPrompt = function () {
-    /* Due to apparent bug in readline, if you want a new line before the prompt
-     * you should print it directly. Otherwise when you press backspace an
-     * aditional new line will be printed. */
-    console.log();
-    return process.cwd() + ' \u2B21  '; // or \u2B22
+    return process.cwd() + ' \u2B21  '.green; // or \u2B22
 };
 
 var permanent = {
