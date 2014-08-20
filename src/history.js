@@ -12,7 +12,7 @@ History.prototype.prev = function () {
     this.index = Math.min(this.stack.length - 1, this.index + 1);
     var item = this.stack[this.index];
     if (item) {
-        this.line.setLine(item);
+        this.line.setLine(item).refreshLine();
     }
 };
 
@@ -22,7 +22,7 @@ History.prototype.next = function () {
         this.line.deleteLine();
     } else {
         this.index = Math.max(-1, this.index - 1);
-        this.line.setLine(this.stack[this.index] || '');
+        this.line.setLine(this.stack[this.index] || '').refreshLine();
     }
 };
 

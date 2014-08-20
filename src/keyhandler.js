@@ -61,9 +61,7 @@ var _ttyWrite = function(s, key, history, autocompleter) {
             break;
 
         case 'u': // delete the whole line
-            this.cursor = 0;
-            this.line = '';
-            this.refreshLine();
+            this.deleteLine();
             break;
 
         case 'k': // delete from current to end of line
@@ -184,7 +182,8 @@ var _ttyWrite = function(s, key, history, autocompleter) {
             if (this._sawReturn)
                 this._sawReturn = false;
             else
-                this._line();
+                // TODO can't find a situation in which this occurs, only in mac? check the event generator
+                this.accept();
             break;
 
         case 'backspace':

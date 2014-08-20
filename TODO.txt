@@ -86,15 +86,25 @@ Builtins
         isn't this in the path?
     print/echo
         compat?
-    kill
-        useful, might be the first thing you remember in an emergency
     read?
         useful?
     umask?
-    whish?
+    which?
     where?
     help?
         never hurts
 
 Should we include most of the built ins from bash and zsh to allow maximum compat? should there be some compatibility
 mode that emulated them? this could probably be achieved easily.
+
+
+API
+===
+
+global object NSH where all the API is
+
+task: define key binding
+task: set the prompt
+task: define aliases
+task: set event handler for before exit
+task: override the default parser or part of it

@@ -1,5 +1,6 @@
 var readline = require('readline');
 var util = require('util');
+var utils = require('./utils');
 var EventEmitter = require('events').EventEmitter;
 
 /**
@@ -20,11 +21,8 @@ var EventEmitter = require('events').EventEmitter;
 var LineReader = function LineReader(output) {
     this.output = output;
 
-    this.line = '';
-    this.cursor = 0;
-
-    this.setPrompt('>>> ');
-
+    this.setLine('').setPrompt('>>> ').updatePrompt();
+    this._prompting = false;
 };
 
 util.inherits(LineReader, EventEmitter);
@@ -66,14 +64,12 @@ function countLength(str) {
 }
 
 /**
- * Sets the prompt that will be displayed on next line refresh. Does not refresh the line.
+ * Sets the prompt that will be displayed. Does not refresh the line.
  * @param prompt
  */
 LineReader.prototype.setPrompt = function (prompt) {
-    this._prompt = prompt;
-    var lines = prompt.split(/[\r\n]/);
-    var lastLine = lines[lines.length - 1];
-    this._promptLength = countLength(lastLine);
+    this.prompt = prompt;
+    return this;
 };
 
 /** TODO get rid of this, line reader does not need to know about accepting lines so move this out of here. That way we
@@ -264,11 +260,11 @@ LineReader.prototype.getLine = function () {
 LineReader.prototype.setLine = function (line) {
     this.line = line;
     this.cursor = line.length;
-    this.refreshLine();
+    return this;
 };
 
 /**
- * Takes the line as accepted and prints a new prompt.
+ * Takes the line as accepted and moves the cursor down.
  */
 LineReader.prototype.newLine = function () {
     this.moveToEnd();
@@ -276,6 +272,7 @@ LineReader.prototype.newLine = function () {
     this.line = '';
     this.cursor = 0;
     this.prevRows = 0;
+    this._prompting = false;
 };
 
 /**
@@ -286,10 +283,36 @@ LineReader.prototype.startContinuation = function () {
     // TODO
 };
 
+function getPrompt (p) {
+    if (utils.isFunction(p)) {
+        return p();
+    } else {
+        return String(p);
+    }
+}
+
 /**
- * Reprints the prompt and the currently inserted text.
+ * Reevaluates the prompt and reprints the prompt and the inserted text.
+ */
+LineReader.prototype.updatePrompt = function () {
+
+    this._prompt = getPrompt(this.prompt);
+    var lines = this._prompt.split(/[\r\n]/);
+    var lastLine = lines[lines.length - 1];
+    this._promptLength = countLength(lastLine);
+
+    return this;
+};
+
+/**
+ * Reprints the prompt and the currently inserted text. Can also be used to print a new prompt on a new line.
  */
 LineReader.prototype.refreshLine = function () {
+
+    if (!this._prompting) {
+        this.updatePrompt();
+        this._prompting = false;
+    }
     var columns = this.columns;
 
     // line length

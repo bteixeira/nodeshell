@@ -12,9 +12,7 @@ var Autocompleter = require('./src/autocompleter');
 var utils = require('./src/utils');
 require('colors');
 
-var getPrompt = function () {
-    return process.cwd() + ' \u2B21  '.green; // or \u2B22
-};
+var lineReader = new LineReader(process.stdout);
 
 var permanent = {
     process: process,
@@ -26,7 +24,10 @@ var permanent = {
     setImmediate: setImmediate,
     clearImmediate: clearImmediate,
     console: console,
-    require: require
+    require: require,
+    NSH: {
+        lineReader: lineReader
+    }
 };
 
 //process.on('SIGINT', function() {
@@ -35,7 +36,7 @@ var permanent = {
 var extend = util._extend;
 
 var ctx = vm.createContext(permanent);
-ctx.prompt = getPrompt;
+//ctx.prompt = getPrompt;
 
 var inspect = function (what) {
     if (what instanceof ErrorWrapper) {
@@ -48,42 +49,40 @@ var inspect = function (what) {
 function doneCB (result) {
     console.log(inspect(result));
     extend(ctx, permanent);
-    if (!ctx.prompt) {
-        ctx.prompt = getPrompt;
-    }
-    if (typeof ctx.prompt === 'function') {
-        line.setPrompt(ctx.prompt());
-    } else {
-        line.setPrompt(String(ctx.prompt));
-    }
-    line.refreshLine();
+    lineReader.refreshLine();
 }
 
 var commands = new Commands(ctx);
 var executer = new Executer(commands, ctx);
 
-var line = new LineReader(process.stdout);
-line.on('accept', function (line) {
-    var ast = parser.parse(line);
-    executer.visit(ast, doneCB);
-});
+lineReader
+    .setPrompt(function () {
+        return process.cwd() + ' \u2B21  '.green; // or \u2B22
+    })
+    .updatePrompt()
+    .on('accept', function (line) {
+        var ast = parser.parse(line);
+        executer.visit(ast, doneCB);
+    });
 
 var parser = new Parser(
     commands
 );
 
-var history = new History(line);
+var history = new History(lineReader);
 
 var stdin = process.stdin;
 
 readline.emitKeypressEvents(stdin);
 
-stdin.setRawMode(true);
+if (process.stdin.isTTY) {
+    stdin.setRawMode(true);
+}
 
 var keyHandler = new KeyHandler({
-    line: line,
+    line: lineReader,
     history: history,
-    autocompleter: new Autocompleter(line, ctx, commands)
+    autocompleter: new Autocompleter(lineReader, ctx, commands)
 });
 
 function runUserFile () {
@@ -94,7 +93,8 @@ function runUserFile () {
 }
 runUserFile();
 
-line.setPrompt(ctx.prompt());
-line.refreshLine();
+lineReader.refreshLine();
 
-stdin.on('keypress', function (ch, key) { return keyHandler.handleKey(ch, key); });
+stdin.on('keypress', function (ch, key) {
+    return keyHandler.handleKey(ch, key);
+});

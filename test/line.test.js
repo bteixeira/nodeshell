@@ -26,7 +26,7 @@ describe('LineReader', function () {
     it('should return the correct cursor position', function () {
         var prompt = '$> ';
         var text = 'texttexttext';
-        lineReader.setPrompt(prompt);
+        lineReader.setPrompt(prompt).updatePrompt();
         lineReader.insert(text);
         var pos = lineReader.getCursorPos();
         pos.cols.should.be.exactly(prompt.length + text.length);
