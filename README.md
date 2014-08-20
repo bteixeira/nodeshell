@@ -67,7 +67,7 @@ prompt.
 
 A sample `.nsh.js` file is included which sets up a prompt with a little more information than the default.
 
-Other features common in shells are also already implemented, like expanding `~` to you home directory and command
+Other features common in shells are also already implemented, like expanding `~` to your home directory and command
 history (with up and down keys).
 
 Current Issues
