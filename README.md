@@ -57,15 +57,18 @@ LICENSE  node_modules  package.json  proto  README.md  shell.js  src  test  TODO
 
 What else does it do?
 ---------------------
-If a file named `.nsh.js` exists in your home directory, it will be executed on startup. If a file with the same name
-exists in the local directory, it will be executed after that.
+If a file named `.nsh.js` exists in your home directory, it will be executed on startup.  
+If a file with the same name exists in the local directory, it will be executed after that.
 
-To change the text used as prompt, change the value of the `prompt` global variable inside your shell. If it is a
-function, it will be executed (synchronously -- be careful!) every time the prompt has to be shown, and its return value
-used for the prompt. If you assign any other truthy value, that value will be converted to a string and used as the
-prompt. If you assign a falsy value to `prompt`, then it is restored to the default prompt.
+To change the text used as prompt, call `NSH.lineReader.setPrompt()`. If the argument you pass is a
+function, it will be executed (synchronously -- be careful with loops!) every time the prompt has to be shown, and its return value
+used for the prompt. If you assign any other value, that value will be converted to a string and used as the
+prompt.
 
 A sample `.nsh.js` file is included which sets up a prompt with a little more information than the default.
+
+Other features common in shells are also already implemented, like expanding `~` to you home directory and command
+history (with up and down keys).
 
 Current Issues
 --------------
