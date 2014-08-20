@@ -4,6 +4,7 @@ var KeyHandler = function (options) {
     this.line = options.line;
     this.history = options.history;
     this.autocompleter = options.autocompleter;
+    this._sawReturn = false;
 };
 
 KeyHandler.prototype.handleKey = function (ch, key) {
@@ -15,12 +16,6 @@ module.exports = KeyHandler;
 
 /* Rip off from readline */
 var _ttyWrite = function(s, key, history, autocompleter) {
-
-    var me = this;
-    function notImplemented () {
-        console.log('NO AUTOCOMPLETE IMPLEMENTED YET');
-        me.refreshLine();
-    }
 
     key = key || {};
 
@@ -180,7 +175,6 @@ var _ttyWrite = function(s, key, history, autocompleter) {
         switch (key.name) {
         case 'return':  // carriage return, i.e. \r
             this._sawReturn = true;
-//            this._line();
             history.push();
             history.rewind();
             this.accept();
@@ -239,7 +233,6 @@ var _ttyWrite = function(s, key, history, autocompleter) {
                     if (i > 0) {
                         this._line();
                     }
-//                    this._insertString(lines[i]);
                     this.insert(lines[i]);
                 }
             }

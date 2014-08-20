@@ -25,8 +25,6 @@ var LineReader = function LineReader(output) {
 
     this.setPrompt('>>> ');
 
-    this._sawReturn = false;
-
 };
 
 util.inherits(LineReader, EventEmitter);

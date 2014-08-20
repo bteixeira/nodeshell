@@ -4,7 +4,7 @@ nodeshell
 What do you do when you get tired of your shell?  
 That's right, you make your own.
 
-**Current Status:** Buggier than a locust swarm
+**Current Status:** Almost stable. Some features missing or poorly implemented.
 
 This project was born out of some disappointment with the customization possibilities of nowadays shells.  
 Shells like Bash and Zshell work quite well and are armed with a bunch of features, but they are really hard to customize if you're not up for reading epic size documentation and learn all the quirks and corner cases of weird mini-languages created haphazardly for a single purpose.

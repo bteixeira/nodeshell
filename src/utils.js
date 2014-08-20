@@ -13,3 +13,8 @@ exports.sourceSync = function (filename, context) {
 exports.isString = function (candidate) {
     return typeof candidate === 'string' || candidate instanceof String;
 };
+
+exports.getUserHome = function () {
+    var prop = (process.platform === 'win32') ? 'USERPROFILE' : 'HOME';
+    return process.env[prop];
+};

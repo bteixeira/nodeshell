@@ -27,7 +27,10 @@ History.prototype.next = function () {
 };
 
 History.prototype.push = function () {
-    this.stack.unshift(this.line.getLine());
+    var line = this.line.getLine().trim();
+    if (line) {
+        this.stack.unshift(line);
+    }
 };
 
 History.prototype.rewind = function () {

@@ -1,4 +1,7 @@
 var vm = require('vm');
+var path = require('path');
+
+var utils = require('../../utils');
 var Visitor = require('./visitor');
 var ErrorWrapper = require('../../errorWrapper');
 
@@ -44,7 +47,13 @@ VisitorExecuter.prototype.visitCMD = function (token, callback) {
 };
 
 VisitorExecuter.prototype.visitLiteral = function (token, callback) {
-    callback(token.text);
+    var text = token.text.trim();
+    if (text === '~') {
+        text = utils.getUserHome();
+    } else if (text.indexOf('~' + path.sep) === 0) {
+        text = utils.getUserHome() + path.sep + text.substring(2);
+    }
+    callback(text);
 };
 
 VisitorExecuter.prototype.visitERR = function (token, callback) {

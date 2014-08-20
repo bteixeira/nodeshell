@@ -29,10 +29,8 @@ var permanent = {
     require: require
 };
 
-process.on('SIGINT', function() {
-//    console.log('Do something useful here.');
-//    server.close();
-});
+//process.on('SIGINT', function() {
+//});
 
 var extend = util._extend;
 
