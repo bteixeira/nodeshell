@@ -12,12 +12,12 @@ X. Tokenizer. Must deliver sequence of tokens and not AST directly. Must detect 
     directory.
 Y. Multi-line input
 Z. Autocomplete overhaul
--. Let prompt have colors (this will be nice to show the branch name)
+-. V Let prompt have colors (this will be nice to show the branch name)
 -. Allow storing the output of commands. I want to do "git symbolic-ref --short -q HEAD" to get the branch name (only
     works on recent versions of git)
 
 EXCEPTIONS & PROBLEMS
-==========
+=====================
 
 * On CTRL+C or CTRL+D
 * On cd to nonexistent dir

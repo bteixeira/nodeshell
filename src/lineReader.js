@@ -57,11 +57,13 @@ function countLength(str) {
         } else if (status === 2) {
             if (ch > 63 && ch < 127) { // end of sequence
                 status = 0;
-            } // else nothing. The sequence is not finished yet. I hope it finishes some time.
+            } // else nothing. The sequence is not finished yet. I hope it finishes some day.
         }
     }
     return length;
 }
+
+LineReader.countLength = countLength;
 
 /**
  * Sets the prompt that will be displayed. Does not refresh the line.
@@ -311,15 +313,20 @@ LineReader.prototype.refreshLine = function () {
 
     if (!this._prompting) {
         this.updatePrompt();
-        this._prompting = false;
+        this._prompting = true;
     }
-    var columns = this.columns;
+    var columns = this.output.columns;
 
-    // line length
     var line = this._prompt + this.line;
-    var lineLength = line.length;
-    var lineCols = lineLength % columns;
-    var lineRows = (lineLength - lineCols) / columns;
+    var lines = line.split(/[\r\n]/);
+    var lineCols;
+    var lineRows = 0;
+
+    lines.forEach(function (ln) {
+        var lnLength = countLength(ln.length);
+        lineCols = lnLength % columns;
+        lineRows += (lnLength - lineCols) / columns + 1;
+    });
 
     // cursor position
     var cursorPos = this.getCursorPos();
@@ -327,7 +334,7 @@ LineReader.prototype.refreshLine = function () {
     // first move to the bottom of the current line, based on cursor pos
     var prevRows = this.prevRows || 0;
     if (prevRows > 0) {
-        exports.moveCursor(this.output, 0, -prevRows);
+        readline.moveCursor(this.output, 0, -prevRows);
     }
 
     // Cursor to left edge.
@@ -346,9 +353,9 @@ LineReader.prototype.refreshLine = function () {
     // Move cursor to original position.
     readline.cursorTo(this.output, cursorPos.cols);
 
-    var diff = lineRows - cursorPos.rows;
+    var diff = lineRows - cursorPos.rows - 1;
     if (diff > 0) {
-        exports.moveCursor(this.output, 0, -diff);
+        readline.moveCursor(this.output, 0, -diff);
     }
 
     this.prevRows = cursorPos.rows;
@@ -361,10 +368,25 @@ LineReader.prototype.refreshLine = function () {
  * @returns {{cols: number, rows: number}}
  */
 LineReader.prototype.getCursorPos = function () {
+
     var columns = this.output.columns;
-    var cursorPos = this.cursor + this._promptLength;
+
+    var lines = this._prompt.split(/[\r\n]/);
+    var lineCols;
+    var lineRows = 0;
+
+    lines.forEach(function (ln) {
+        var lnLength = countLength(ln);
+        lineCols = lnLength % columns;
+        lineRows += (lnLength - lineCols) / columns + 1;
+    });
+
+    lineRows -= 1;
+
+
+    var cursorPos = this.cursor + lineCols;
     var cols = cursorPos % columns;
-    var rows = (cursorPos - cols) / columns;
+    var rows = (cursorPos - cols) / columns + lineRows;
     return {
         cols: cols,
         rows: rows
