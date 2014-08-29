@@ -15,10 +15,14 @@ exports.isString = function isString (candidate) {
 };
 
 exports.isFunction = function isFunction (candidate) {
-    /* Yes I know most snobs say that this check is not complete, but it seems to be, at least in node v0.10.29. All
+    /* Yes I know that snobs say that this check is not complete, but it seems to be, at least in node v0.10.29. All
      * functions pass this check, even if created with new Function(), and nothing else seems to be detected as a
      * function, not even regular expressions. */
     return typeof candidate === 'function';
+};
+
+exports.isArray = function (candidate) {
+    return Array.isArray(candidate);
 };
 
 exports.getUserHome = function getUserHome () {

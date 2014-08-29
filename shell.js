@@ -1,6 +1,6 @@
 var vm = require('vm');
 var util = require('util');
-var readline = require('readline');
+var path = require('path');
 var KeyHandler = require('./src/keyhandler');
 var Commands = require('./src/commands');
 var Parser = require('./src/parser/parser');
@@ -13,6 +13,7 @@ var utils = require('./src/utils');
 require('colors');
 
 var lineReader = new LineReader(process.stdout);
+var keyHandler = new KeyHandler(process.stdin);
 
 var permanent = {
     process: process,
@@ -26,7 +27,9 @@ var permanent = {
     console: console,
     require: require,
     NSH: {
-        lineReader: lineReader
+        lineReader: lineReader,
+        bindings: keyHandler,
+        utils: utils
     }
 };
 
@@ -36,7 +39,6 @@ var permanent = {
 var extend = util._extend;
 
 var ctx = vm.createContext(permanent);
-//ctx.prompt = getPrompt;
 
 var inspect = function (what) {
     if (what instanceof ErrorWrapper) {
@@ -48,6 +50,7 @@ var inspect = function (what) {
 
 function doneCB (result) {
     console.log(inspect(result));
+    // TODO MAKE READ-ONLY PROPERTIES INSTEAD
     extend(ctx, permanent);
     lineReader.refreshLine();
 }
@@ -71,30 +74,16 @@ var parser = new Parser(
 
 var history = new History(lineReader);
 
-var stdin = process.stdin;
+var autocompleter = new Autocompleter(lineReader, ctx, commands);
+require('./src/defaultKeys')(keyHandler, lineReader, history, autocompleter);
 
-readline.emitKeypressEvents(stdin);
-
-if (process.stdin.isTTY) {
-    stdin.setRawMode(true);
-}
-
-var keyHandler = new KeyHandler({
-    line: lineReader,
-    history: history,
-    autocompleter: new Autocompleter(lineReader, ctx, commands)
-});
 
 function runUserFile () {
     var NSH_FILE = '.nsh.js';
-    var home = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-    utils.sourceSync(home + '/' + NSH_FILE, ctx);
-    utils.sourceSync('./' + NSH_FILE, ctx);
+    var home = utils.getUserHome();
+    utils.sourceSync(path.join(home, NSH_FILE), ctx);
+    utils.sourceSync(path.join('.', NSH_FILE), ctx);
 }
 runUserFile();
 
 lineReader.refreshLine();
-
-stdin.on('keypress', function (ch, key) {
-    return keyHandler.handleKey(ch, key);
-});

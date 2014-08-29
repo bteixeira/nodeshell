@@ -143,7 +143,7 @@ LineReader.prototype.moveToEnd = function () {
 };
 
 LineReader.prototype.moveToStart = function () {
-    this.moveCursor(-1);
+    this.moveCursor(-Infinity);
 };
 
 LineReader.prototype.moveLeft = function () {
@@ -235,7 +235,7 @@ LineReader.prototype.deleteLineLeft = function () {
  */
 LineReader.prototype.deleteLineRight = function () {
     this.line = this.line.slice(0, this.cursor);
-    this._refreshLine();
+    this.refreshLine();
 };
 
 /**

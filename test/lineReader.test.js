@@ -59,6 +59,14 @@ describe('LineReader', function () {
         });
     });
 
+    describe('Cursor Movement', function () {
+        it('should move to start', function () {
+            lineReader.insert('texttexttext');
+            lineReader.moveToStart();
+            lineReader.cursor.should.be.exactly(0);
+        });
+    });
+
     describe('Word Boundaries', function () {
 
         beforeEach(function () {

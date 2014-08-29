@@ -29,4 +29,24 @@ describe('Utils', function () {
 
     });
 
+    describe('Other Types Detection', function () {
+
+        it('should identify inline array', function () {
+            var result = utils.isArray([]);
+            result.should.be.true;
+        });
+
+        it('should not identify fake array', function () {
+            var fake = {
+                length: 42,
+                toString: function () {
+                    return '[object Array]';
+                }
+            };
+            var result = utils.isArray(fake);
+            result.should.be.false;
+        });
+
+    });
+
 });

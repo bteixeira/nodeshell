@@ -16,6 +16,21 @@ Z. Autocomplete overhaul
 -. Allow storing the output of commands. I want to do "git symbolic-ref --short -q HEAD" to get the branch name (only
     works on recent versions of git)
 
+-. Must have most functionality of other shells.
+    -. Job control, start job in bg with &
+    -. Redirect output to file
+    -. Pipe output between commands
+    -. Support | and & operators
+-. Then integate it with nsh principles
+    -. Commands and functions should be almost the same
+    -. Allow buffering the output of commands in variables or as streams
+    -. Allow piping command output to function arguments
+    -. Likewise, allow running JS and pipe the result to a command or a file
+-. Then, impress (even more)
+    -. Screen windows
+    -. As-you-type autocomplete
+    -. As-you-type syntax highlighting
+
 EXCEPTIONS & PROBLEMS
 =====================
 
@@ -23,11 +38,15 @@ EXCEPTIONS & PROBLEMS
 * On cd to nonexistent dir
 * require('colors') does not allow 'lalla'.red, probably something to do with different environments (String.prototype
     is not the same in nodeland and userland)
+* Typing "cd ~/wo<TAB>" throws exception because autocompleter is assuming that ./~ is the name of a dir. Make it
+    tolerate non-existent dirs and expand ~
 
 IDEA HEAP
 =========
 
-FFS make the shell expand ~ into home dir
+Get a list of which common commands might be confusingly mistaken for plain JS. It's annoying to write a JS expression
+    that starts with 'true' or 'false' and seems to return a wrong result. Another example is 'id = ...'. Have a visual
+    signal for the user of whether the expression was interpreted as a command or JS.
 
 Piping output
 	ls | function wc(list) {console.log(list.length);}
