@@ -1,5 +1,6 @@
 var fs = require('fs');
 var vm = require('vm');
+var path = require('path');
 var ErrorWrapper = require('./errorWrapper');
 
 exports.sourceSync = function (filename, context) {
@@ -28,4 +29,15 @@ exports.isArray = function (candidate) {
 exports.getUserHome = function getUserHome () {
     var prop = (process.platform === 'win32') ? 'USERPROFILE' : 'HOME';
     return process.env[prop];
+};
+
+exports.expandHomeDir = function (dir) {
+    if (this.isString(dir)) {
+        if (dir === '~') {
+            return this.getUserHome();
+        } else if (dir.indexOf('~' + path.sep) === 0) {
+            return this.getUserHome() + path.sep + dir.substring(2);
+        }
+    }
+    return dir;
 };

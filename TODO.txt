@@ -18,10 +18,11 @@ Z. Autocomplete overhaul
 
 -. Must have most functionality of other shells.
     -. Job control, start job in bg with &
-    -. Redirect output to file
-    -. Pipe output between commands
+    ^. Redirect output to file
+    ^. Pipe output between commands
     -. Support | and & operators
--. Then integate it with nsh principles
+    ^. Aliases
+-. Then integrate it with nsh principles
     -. Commands and functions should be almost the same
     -. Allow buffering the output of commands in variables or as streams
     -. Allow piping command output to function arguments

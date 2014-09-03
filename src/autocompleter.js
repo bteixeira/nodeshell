@@ -2,6 +2,8 @@ var vm = require('vm');
 var path = require('path');
 var fs = require('fs');
 
+var utils = require('./utils');
+
 var Autocompleter = function (line, context, commands) {
     this.line = line;
     this.context = context;
@@ -80,10 +82,23 @@ Autocompleter.prototype.getFiles = function (prefix) {
     var idx = prefix.lastIndexOf(path.sep);
     var dir = prefix.substring(0, idx);
     var filePrefix = prefix.substring(idx + 1);
-    var path_ = path.resolve(process.cwd(), dir);
-    var files = fs.readdirSync(path_);
+
+    if (!fs.existsSync(dir)) {
+        dir = utils.expandHomeDir(dir);
+    }
+    if (!fs.existsSync(dir)) {
+        dir = path.resolve(process.cwd(), dir);
+    }
+
+    var files = [];
+
+    if (fs.existsSync(dir)) {
+        files = fs.readdirSync(dir);
+    }
     return files.filter(function (file) {
         return (file.lastIndexOf(filePrefix, 0) === 0);
+    }).map(function (file) {
+        return prefix.substring(0, idx + 1) + file;
     });
 };
 

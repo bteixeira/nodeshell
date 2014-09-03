@@ -48,11 +48,7 @@ VisitorExecuter.prototype.visitCMD = function (token, callback) {
 
 VisitorExecuter.prototype.visitLiteral = function (token, callback) {
     var text = token.text.trim();
-    if (text === '~') {
-        text = utils.getUserHome();
-    } else if (text.indexOf('~' + path.sep) === 0) {
-        text = utils.getUserHome() + path.sep + text.substring(2);
-    }
+    text = utils.expandHomeDir(text);
     callback(text);
 };
 
