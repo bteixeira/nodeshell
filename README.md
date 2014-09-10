@@ -33,10 +33,9 @@ node shell
 That should take you to a command line.  
 Here you can do the following:
 
-1. Write valid Javascript expressions to be evaluated; or
-2. Write a command followed by arguments. Arguments can be:
-    1. Literal arguments as you do in any other shell (e.g., `git clone` or `cd nodeshell`); or
-    2. Javascript expressions in parentheses
+1. Type valid Javascript expressions to be evaluated; *or*
+2. Type commands as you would in any other shell
+    1. You can pass the result of Javascript expressions as command arguments by wrapping them in parentheses
 
 Try it out!
 
