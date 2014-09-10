@@ -7,4 +7,7 @@ var colors = require('colors');
     });
 })();
 
+NSH.alias('gst', 'git status');
+NSH.alias('gco', 'git checkout');
+
 console.log('Now running NSH');
