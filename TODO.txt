@@ -22,6 +22,7 @@ Z. Autocomplete overhaul
     ^. Pipe output between commands
     -. Support | and & operators
     ^. Aliases
+    ^. Multi-line input
 -. Then integrate it with nsh principles
     -. Commands and functions should be almost the same
     -. Allow buffering the output of commands in variables or as streams
@@ -65,14 +66,39 @@ I want on-the-fly highlighting. Show the command and arguments in different colo
 If the prompt is a function and not a string like in other shells, that's really nice because it's powerful but if that
     is a blocking or never-ending function then everything crumbles down.
 
-Make Javascript be the means to something and not a dictator. CoffeeScript and such should be easy to integrate. There
-    should be examples and/or plugins to show how to be able to use CoffeeScript as the main language.
+Make Javascript be the means to something and not a dictator. CoffeeScript and the like should be easy to integrate.
+    There should be examples and/or plugins to show how to be able to use CoffeeScript as the main language.
 
 There will be some performance concerns. There is lots of as-you-type processing. Try this out on a RaspberryPi and do
     some performance tests, see how many times per second it can parse a complex multi-line input.
 
 Currently, user files can only have JS. Consider if it would nice to support also commands and anything you could run on
     the command line.
+
+    ALIASES
+    -------
+
+    Aliases are tricky. Here is how it works in bash:
+
+        alias rm="rm -i"
+
+    Every time "rm" is typed, it is expanded into the body. Or so the docs say. In practice it is probably only expanded
+    if found where a command is supposed to be, which is fine. The hassle for NSH is: when should it be expanded.
+    Ideally it should be handled by Commands. However, an alias does not simply rename a command, it can also have
+    preset arguments. Sure we can have aliases as functions to solve all these problems -- that's how the builtins are
+    implemented.
+
+        nsh.alias('gco', function(){ nsh.commands.get('git').run(['checkout'].concat(arguments));})
+
+    I don't wanna have to write this every time.
+
+    Alternative 1: the "alias" command/function takes a string. That string is evaluated immediately and separated into
+    command and arguments. This has the implication that the command has to be defined at the time, unlike in bash. When
+    the alias is invoked, it simply calls the aliased command with whatever arguments are passed at invocation, plus any
+    aliased arguments before them.
+
+    Alternative 2: during parsing, if the first token is a command, and if it is an alias, then it is expanded, and the
+    parsing restarts, without alias expansion. The Parser would have to query Commands to check for valid aliases.
 
 
 Architecture

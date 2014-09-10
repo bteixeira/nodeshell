@@ -3,12 +3,14 @@ var util = require('util');
 var path = require('path');
 var KeyHandler = require('./src/keyhandler');
 var Commands = require('./src/commands');
+var defaultCommands = require('./src/defaultCommands');
 var Parser = require('./src/parser/parser');
 var LineReader = require('./src/lineReader');
 var Executer = require('./src/ast/visitors/visitorExecuter');
 var ErrorWrapper = require('./src/errorWrapper');
 var History = require('./src/history');
 var Autocompleter = require('./src/autocompleter');
+var NodeLiteral = require('./src/ast/nodes/nodeLiteral');
 var utils = require('./src/utils');
 require('colors');
 
@@ -29,14 +31,27 @@ var permanent = {
     NSH: {
         lineReader: lineReader,
         bindings: keyHandler,
-        utils: utils
+        utils: utils,
+        alias: function (handle, body) {
+            console.log('aliasing', handle, body);
+            commands.addCommand(handle, function (cb, args) {
+                console.log('running aliased');
+                var ast = parser.parse(body);
+                args = args.map(function (arg) {
+                    return new NodeLiteral(arg);
+                });
+                // assume it's a command
+                ast.args = ast.args.concat(args); // TODO STRING vs NODE?
+                executer.visit(ast, cb);
+            });
+        }
     }
 };
 
 //process.on('SIGINT', function() {
 //});
 
-var extend = util._extend;
+var extend = utils.extend;
 
 var ctx = vm.createContext(permanent);
 
@@ -55,7 +70,11 @@ function doneCB (result) {
     lineReader.refreshLine();
 }
 
-var commands = new Commands(ctx);
+var commands = defaultCommands(ctx);
+commands = new Commands({
+    parent: commands,
+    skipPath: true
+});
 var executer = new Executer(commands, ctx);
 
 lineReader

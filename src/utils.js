@@ -1,6 +1,7 @@
 var fs = require('fs');
 var vm = require('vm');
 var path = require('path');
+var util = require('util');
 var ErrorWrapper = require('./errorWrapper');
 
 exports.sourceSync = function (filename, context) {
@@ -40,4 +41,20 @@ exports.expandHomeDir = function (dir) {
         }
     }
     return dir;
+};
+
+exports.extend = util._extend;
+
+/**
+ * Array concatenating function which can handle a function arguments object. Concatenates passed arrays. Always returns
+ * an array. If no arguments are given, returns an empty array. Can also be used to convert an arguments object to array
+ * by passing a single argument.
+ */
+// TODO TESTS
+exports.cat = function () {
+    var result = [];
+    for (var i = 0 ; i < arguments.length ; i++) {
+        result = result.concat(Array.prototype.call(arguments[i], 0));
+    }
+    return result;
 };
