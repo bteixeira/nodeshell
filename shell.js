@@ -33,9 +33,9 @@ var permanent = {
         bindings: keyHandler,
         utils: utils,
         alias: function (handle, body) {
-            console.log('aliasing', handle, body);
+//            console.log('aliasing', handle, body);
             commands.addCommand(handle, function (cb, args) {
-                console.log('running aliased');
+//                console.log('running aliased');
                 var ast = parser.parse(body);
                 args = args.map(function (arg) {
                     return new NodeLiteral(arg);

@@ -20,7 +20,7 @@ Z. Autocomplete overhaul
     -. Job control, start job in bg with &
     ^. Redirect output to file
     ^. Pipe output between commands
-    -. Support | and & operators
+    -. Support || and && operators
     ^. Aliases
     ^. Multi-line input
 -. Then integrate it with nsh principles
