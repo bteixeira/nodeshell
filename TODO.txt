@@ -154,3 +154,37 @@ task: set the prompt
 task: define aliases
 task: set event handler for before exit
 task: override the default parser or part of it
+
+
+
+RESEARCH
+========
+BASH: Possible IO redirection operations:
+    M>N
+        M is fd (optional, default = 1)
+        N is filename
+        will truncate N if exists, create otherwise
+        can have whitespace after > (not before)
+    M>>N
+        M is fd (optional, default = 1)
+        N is filename
+        will append to N if exists, create otherwise
+        can have whitespace after >> (not before)
+    M>&N
+        M is fd (optional, default = 1)
+        N is fd
+        can have whitespace after >& (not before)
+    M<N
+        M is fd (optional, default = 0)
+        N is filename
+        can have whitespace after < (not before)
+    M<&N
+        M is fd (optional, default = 0)
+        N is fd
+        can have whitespace after <& (not before)
+    M<>N
+        M is fd (optional, default = 0)
+        N is filename
+        assigns N to M both for reading and writing
+
+    note that << starts heredoc and will do nothing for redirection
