@@ -1,4 +1,5 @@
 var Commands = require('./commands');
+var ErrorWrapper = require('./errorWrapper');
 
 module.exports = function (context) {
 
@@ -26,7 +27,12 @@ module.exports = function (context) {
 };
 
 function cd(cb, args) {
-    var result = process.chdir(args[0]);
+    var result;
+    try {
+        result = process.chdir(args[0]);
+    } catch (ex) {
+        result = new ErrorWrapper(ex);
+    }
     cb(result);
 }
 
