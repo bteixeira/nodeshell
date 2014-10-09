@@ -188,3 +188,10 @@ BASH: Possible IO redirection operations:
         assigns N to M both for reading and writing
 
     note that << starts heredoc and will do nothing for redirection
+
+Other Bash operators
+    |
+    &
+    ||
+    &&
+    "

@@ -27,6 +27,13 @@ exports.isArray = function (candidate) {
     return Array.isArray(candidate);
 };
 
+/*
+TODO need tests
+ */
+exports.isRegex = function (candidate) {
+    return candidate instanceof RegExp;
+};
+
 exports.getUserHome = function getUserHome () {
     var prop = (process.platform === 'win32') ? 'USERPROFILE' : 'HOME';
     return process.env[prop];
