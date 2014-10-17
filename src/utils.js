@@ -28,7 +28,7 @@ exports.isArray = function (candidate) {
 };
 
 /*
-TODO need tests
+ TODO need tests
  */
 exports.isRegex = function (candidate) {
     return candidate instanceof RegExp;
@@ -60,8 +60,22 @@ exports.extend = util._extend;
 // TODO TESTS
 exports.cat = function () {
     var result = [];
-    for (var i = 0 ; i < arguments.length ; i++) {
-        result = result.concat(Array.prototype.call(arguments[i], 0));
+    for (var i = 0; i < arguments.length; i++) {
+        result = result.concat(Array.prototype.slice.call(arguments[i], 0));
     }
     return result;
+};
+
+exports.createEnum = function () {
+    var args = exports.cat(arguments);
+    var enum_ = {};
+    args.forEach(function (arg) {
+        enum_[arg] = {
+            id: arg,
+            toString: function () {
+                return '#' + arg.replace(/\s/g, '_');
+            }
+        }
+    });
+    return enum_;
 };
