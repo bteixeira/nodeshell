@@ -20,19 +20,22 @@ var RedirMatcher = module.exports = function (tape) {
     this.on(st.START, '<', function () {
         this.state = st.LT;
     });
+    this.on(st.START, this.ANY, function () {
+        this.notRedir();
+    });
 
 
-    var first;
+    var number;
     this.on(st.NUMBER, /\d/, function () {
     });
     this.on(st.NUMBER, '>', function () {
-        first = this.tape.getMarked();
-        first = first.substring(0, first.length - 1);
+        number = this.tape.getMarked();
+        number = number.substring(0, number.length - 1);
         this.state = st.GT;
     });
     this.on(st.NUMBER, '<', function () {
-        first = this.tape.getMarked();
-        first = first.substring(0, first.length - 1);
+        number = this.tape.getMarked();
+        number = number.substring(0, number.length - 1);
         this.state = st.LT;
     });
     this.on(st.NUMBER, this.ANY, function () {
@@ -40,8 +43,49 @@ var RedirMatcher = module.exports = function (tape) {
     });
 
 
-    this.on(st.GT, '>', function () {
+    this.on(st.GT, this.ANY, function (ch) {
+        var type;
+        if (ch === '>') {
+            type = t.GTGT;
+        } else if (ch === '&') {
+            type = t.GTAMP;
+        } else {
+            type = t.GT;
+            if (ch !== this.EOF) {
+                this.tape.prev();
+            }
+        }
+        this.token = {
+            type: t.type,
+            text: this.tape.getMarked()
+        };
+        if (!utils.isUndefined(number)) {
+            this.token.number = number;
+        }
+        this.stop();
+    });
 
+
+    this.on(st.LT, this.ANY, function (ch) {
+        var type;
+        if (ch === '>') {
+            type = t.LTGT;
+        } else if (ch === '&') {
+            type = t.LTAMP;
+        } else {
+            type = t.LT;
+            if (ch !== this.EOF) {
+                this.tape.prev();
+            }
+        }
+        this.token = {
+            type: t.type,
+            text: this.tape.getMarked()
+        };
+        if (!utils.isUndefined(number)) {
+            this.token.number = number;
+        }
+        this.stop();
     });
 
 };
