@@ -25,7 +25,7 @@ var RedirMatcher = module.exports = function (tape) {
     });
 
 
-    var number;
+    var number = null;
     this.on(st.NUMBER, /\d/, function () {
     });
     this.on(st.NUMBER, '>', function () {
@@ -56,12 +56,10 @@ var RedirMatcher = module.exports = function (tape) {
             }
         }
         this.token = {
-            type: t.type,
+            type: type,
             text: this.tape.getMarked()
         };
-        if (!utils.isUndefined(number)) {
-            this.token.number = number;
-        }
+        this.token.number = number;
         this.stop();
     });
 
@@ -79,12 +77,10 @@ var RedirMatcher = module.exports = function (tape) {
             }
         }
         this.token = {
-            type: t.type,
+            type: type,
             text: this.tape.getMarked()
         };
-        if (!utils.isUndefined(number)) {
-            this.token.number = number;
-        }
+        this.token.number = number;
         this.stop();
     });
 

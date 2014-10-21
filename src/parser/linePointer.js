@@ -5,6 +5,9 @@
  *
  * Because the only state maintained are the two pointers, you can access and change them directly as properties of the
  * object returned by the constructor ("pos" and "mark").
+ *
+ * As an additional utility, you can stack marker positions. Call pushMark() to save the current mark position, and call
+ * popMark() to discard the current mark position and replace it with the last saved one.
  */
 
 var utils = require('../utils');
@@ -13,6 +16,7 @@ var Pointer = module.exports = function (line) {
     this.line = line;
     this.pos = 0;
     this.mark = 0;
+    this.marks = [];
 };
 
 /**
@@ -97,4 +101,18 @@ Pointer.prototype.getMarked = function () {
  */
 Pointer.prototype.hasMore = function () {
     return this.pos < this.line.length;
+};
+
+/**
+ * Stores the current mark position in the stack.
+ */
+Pointer.prototype.pushMark = function () {
+    this.marks.push(this.mark);
+};
+
+/**
+ * Discards the current mark position and replaces it with the one at the top of the stack.
+ */
+Pointer.prototype.popMark = function () {
+    this.mark = this.marks.pop();
 };

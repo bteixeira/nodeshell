@@ -27,6 +27,10 @@ exports.isArray = function (candidate) {
     return Array.isArray(candidate);
 };
 
+exports.isUndefined = exports.isUndef = function (candidate) {
+    return typeof candidate === 'undefined';
+};
+
 /*
  TODO need tests
  */

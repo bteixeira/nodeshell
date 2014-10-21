@@ -1,35 +1,43 @@
-var StateMachine = require('./stateMachine');
+//var StateMachine = require('./stateMachine');
 var Tape = require('../../src/parser/linePointer');
 //var FirstMatcher = require('./firstMatcher');
 var JSMatcher = require('./jsMatcher');
+var RedirMatcher = require('./redirMatcher');
+var DQStringMatcher = require('./dqStringMatcher');
+var ChainMatcher = require('./chainMatcher');
 var util = require('util');
+//var TapeStateMachine = require('./tapeStateMachine');
 
 
 process.stdin.on('data', function (line) {
-//    console.log('instantiating tape for [' + line + ']');
     var tape = new Tape(line.toString());
-//    console.log('instantiated tape [' + tape + ']');
 
-//    var firstMatcher = new FirstMatcher(tape);
-//    var first = firstMatcher.run();
-//    var tokens = [];
-//
-//    if (first.type === FirstMatcher.NOT_A_PATH) {
-//        console.log('Doesn\'t seem to be a command name or path, assuming JS');
-//        return;
-//    }
-//
-//    tokens.push(first);
-    var jsm = new JSMatcher(tape);
-//    console.log('>>', jsm.tape.line, jsm.tape.line === line);
-    var token = jsm.run();
-    console.log(util.inspect(token));
+
+    var matcher, c, tokens = [];
+    while (tape.hasMore()) {
+        c = tape.peek();
+        if (/^\s$/.test(c)) {
+            tape.next();
+            continue;
+        } else if (c === '"') {
+            matcher = new DQStringMatcher(tape);
+        } else if (c === '(') {
+            matcher = new JSMatcher(tape);
+        } else if (c === '|' || c === '&') {
+            matcher = new ChainMatcher(tape);
+        } else if (c === '>' || c === '<' || /^\d$/.test(c)) {
+            matcher = new RedirMatcher(tape);
+            // TODO DIGITS WITHOUT REDIR
+        } else {
+            throw "Items not implemented yet";
+        }
+        var t = matcher.run();
+        tokens.push(t);
+    }
+    tokens.forEach(function (token) {
+        console.log(token.type.id + '\t>' + token.text + '<');
+    });
+
 
 });
 
-
-//var CLMatcher = function (input) {
-//    StateMachine.call(this);
-//};
-//
-//util.inherits(CLMatcher, StateMachine);
