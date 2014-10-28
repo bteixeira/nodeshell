@@ -83,3 +83,11 @@ exports.createEnum = function () {
     });
     return enum_;
 };
+
+exports.strToObj = function (str) {
+    var props = str.split('');
+    return props.reduce(function (obj, prop) { /* show off */
+        obj[prop] = prop;
+        return obj;
+    }, {});
+};

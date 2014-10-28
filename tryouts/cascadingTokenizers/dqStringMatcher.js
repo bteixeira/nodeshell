@@ -56,6 +56,7 @@ var DQStringMatcher = module.exports = function (tape) {
         tape.prev();
         chars.push(tape.getMarked());
         tape.next();
+        tape.setMark();
         this.state = st.ESCAPING;
     });
     this.on(st.INSIDE, this.EOF, function () {

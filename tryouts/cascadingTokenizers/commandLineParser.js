@@ -5,6 +5,7 @@ var JSMatcher = require('./jsMatcher');
 var RedirMatcher = require('./redirMatcher');
 var DQStringMatcher = require('./dqStringMatcher');
 var ChainMatcher = require('./chainMatcher');
+var GlobMatcher = require('./globMatcher');
 var util = require('util');
 //var TapeStateMachine = require('./tapeStateMachine');
 
@@ -29,7 +30,7 @@ process.stdin.on('data', function (line) {
             matcher = new RedirMatcher(tape);
             // TODO DIGITS WITHOUT REDIR
         } else {
-            throw "Items not implemented yet";
+            matcher = new GlobMatcher(tape);
         }
         var t = matcher.run();
         tokens.push(t);
