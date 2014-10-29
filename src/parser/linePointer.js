@@ -116,3 +116,10 @@ Pointer.prototype.pushMark = function () {
 Pointer.prototype.popMark = function () {
     this.mark = this.marks.pop();
 };
+
+/**
+ * Moves the cursor to the current mark position.
+ */
+Pointer.prototype.rewindToMark = function () {
+    this.pos = this.mark;
+};

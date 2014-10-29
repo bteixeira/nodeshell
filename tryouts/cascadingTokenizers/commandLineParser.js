@@ -1,6 +1,6 @@
 //var StateMachine = require('./stateMachine');
 var Tape = require('../../src/parser/linePointer');
-//var FirstMatcher = require('./firstMatcher');
+var PathMatcher = require('./pathMatcher');
 var JSMatcher = require('./jsMatcher');
 var RedirMatcher = require('./redirMatcher');
 var DQStringMatcher = require('./dqStringMatcher');
@@ -13,8 +13,17 @@ var util = require('util');
 process.stdin.on('data', function (line) {
     var tape = new Tape(line.toString());
 
-
     var matcher, c, tokens = [];
+
+    matcher = new PathMatcher(tape);
+    var token = matcher.run();
+    if (token.type === PathMatcher.NOT_A_PATH) {
+        console.log('first token does not seem to be a path (' + token.text + '), aborting');
+        return;
+    } else {
+        tokens.push(token);
+    }
+
     while (tape.hasMore()) {
         c = tape.peek();
         if (/^\s$/.test(c)) {
@@ -27,14 +36,25 @@ process.stdin.on('data', function (line) {
         } else if (c === '|' || c === '&') {
             matcher = new ChainMatcher(tape);
         } else if (c === '>' || c === '<' || /^\d$/.test(c)) {
+            tape.pushMark();
             matcher = new RedirMatcher(tape);
-            // TODO DIGITS WITHOUT REDIR
+            token = matcher.run();
+            if (token.type === RedirMatcher.NOTREDIR) {
+                tape.popMark();
+                tape.rewindToMark();
+                matcher = new GlobMatcher(tape);
+            } else {
+                // the mark is in the stack, forever...
+                tokens.push(token);
+                continue;
+            }
         } else {
             matcher = new GlobMatcher(tape);
         }
         var t = matcher.run();
         tokens.push(t);
     }
+
     tokens.forEach(function (token) {
         console.log(token.type.id + '\t>' + token.text + '<');
     });

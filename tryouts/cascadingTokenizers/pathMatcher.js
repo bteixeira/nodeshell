@@ -1,4 +1,6 @@
-var StateMachine = require('./stateMachine');
+var TapeStateMachine = require('./tapeStateMachine');
+var util = require('util');
+var utils = require('../../src/utils');
 
 /***************************************************************/
 /* usage example (command first token) */
