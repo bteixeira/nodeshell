@@ -195,3 +195,59 @@ Other Bash operators
     ||
     &&
     "
+
+This works in bash:
+    false && echo "yes" || echo "no"
+    true  && echo "yes" || echo "no"
+
+Tentative grammar...
+(! is terminal)
+
+
+    COMMAND_LINE:
+        SUBSHELL
+
+    PATH:
+        !RELATIVE_PATH
+        !ABSOLUTE_PATH
+        !DOTS_PATH
+        !TILDE_PATH
+
+    PIPELINE:
+        SIMPLE_COMMAND
+        SIMPLE_COMMAND !PIPE PIPELINE
+
+    SIMPLE_COMMAND:
+        REDIRECTION* PATH (REDIRECTION | !GLOB | !JS | !DQSTRING | PATH)*
+
+    REDIRECTION:
+        !GT PATH
+        !GTGT PATH
+        !GTAMP FD
+        !LT PATH
+        !LTGT PATH
+        !LTAMP FD
+
+    FD:
+        [0-9]+
+
+    LIST:
+        AND_LIST
+        OR_LIST
+
+    AND_LIST:
+        PIPELINE
+        PIPELINE DAMP LIST
+
+    OR_LIST:
+        PIPELINE
+        PIPELINE DPIPE LIST
+
+    SUBSHELL:
+        LIST
+        LIST AMP
+        LIST AMP SUBSHELL
+
+
+
+http://www.cs.binghamton.edu/~zdu/parsdemo/srintro.html
