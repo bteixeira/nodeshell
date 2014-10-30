@@ -9,7 +9,7 @@ var RedirMatcher = module.exports = function (tape) {
 
 
     this.on(st.START, /\s/, function () {
-        tape.setMark();
+        this.tape.setMark();
     });
     this.on(st.START, /\d/, function () {
         this.state = st.NUMBER;

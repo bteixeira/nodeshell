@@ -7,6 +7,7 @@ var DQStringMatcher = require('./dqStringMatcher');
 var ChainMatcher = require('./chainMatcher');
 var GlobMatcher = require('./globMatcher');
 var util = require('util');
+require('colors');
 //var TapeStateMachine = require('./tapeStateMachine');
 
 
@@ -56,7 +57,7 @@ process.stdin.on('data', function (line) {
     }
 
     tokens.forEach(function (token) {
-        console.log(token.type.id + '\t>' + token.text + '<');
+        console.log(token.type.id + '\t|'.red + token.text + '|'.red);
     });
 
 
