@@ -205,7 +205,7 @@ Tentative grammar...
 
 
     COMMAND_LINE:
-        SUBSHELL
+        SUBSHELL <EOF>
 
     PATH:
         !RELATIVE_PATH
@@ -245,9 +245,10 @@ Tentative grammar...
 
     SUBSHELL:
         LIST
-        LIST AMP
-        LIST AMP SUBSHELL
+        LIST !AMP
+        LIST !AMP SUBSHELL
 
 
 
 http://www.cs.binghamton.edu/~zdu/parsdemo/srintro.html
+http://www.cis.upenn.edu/~matuszek/General/recursive-descent-parsing.html
