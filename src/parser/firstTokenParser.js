@@ -17,13 +17,13 @@ var NOT_A_PATH = 99; // ...and a path ain't one?
 
 
 // FFS make a utility for a state machine! I have the feeling we'll need it a lot
-function FTP (pointer) {
+function FTP (tape) {
     var state = START;
     var outcome;
     var c;
     var escaping = false;
 
-    c = pointer.next();
+    c = tape.next();
     while (c) {
 
 //        if (escaping) {
@@ -43,7 +43,7 @@ function FTP (pointer) {
 
         if (!escaping && c === '\\') {
             escaping = true;
-            c = pointer.next();
+            c = tape.next();
             continue;
         }
 
@@ -112,7 +112,7 @@ function FTP (pointer) {
             }
         }
 
-        c = pointer.next();
+        c = tape.next();
     }
 
     return state;

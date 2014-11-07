@@ -1,4 +1,4 @@
-var LinePointer = require('../src/parser/linePointer');
+var Tape = require('../src/tape');
 
 var START = 0;
 
@@ -7,7 +7,7 @@ var tape;
 
 /* Go-and-return/loop inside approach */
 function parse1 (input) {
-    tape = new LinePointer(input);
+    tape = new Tape(input);
     // ready state
     var found = [];
     var t;
@@ -75,7 +75,7 @@ var state = 'START';
 var c;
 var found = [];
 function parse2 (input) {
-    tape = new LinePointer(input);
+    tape = new Tape(input);
 
     while (tape.hasMore()) {
         c = tape.next();

@@ -1,7 +1,7 @@
-var NodeERR = function (msg, pointer) {
+var NodeERR = function (msg, tape) {
     this.msg = msg;
-    this.pos = pointer.pos;
-    this.char = pointer.peek();
+    this.pos = tape.pos;
+    this.char = tape.peek();
 };
 
 NodeERR.prototype.type = 'ERR';

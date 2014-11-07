@@ -1,5 +1,5 @@
 /**
- * Keeps track of the position in a string. Useful for tokenizers.
+ * Keeps track of the position in a string or array. Useful for tokenizers.
  * Provides pointers to two positions in the string: the current position (or "pointer"), and the "mark". This allows
  * keeping track of a position to which you might want to come back later, or process a substring of the string.
  *
@@ -10,10 +10,10 @@
  * popMark() to discard the current mark position and replace it with the last saved one.
  */
 
-var utils = require('../utils');
+var utils = require('./utils');
 
-var Pointer = module.exports = function (line) {
-    this.line = line;
+var Tape = module.exports = function (sequence) {
+    this.sequence = sequence;
     this.pos = 0;
     this.mark = 0;
     this.marks = [];
@@ -23,9 +23,9 @@ var Pointer = module.exports = function (line) {
  * Returns the character at current position and moves the pointer one character forward.
  * @returns {string} the character at the current position
  */
-Pointer.prototype.next = function () {
+Tape.prototype.next = function () {
     var c = this.peek();
-    this.pos = Math.min(this.pos + 1, this.line.length);
+    this.pos = Math.min(this.pos + 1, this.sequence.length);
     return c;
 };
 
@@ -33,7 +33,7 @@ Pointer.prototype.next = function () {
  * Returns the character at current position and moves the pointer one character backward.
  * @returns {string} the character at the current position
  */
-Pointer.prototype.prev = function () {
+Tape.prototype.prev = function () {
     var c = this.peek();
     this.pos = Math.max(this.pos - 1, 0);
     return c;
@@ -44,8 +44,8 @@ Pointer.prototype.prev = function () {
  * Returns the character at current position without changing the pointer.
  * @returns {string} the character at the current position
  */
-Pointer.prototype.peek = function () {
-    return this.line.charAt(this.pos);
+Tape.prototype.peek = function () {
+    return this.sequence[this.pos];
 };
 
 /**
@@ -53,12 +53,12 @@ Pointer.prototype.peek = function () {
  * @param re the pattern to test or. If it is a string, then it is assumed to be the set of characters to match. If it
  *      is a regular expression, then each character is tested against it.
  */
-Pointer.prototype.skipTo = function (re) {
+Tape.prototype.skipTo = function (re) {
     if (utils.isString(re)) {
         re = new RegExp('[' + re + ']');
     }
     var c = this.peek();
-    while (!re.test(c) && this.pos < this.line.length) {
+    while (!re.test(c) && this.pos < this.sequence.length) {
         this.pos += 1;
         c = this.peek();
     }
@@ -67,21 +67,21 @@ Pointer.prototype.skipTo = function (re) {
 /**
  * Moves the pointer forward past all whitespace characters.
  */
-Pointer.prototype.skipWS = function () {
+Tape.prototype.skipWS = function () {
     this.skipTo(/\S/);
 };
 
 /**
  * Moves the pointer forward to the next non-whitespace character.
  */
-Pointer.prototype.skipNonWS = function () {
+Tape.prototype.skipNonWS = function () {
     this.skipTo(/\s/);
 };
 
 /**
  * Sets the mark at the current position.
  */
-Pointer.prototype.setMark = function () {
+Tape.prototype.setMark = function () {
     this.mark = this.pos;
 };
 
@@ -90,8 +90,8 @@ Pointer.prototype.setMark = function () {
  * position.
  * @returns {string} the substring between the mark and the current position
  */
-Pointer.prototype.getMarked = function () {
-    return this.line.substring(this.mark, this.pos);
+Tape.prototype.getMarked = function () {
+    return this.sequence.slice(this.mark, this.pos);
 };
 
 /**
@@ -99,27 +99,27 @@ Pointer.prototype.getMarked = function () {
  * @returns {boolean} true if there are still characters ahead of the current position; false if the pointer is at the
  *      end of the string.
  */
-Pointer.prototype.hasMore = function () {
-    return this.pos < this.line.length;
+Tape.prototype.hasMore = function () {
+    return this.pos < this.sequence.length;
 };
 
 /**
  * Stores the current mark position in the stack.
  */
-Pointer.prototype.pushMark = function () {
+Tape.prototype.pushMark = function () {
     this.marks.push(this.mark);
 };
 
 /**
  * Discards the current mark position and replaces it with the one at the top of the stack.
  */
-Pointer.prototype.popMark = function () {
+Tape.prototype.popMark = function () {
     this.mark = this.marks.pop();
 };
 
 /**
  * Moves the cursor to the current mark position.
  */
-Pointer.prototype.rewindToMark = function () {
+Tape.prototype.rewindToMark = function () {
     this.pos = this.mark;
 };

@@ -1,6 +1,6 @@
 var assert = require('assert');
 var Parser = require('../../src/parser/parser');
-var Pointer = require('../../src/parser/linePointer');
+var Tape = require('../../src/tape');
 var commandsStub = require('../../test/commandsStub');
 
 describe('Parser', function () {
@@ -8,18 +8,18 @@ describe('Parser', function () {
     var parser = new Parser(commandsStub);
 
     it('skips JS [(getThing()) anotherArg]', function () {
-        var pointer = new Pointer('(getThing()) anotherArg');
-        assert.equal(pointer.pos, 0);
-        pointer.next();
-        assert.equal(pointer.pos, 1);
-        parser.skipJS(pointer);
-        assert.equal(pointer.pos, 11);
+        var tape = new Tape('(getThing()) anotherArg');
+        assert.equal(tape.pos, 0);
+        tape.next();
+        assert.equal(tape.pos, 1);
+        parser.skipJS(tape);
+        assert.equal(tape.pos, 11);
     });
 
     it('parses simple JS argument [(getThing())]', function () {
 
-        var pointer = new Pointer('(getThing())');
-        var ast = parser.parseArg(pointer);
+        var tape = new Tape('(getThing())');
+        var ast = parser.parseArg(tape);
 
         assert.equal(ast.type, 'JS');
         assert.equal(ast.code, 'getThing()');
@@ -27,8 +27,8 @@ describe('Parser', function () {
 
     it('parses simple JS with pre whitespace [(  getThing())]', function () {
 
-        var pointer = new Pointer('(  getThing())');
-        var ast = parser.parseArg(pointer);
+        var tape = new Tape('(  getThing())');
+        var ast = parser.parseArg(tape);
 
         assert.equal(ast.type, 'JS');
         assert.equal(ast.code, 'getThing()');
@@ -36,10 +36,10 @@ describe('Parser', function () {
 
     it('throws error on invalid JS with pre whitespace [( function xxx  {}getGit() ;;; var {{ ;) otherArg]', function () {
 
-        var pointer = new Pointer('( function xxx  {}getGit() ;;; var {{ ;) otherArg');
+        var tape = new Tape('( function xxx  {}getGit() ;;; var {{ ;) otherArg');
 
         assert.throws(function () {
-            parser.parseArg(pointer);
+            parser.parseArg(tape);
         }, 'Found closing brace without matching opening brace');
 
     });

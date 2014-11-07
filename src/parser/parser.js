@@ -1,4 +1,4 @@
-var Pointer = require('./linePointer');
+var Tape = require('../tape');
 
 var NodeJS = require('../ast/nodes/nodeJS');
 var NodeCMD = require('../ast/nodes/nodeCMD');
@@ -19,53 +19,53 @@ var Parser = function (commandSet) {
 
 Parser.prototype.parse = function (input) {
 
-    var pointer = new Pointer(input);
+    var tape = new Tape(input);
     var token;
 
     try {
-        pointer.skipWS();
-        pointer.setMark();
-        pointer.skipNonWS();
+        tape.skipWS();
+        tape.setMark();
+        tape.skipNonWS();
 
-        var first = pointer.getMarked();
+        var first = tape.getMarked();
 
         if (this.commandSet.isCmd(first)) {
             token = new NodeCMD(first);
-            pointer.skipWS();
-            while (pointer.hasMore()) {
-                token.addArg(this.parseArg(pointer));
-                pointer.skipWS();
+            tape.skipWS();
+            while (tape.hasMore()) {
+                token.addArg(this.parseArg(tape));
+                tape.skipWS();
             }
         } else {
             token = new NodeJS(input.trim());
         }
     } catch (ex) {
-        token = new NodeERR(ex, pointer);
+        token = new NodeERR(ex, tape);
     }
 
     return token;
 };
 
 /**
- * Given a line pointer, parses a command argument (either JS or literal) starting from the current position of the
- * pointer. Returns an AST node with the argument. Moves the pointer to the character after the argument.
- * @param pointer
+ * Given a tape, parses a command argument (either JS or literal) starting from the current position of the
+ * tape. Returns an AST node with the argument. Moves the tape to the character after the argument.
+ * @param tape
  * @returns {*} AST node, either JS or literal
  */
-Parser.prototype.parseArg = function (pointer) {
-    var c = pointer.peek();
+Parser.prototype.parseArg = function (tape) {
+    var c = tape.peek();
 
     if (c === '(') { // JS
-        pointer.next();
-        pointer.setMark();
-        this.skipJS(pointer); // will set cursor at matching ')'
-        var code = pointer.getMarked().trim();
-        pointer.next();
+        tape.next();
+        tape.setMark();
+        this.skipJS(tape); // will set cursor at matching ')'
+        var code = tape.getMarked().trim();
+        tape.next();
         return new NodeJS(code);
     } else {
-        pointer.setMark();
-        pointer.skipNonWS();
-        return new NodeLiteral(pointer.getMarked());
+        tape.setMark();
+        tape.skipNonWS();
+        return new NodeLiteral(tape.getMarked());
     }
 };
 
@@ -74,22 +74,22 @@ var NON_MATCHING = 'Found closing brace without matching opening brace';
 var UNTERMINATED = 'Unterminated JS (opening brace without matching closing brace)'; // TODO LET UPPER-LEVEL KNOW WHICH BRACE AND WHERE
 
 /**
- * Given a line pointer, moves the pointer to the end of the javascript fragment at the current position of the pointer.
- * @param pointer
+ * Given a tape, moves the tape to the end of the javascript fragment at the current position of the tape.
+ * @param tape
  */
-Parser.prototype.skipJS = function (pointer) {
+Parser.prototype.skipJS = function (tape) {
 
     var stack = [];
     var c;
 
-    while (c = pointer.next()) {
+    while (c = tape.next()) {
         if ('({['.indexOf(c) !== -1) {
             stack.push(c);
         } else if (c === ')') {
             if (stack.slice(-1)[0] === '(') {
                 stack.pop();
             } else if (!stack.length) {
-                pointer.prev();
+                tape.prev();
                 return;
             } else {
                 throw NON_MATCHING;
@@ -107,11 +107,11 @@ Parser.prototype.skipJS = function (pointer) {
                 throw NON_MATCHING;
             }
         } else if (c === '"') {
-            pointer.skipTo('"'); // TODO ERROR QUOTE COULD BE ESCAPED
-            pointer.next();
+            tape.skipTo('"'); // TODO ERROR QUOTE COULD BE ESCAPED
+            tape.next();
         } else if (c === "'") {
-            pointer.skipTo("'"); // TODO ERROR QUOTE COULD BE ESCAPED
-            pointer.next();
+            tape.skipTo("'"); // TODO ERROR QUOTE COULD BE ESCAPED
+            tape.next();
         }
     }
 

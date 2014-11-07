@@ -1,5 +1,5 @@
 //var StateMachine = require('./stateMachine');
-var Tape = require('../../src/parser/linePointer');
+var Tape = require('../../src/tape');
 var PathMatcher = require('./pathMatcher');
 var JSMatcher = require('./jsMatcher');
 var RedirMatcher = require('./redirMatcher');
