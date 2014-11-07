@@ -252,3 +252,43 @@ Tentative grammar...
 
 http://www.cs.binghamton.edu/~zdu/parsdemo/srintro.html
 http://www.cis.upenn.edu/~matuszek/General/recursive-descent-parsing.html
+
+
+
+Temporary grammar, slightly different -- only globs, no paths or fd
+(! is terminal)
+
+    COMMAND_LINE:
+        SUBSHELL <EOF>
+
+    SUBSHELL:
+        LIST
+        LIST !AMP
+        LIST !AMP SUBSHELL
+
+    LIST:
+        AND_LIST
+        OR_LIST
+
+    AND_LIST:
+        PIPELINE
+        PIPELINE DAMP LIST
+
+    OR_LIST:
+        PIPELINE
+        PIPELINE DPIPE LIST
+
+    PIPELINE:
+        SIMPLE_COMMAND
+        SIMPLE_COMMAND !PIPE PIPELINE
+
+    SIMPLE_COMMAND:
+        REDIRECTION* !GLOB (REDIRECTION | !GLOB | !JS | !DQSTRING)*
+
+    REDIRECTION:
+        !GT !GLOB
+        !GTGT !GLOB
+        !GTAMP !GLOB
+        !LT !GLOB
+        !LTGT !GLOB
+        !LTAMP !GLOB

@@ -11,19 +11,29 @@ require('colors');
 //var TapeStateMachine = require('./tapeStateMachine');
 
 
-process.stdin.on('data', function (line) {
+//process.stdin.on('data', function (line) {
+//
+//    var tokens = parse(line);
+//
+//    tokens.forEach(function (token) {
+//        console.log(token.type.id + '\t|'.red + token.text + '|'.red);
+//    });
+//
+//});
+
+var parse = module.exports = function (line) {
     var tape = new Tape(line.toString());
 
     var matcher, c, tokens = [];
-
-    matcher = new PathMatcher(tape);
-    var token = matcher.run();
-    if (token.type === PathMatcher.NOT_A_PATH) {
-        console.log('first token does not seem to be a path (' + token.text + '), aborting');
-        return;
-    } else {
-        tokens.push(token);
-    }
+    var token;
+//    matcher = new PathMatcher(tape);
+//    var token = matcher.run();
+//    if (token.type === PathMatcher.NOT_A_PATH) {
+//        console.log('first token does not seem to be a path (' + token.text + '), aborting');
+//        return;
+//    } else {
+//        tokens.push(token);
+//    }
 
     while (tape.hasMore()) {
         c = tape.peek();
@@ -56,10 +66,6 @@ process.stdin.on('data', function (line) {
         tokens.push(t);
     }
 
-    tokens.forEach(function (token) {
-        console.log(token.type.id + '\t|'.red + token.text + '|'.red);
-    });
-
-
-});
+    return tokens;
+};
 
