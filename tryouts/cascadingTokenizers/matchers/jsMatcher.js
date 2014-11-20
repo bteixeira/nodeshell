@@ -1,6 +1,6 @@
-var TapeStateMachine = require('./tapeStateMachine');
+var TapeStateMachine = require('./../tapeStateMachine');
 var util = require('util');
-var utils = require('../../src/utils');
+var utils = require('../../../src/utils');
 
 var JSMatcher = module.exports = function (tape) {
     TapeStateMachine.call(this, tape);

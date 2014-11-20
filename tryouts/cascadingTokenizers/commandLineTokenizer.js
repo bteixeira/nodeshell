@@ -1,39 +1,18 @@
-//var StateMachine = require('./stateMachine');
-var Tape = require('../../src/tape');
-var PathMatcher = require('./pathMatcher');
-var JSMatcher = require('./jsMatcher');
-var RedirMatcher = require('./redirMatcher');
-var DQStringMatcher = require('./dqStringMatcher');
-var ChainMatcher = require('./chainMatcher');
-var GlobMatcher = require('./globMatcher');
 var util = require('util');
-require('colors');
-//var TapeStateMachine = require('./tapeStateMachine');
 
+var Tape = require('../../src/tape');
 
-//process.stdin.on('data', function (line) {
-//
-//    var tokens = parse(line);
-//
-//    tokens.forEach(function (token) {
-//        console.log(token.type.id + '\t|'.red + token.text + '|'.red);
-//    });
-//
-//});
+var JSMatcher = require('./matchers/jsMatcher');
+var RedirMatcher = require('./matchers/redirMatcher');
+var DQStringMatcher = require('./matchers/dqStringMatcher');
+var ChainMatcher = require('./matchers/chainMatcher');
+var GlobMatcher = require('./matchers/globMatcher');
 
-var parse = module.exports = function (line) {
+module.exports = function (line) {
     var tape = new Tape(line.toString());
 
     var matcher, c, tokens = [];
     var token;
-//    matcher = new PathMatcher(tape);
-//    var token = matcher.run();
-//    if (token.type === PathMatcher.NOT_A_PATH) {
-//        console.log('first token does not seem to be a path (' + token.text + '), aborting');
-//        return;
-//    } else {
-//        tokens.push(token);
-//    }
 
     while (tape.hasMore()) {
         c = tape.peek();
@@ -47,10 +26,11 @@ var parse = module.exports = function (line) {
         } else if (c === '|' || c === '&') {
             matcher = new ChainMatcher(tape);
         } else if (c === '>' || c === '<' || /^\d$/.test(c)) {
+            tape.setMark();
             tape.pushMark();
             matcher = new RedirMatcher(tape);
             token = matcher.run();
-            if (token.type === RedirMatcher.NOTREDIR) {
+            if (token.type === matcher.tokens.NOTREDIR) {
                 tape.popMark();
                 tape.rewindToMark();
                 matcher = new GlobMatcher(tape);
@@ -63,9 +43,9 @@ var parse = module.exports = function (line) {
             matcher = new GlobMatcher(tape);
         }
         var t = matcher.run();
+        console.log('got a token ' + t.type + ': ' + t.text);
         tokens.push(t);
     }
 
     return tokens;
 };
-

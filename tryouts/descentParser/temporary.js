@@ -3,7 +3,7 @@ var util = require('util');
 var t = {};
 
 function addAll (matcherType) {
-    var matcher = require('../cascadingTokenizers/' + matcherType);
+    var matcher = require('../cascadingTokenizers/matchers/' + matcherType);
     var p, tk = matcher.prototype.tokens;
     for (p in tk) {
         if (tk.hasOwnProperty(p)) {
@@ -20,8 +20,7 @@ addAll('redirMatcher');
 
 var ast = require('./ast');
 
-
-var clp = require('../cascadingTokenizers/commandLineParser');
+var clt = require('../cascadingTokenizers/commandLineTokenizer');
 
 var tape = {
     next: function () {
@@ -51,27 +50,16 @@ var printer = new (require('./printerVisitor'))();
 
 process.stdin.on('data', function (line) {
 
-    tape.tokens = clp(line);
+    tape.tokens = clt(line);
     tape.pos = 0;
 
-//    tokens.forEach(function (token) {
-//        console.log(token.type.id + '\t|'.red + token.text + '|'.red);
-//    });
-
     var ast = COMMAND_LINE();
-//    console.log(ast);
     printer.visit(ast);
 
 
 });
 
 function ERROR () {
-//    console.error('ERROR at token ' + tape.pos + ', expected one of');
-//    for (var i = 0 ; i < arguments.length ; i++) {
-//        console.error('\t', arguments[i]);
-//    }
-//    console.error('Got ' + tape.tokens[tape.pos].type + ' instead');
-
     return {
         type: ERROR,
         err: true,
