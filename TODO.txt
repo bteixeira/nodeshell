@@ -189,6 +189,8 @@ BASH: Possible IO redirection operations:
 
     note that << starts heredoc and will do nothing for redirection
 
+https://www.gnu.org/software/bash/manual/html_node/Redirections.html
+
 Other Bash operators
     |
     &
@@ -292,3 +294,65 @@ Temporary grammar, slightly different -- only globs, no paths or fd
         !LT !GLOB
         !LTGT !GLOB
         !LTAMP !GLOB
+
+
+
+RUNNABLE INTERFACE
+
+
+(following is deprecated)
+        - runSync([options]) -- returns result when done
+        - runAsync([options], callback<result>) -- invokes callback with result when done, don't know what the return value should be, leave it for later
+
+    options are... optional and are NOT NECESSARILY function parameters or command arguments. Usually a runnable is a
+    wrapper that will run a command with preset arguments, though nothing prevents the runnable from
+    assigning those arguments on the fly based on passed options. options can be single object or variable sized
+    argument list, I don't care. Implementations can choose not to implement one of these, throwing an exception for
+    example. In particular, I still don't have a way to asynchronously eval JS code.
+
+    A Runnable will have a map of integers to streams.
+
+
+(second attempt)
+
+        - run([callback], [options])
+            single run method, sync, may return whatever it wants, may return and keep running in background, decision is up to implementation.
+        - redirect(from, to)
+            utility to redirect an FD to either another FD from this runnable, or file name, or any other stream
+        - pipes
+            property, maps numbers (FDs) to streams. No idea how JS runnables are going to access this, for
+            example. Or how to redirect output in JS runnables.
+
+        new Runnable(function)
+
+(yet again)
+       A runnable only has two (possibly three) streams: in, out (possibly err)
+       This is a better abstraction, because having more redirections than that is specific to processes. There are only
+       two other nodes that can apply a redirection: a pipeline, and, in the future, a JS snippet.
+
+
+.............
+
+I think second attempt might be the one to go with.
+
+There's also another approach without Runnable wrapper that just passes around needed information as function parameters.
+
+Its implementation is much simpler.
+
+However, the approach with Runnable does in-place pre-checking: any non-existing commands or faulty Javascript are
+detected early, instead of possibly when some commands are already running. This will be needed sooner or later.
+
+There could be a visitor whose job would be to make these checks, with some performance cost. Not only there is another
+visitor, Javascript will have to be compiled twice (AST is not transformed).
+
+Perhaps there could be a hybrid implementation?
+
+No, I don't think so.
+
+Runnable API:
+    redirOutput(fd, to)
+    redirInput(fd, from)
+    hasInput(fd)
+    hasOutput(fd)
+    pipes [available after calling run()]
+    run(callback)

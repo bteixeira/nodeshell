@@ -1,9 +1,7 @@
-var vm = require('vm');
 var path = require('path');
 
 var utils = require('../../src/utils');
 var Visitor = require('../../src/ast/visitors/visitor');
-var ErrorWrapper = require('../../src/errorWrapper');
 
 var PrinterVisitor = function () {
     this.tab = 0;

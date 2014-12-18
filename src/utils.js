@@ -38,6 +38,10 @@ exports.isRegex = function (candidate) {
     return candidate instanceof RegExp;
 };
 
+exports.isNumber = function (candidate) {
+    return !isNaN(candidate);
+};
+
 exports.getUserHome = function getUserHome () {
     var prop = (process.platform === 'win32') ? 'USERPROFILE' : 'HOME';
     return process.env[prop];

@@ -1,12 +1,12 @@
 var util = require('util');
 
-var Tape = require('../../src/tape');
+var Tape = require('../tape');
 
-var JSMatcher = require('./matchers/jsMatcher');
-var RedirMatcher = require('./matchers/redirMatcher');
-var DQStringMatcher = require('./matchers/dqStringMatcher');
-var ChainMatcher = require('./matchers/chainMatcher');
-var GlobMatcher = require('./matchers/globMatcher');
+var JSMatcher = require('../ast/matchers/jsMatcher');
+var RedirMatcher = require('../ast/matchers/redirMatcher');
+var DQStringMatcher = require('../ast/matchers/dqStringMatcher');
+var ChainMatcher = require('../ast/matchers/chainMatcher');
+var GlobMatcher = require('../ast/matchers/globMatcher');
 
 module.exports = function (line) {
     var tape = new Tape(line.toString());
@@ -43,7 +43,7 @@ module.exports = function (line) {
             matcher = new GlobMatcher(tape);
         }
         var t = matcher.run();
-        console.log('got a token ' + t.type + ': ' + t.text);
+//        console.log('got a token ' + t.type + ': ' + t.text);
         tokens.push(t);
     }
 

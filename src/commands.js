@@ -9,6 +9,7 @@ var Commands = function (options) {
     options = options || {};
 
     this.commands = {};
+    this.paths = {};
 
     if (!options.skipPath) {
         this.addFromPath();
@@ -58,6 +59,7 @@ Commands.prototype.addFromFile = function (filename) {
         basename = basename.substr(0, basename.lastIndexOf('.'));
     }
     this.addCommand(basename, makeCmd(filename));
+    this.paths[basename] = filename;
 };
 
 Commands.prototype.addCommand = function (name, body) {
@@ -100,6 +102,14 @@ Commands.prototype.getCmd = function (name) {
 Commands.prototype.runCmd = function (name, args, cb) {
     var cmd = this.getCmd(name);
     return cmd(cb, args);
+};
+
+Commands.prototype.getPath = function (command) {
+    if (command in this.paths) {
+        return this.paths[command];
+    } else if (this.parent) {
+        return this.parent.getPath(command);
+    }
 };
 
 module.exports = Commands;

@@ -36,8 +36,8 @@ VisitorExecuter.prototype.visitCMD = function (token, callback) {
                 error = result;
                 return;
             }
-            argValues.push(result); // FIXME This is not very generic, right now I know that all calls other than CMD are sync
-        })
+            argValues.push(result); // FIXME This is not very generic, right now it works because I know that all calls other than CMD are sync
+        });
     });
     if (error) {
         callback(error);

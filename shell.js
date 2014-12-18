@@ -3,10 +3,14 @@ var util = require('util');
 var path = require('path');
 var KeyHandler = require('./src/keyhandler');
 var Commands = require('./src/commands');
-var defaultCommands = require('./src/defaultCommands');
-var Parser = require('./src/parser/parser');
 var LineReader = require('./src/lineReader');
-var Executer = require('./src/ast/visitors/visitorExecuter');
+var defaultCommands = require('./src/defaultCommands');
+
+//var Parser = require('./src/parser/parser');
+var Parser = require('./src/parser/descent');
+//var Executer = require('./src/ast/visitors/visitorExecuter');
+var Executer = require('./src/parser/RunnableWraperApproach');
+
 var ErrorWrapper = require('./src/errorWrapper');
 var History = require('./src/history');
 var Autocompleter = require('./src/autocompleter');
@@ -84,12 +88,18 @@ lineReader
     .updatePrompt()
     .on('accept', function (line) {
         var ast = parser.parse(line);
-        executer.visit(ast, doneCB);
+        var runner = executer.visit(ast);
+        runner.run(doneCB);
+
+//        var ast = parser.parse(line);
+//        executer.visit(ast, doneCB);
     });
 
+/**/
 var parser = new Parser(
     commands
 );
+/**/
 
 var history = new History(lineReader);
 

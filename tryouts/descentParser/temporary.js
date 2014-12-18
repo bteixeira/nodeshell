@@ -20,7 +20,7 @@ addAll('redirMatcher');
 
 var ast = require('./ast');
 
-var clt = require('../cascadingTokenizers/commandLineTokenizer');
+var clt = require('../../src/parser/commandLineTokenizer');
 
 var tape = {
     next: function () {
@@ -72,12 +72,10 @@ function ERROR () {
 
 function REDIRECTION () {
 
-    var first = tape.next();
+    var first = tape.next(); // contains direction and possibly fd
 
     var allowed = [t.GT, t.GTGT, t.GTAMP, t.LG, t.LTGT, t.LTAMP];
-    if (
-        allowed.indexOf(first) === -1
-        ) {
+    if (allowed.indexOf(first.type) === -1) {
         tape.prev();
         return ERROR.apply(null, allowed);
     }
@@ -87,11 +85,17 @@ function REDIRECTION () {
         return ERROR(t.GLOB);
     }
 
-    var second = tape.next();
+    var second = tape.next(); // target
     if (second.type !== t.GLOB) {
         tape.prev();
         tape.prev();
         return ERROR(t.GLOB);
+    }
+
+    if (first.type === t.GTAMP || first.type === t.LTAMP) {
+        if (isNaN(Number(second.text))) {
+            return ERROR();
+        }
     }
 
     return ast.REDIR(first, second);
