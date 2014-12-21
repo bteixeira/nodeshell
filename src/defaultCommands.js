@@ -1,47 +1,62 @@
 var Commands = require('./commands');
 var ErrorWrapper = require('./errorWrapper');
+var utils = require('./utils');
+var FunRunner = require('./parser/runners/FunRunner');
 
 module.exports = function (context) {
 
     var commands = new Commands();
 
-    commands.addCommands({
+    var builtins = {
         cd: cd,
         stub: stub,
         exit: exit,
-        all: function (cb, args) {
-            console.log(Object.keys(commands.commands));
-            cb();
+        all: function (args) {
+            return new FunRunner(function (stdio) {
+                commands.getCommandNames().forEach(function (command) {
+                    stdio[1].write(command + '\n');
+                });
+
+            });
         },
-        source: function (cb, args) {
-            var value;
-            if (args.length) {
-                value = utils.sourceSync(args[0], context);
-            }
-            cb(value);
+        source: function (args) {
+            var filename = args.length && args[0];
+            return new FunRunner(function (stdio) {
+                return utils.sourceSync(filename, context);
+            });
         }
-    });
+    };
+    for (p in  builtins) {
+        if (builtins.hasOwnProperty(p)) {
+            commands.addCommand(p, builtins[p]);
+        }
+    }
 
     return commands;
 
 };
 
-function cd(cb, args) {
-    var result;
-    try {
-        result = process.chdir(args[0]);
-    } catch (ex) {
-        result = new ErrorWrapper(ex);
-    }
-    cb(result);
+function cd(args) {
+    var dir = args[0];
+    return new FunRunner(function (stdio) {
+        try {
+            return process.chdir(dir);
+        } catch (ex) {
+            return new ErrorWrapper(ex);
+        }
+    });
 }
 
-function stub(cb, args) {
-    console.log('This is simply a stub command.');
-    console.log('You gave me these arguments:', args);
-    cb();
+function stub(args) {
+    return new FunRunner(function (stdio) {
+        stdio[1].write('This is simply a stub command.\n');
+        stdio[1].write('You gave me these arguments:\n' + util.inspect(args));
+    });
 }
 
-function exit() {
-    process.exit();
+function exit(args) {
+    var status = args[0];
+    return new FunRunner(function (stdio) {
+        process.exit(status);
+    });
 }

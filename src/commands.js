@@ -2,6 +2,7 @@ var fs = require('fs');
 var path = require('path');
 
 var utils = require('./utils');
+var CPWrapper = require('./parser/runners/cpWrapper');
 var spawn = require('child_process').spawn;
 
 var Commands = function (options) {
@@ -9,7 +10,6 @@ var Commands = function (options) {
     options = options || {};
 
     this.commands = {};
-    this.paths = {};
 
     if (!options.skipPath) {
         this.addFromPath();
@@ -58,58 +58,75 @@ Commands.prototype.addFromFile = function (filename) {
     if (process.platform === 'win32') {
         basename = basename.substr(0, basename.lastIndexOf('.'));
     }
-    this.addCommand(basename, makeCmd(filename));
-    this.paths[basename] = filename;
+    this.addCommand(basename, makeCmd(filename), filename);
 };
 
-Commands.prototype.addCommand = function (name, body) {
-    this.commands[name] = body;
-};
-
-Commands.prototype.addCommands = function (commands) {
-    utils.extend(this.commands, commands);
-};
-
-function run(file, args, cb) {
-    process.stdin.setRawMode(false);
-    process.stdin.pause();
-    var child = spawn(file, args, {
-        cwd: process.cwd(),
-        env: process.env,
-        stdio: 'inherit'
-    });
-    child.on('exit', function (status) {
-        process.stdin.resume();
-        process.stdin.setRawMode(true);
-        cb(status);
-    });
-}
-
-function makeCmd(file) {
-    return function (cb, args) {
-        run(file, args, cb);
+function makeCmd (filename) {
+    return function (args) {
+        return new CPWrapper(filename, args);
     }
 }
+
+Commands.prototype.addCommand = function (name, body, path) {
+    path = path || '[builtin]';
+    this.commands[name] = {runner: body, path: path};
+};
+
+//Commands.prototype.addCommands = function (commands) {
+//    utils.extend(this.commands, commands);
+//};
+
+//function run(file, args, cb) {
+//    process.stdin.setRawMode(false);
+//    process.stdin.pause();
+//    var child = spawn(file, args, {
+//        cwd: process.cwd(),
+//        env: process.env,
+//        stdio: 'inherit'
+//    });
+//    child.on('exit', function (status) {
+//        process.stdin.resume();
+//        process.stdin.setRawMode(true);
+//        cb(status);
+//    });
+//}
+
+//function makeCmd(file) {
+//    return function (cb, args) {
+//        run(file, args, cb);
+//    }
+//}
 
 Commands.prototype.isCmd = function (candidate) {
     return candidate in this.commands || (this.parent && this.parent.isCmd(candidate));
 };
 
-Commands.prototype.getCmd = function (name) {
-    return this.commands[name] || (this.parent && this.parent.getCmd(name));
-};
-
-Commands.prototype.runCmd = function (name, args, cb) {
-    var cmd = this.getCmd(name);
-    return cmd(cb, args);
-};
-
-Commands.prototype.getPath = function (command) {
-    if (command in this.paths) {
-        return this.paths[command];
+Commands.prototype.getCmd = function (name, args) {
+    if (name in this.commands) {
+        return this.commands[name].runner(args);
     } else if (this.parent) {
-        return this.parent.getPath(command);
+        return this.parent.getCmd(name, args);
     }
 };
+
+Commands.prototype.getCommandNames = function () {
+    return Object.keys(this.commands)
+};
+
+//Commands.prototype.runCmd = function (name, args, cb) {
+//    var cmd = this.getCmd(name);
+//    return cmd(cb, args);
+//};
+
+/*
+//should not be needed
+Commands.prototype.getPath = function (name) {
+    if (name in this.commands) {
+        return this.commands[name].path;
+    } else if (this.parent) {
+        return this.parent.getPath(name);
+    }
+};
+*/
 
 module.exports = Commands;

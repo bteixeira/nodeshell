@@ -356,3 +356,13 @@ Runnable API:
     hasOutput(fd)
     pipes [available after calling run()]
     run(callback)
+
+
+
+API for command set
+    must return runnables
+    has parent, to which calls are delegated when no command is found
+    returns runnable given command name and arguments
+    usual utilities for adding from file, dir, and paths
+    builtins are also runnables -- create class for JS runnables, that should make this easier and can also be used for the parser
+    allow adding a command by name and a function which returns a runnable -- this will be used for aliases which are just a wrapper around a cpRunnable

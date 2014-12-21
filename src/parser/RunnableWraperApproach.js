@@ -36,7 +36,6 @@ p.visitCOMMAND = function (token) {
 //        UPDATE the mapping must differentiate between input redirection and output redirection
 //        has a method to know, before running, if an fd is supposed to be redirected/inputted
 
-    var path = this.commandSet.getPath(token.cmd);
     var args = [];
     var me = this;
     token.args.forEach(function (arg) {
@@ -51,7 +50,7 @@ p.visitCOMMAND = function (token) {
             });
         }
     });
-    var child = new CPW(path, args);
+    var runner = this.commandSet.getCmd(token.cmd, args);
     token.redirs.forEach(function (redir) {
         var direction = redir.direction.type.id;
         var fd = redir.direction.number;
@@ -61,39 +60,39 @@ p.visitCOMMAND = function (token) {
             if (!utils.isNumber(fd)) {
                 fd = 0;
             }
-            child.configFd(fd, fs.createReadStream(target));
+            runner.configFd(fd, fs.createReadStream(target));
         } else if (direction === 'GT') {
             if (!utils.isNumber(fd)) {
                 fd = 1;
             }
-            child.configFd(fd, fd.createWriteStream(target)); // truncates
+            runner.configFd(fd, fd.createWriteStream(target)); // truncates
         } else if (direction === 'GTGT') {
             if (!utils.isNumber(fd)) {
                 fd = 1;
             }
-            child.configFd(fd, fd.createWriteStream(target, {flags: 'a'})); // truncates
+            runner.configFd(fd, fd.createWriteStream(target, {flags: 'a'})); // truncates
         } else if (direction === 'LTGT') {
             if (!utils.isNumber(fd)) {
                 fd = 0;
             }
-            child.configFd(fd, fd.createWriteStream(target, {flags: 'a'})); // truncates
+            runner.configFd(fd, fd.createWriteStream(target, {flags: 'a'})); // truncates
         } else if (direction === 'GTAMP') {
             // TODO THIS DOESN'T REALLY WORK RIGHT NOW, FD VALUE IS PASSED DIRECTLY TO SPAWN SO IT REFERS TO PARENT'S FD. SAME GOES FOR LTAMP
             if (!utils.isNumber(fd)) {
                 fd = 1;
             }
-            child.configFd(fd, target);
+            runner.configFd(fd, target);
         } else if (direction === 'LTAMP') {
             if (!utils.isNumber(fd)) {
                 fd = 0;
             }
-            child.configFd(fd, target);
+            runner.configFd(fd, target);
         }
 
         // TODO MUST DETECT DUPLICATE FDs AND OPEN DUPLEX STREAM FOR THEM (e.g., "somecommand 7>thefile 7<thefile")
 
     });
-    return child;
+    return runner;
 };
 
 p.visitPIPELINE = function (pipeline) {
