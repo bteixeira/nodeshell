@@ -1,3 +1,5 @@
+var util = require('util');
+
 var Commands = require('./commands');
 var ErrorWrapper = require('./errorWrapper');
 var utils = require('./utils');
@@ -50,7 +52,7 @@ function cd(args) {
 function stub(args) {
     return new FunRunner(function (stdio) {
         stdio[1].write('This is simply a stub command.\n');
-        stdio[1].write('You gave me these arguments:\n' + util.inspect(args));
+        stdio[1].write('You gave me these arguments:\n' + util.inspect(args) + '\n');
     });
 }
 
