@@ -72,6 +72,8 @@ function doneCB (result) {
     // TODO MAKE READ-ONLY PROPERTIES INSTEAD
     extend(ctx, permanent);
     lineReader.refreshLine();
+    process.stdin.resume();
+    process.stdin.setRawMode(true);
 }
 
 var commands = defaultCommands(ctx);
@@ -87,7 +89,10 @@ lineReader
     })
     .updatePrompt()
     .on('accept', function (line) {
+        process.stdin.setRawMode(false);
+        process.stdin.pause();
         var ast = parser.parse(line);
+//        console.log(util.inspect(ast, {depth: 5}));
         var runner = executer.visit(ast);
         runner.run(doneCB);
 
