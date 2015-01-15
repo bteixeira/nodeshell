@@ -34,6 +34,17 @@ p.run = function (cb) {
     var result;
     setTimeout(function () {
         result = me._fun(me.pipes);
+        /* close open streams, otherwise piped processes hang */
+        me.pipes.forEach(function (pipe) {
+            if (
+                    pipe !== process.stdout &&
+                    pipe !== process.stderr &&
+                    pipe !== process.stdin &&
+                    pipe.end
+                ) {
+                pipe.end();
+            }
+        });
         cb(result);
     }, 0);
 

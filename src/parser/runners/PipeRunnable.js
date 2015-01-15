@@ -9,7 +9,7 @@ p.run = function (callback) {
     var left = this._left, right = this._right;
     left.configFd(1, 'pipe');
     right.configFd(0, 'pipe');
-    left.run(function (){});
+    left.run(function () {});
     right.run(callback);
     left.pipes[1].pipe(right.pipes[0]);
     this.pipes = [left.pipes[0], right.pipes[1], right.pipes[2]];
@@ -47,4 +47,5 @@ p.hasConfig = function (fd) {
         return this._right.hasConfig(fd);
     }
     // else??
+    return false;
 };
