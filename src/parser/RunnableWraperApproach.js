@@ -142,7 +142,16 @@ p.visitSEQUENCE = function (sequence) {
 
 p.visitGLOB = function (glob) {
     // TODO CHECK IF IT REALLY IS GLOB, IF SO RETURN ARRAY OF MATCHED FILENAMES, ELSE RETURN ARRAY WITH LITERAL AS ONLY ELEMENT
-    return glob.glob.text;
+    var subTokens = glob.glob.subTokens;
+    var text = '';
+    subTokens.forEach(function (subtoken, i) {
+        if (i === 0 && subtoken.text === '~') {
+            text += utils.getUserHome();
+        } else {
+            text += subtoken.text;
+        }
+    });
+    return text;
 };
 
 p.visitJS = function (token) {
