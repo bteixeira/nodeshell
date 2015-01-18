@@ -42,7 +42,6 @@ var GlobMatcher = module.exports = function (tape) {
         } else {
             this.state = st.INSIDE;
             this.tape.pushMark();
-            this.tape.setMark();
         }
     });
 
@@ -50,6 +49,7 @@ var GlobMatcher = module.exports = function (tape) {
     var subTokens = [];
     var subTypes = utils.createEnum('TEXT', 'STAR', 'QUESTION', 'SEPARATOR');
     var chars = [];
+    var marked;
 
     // TODO LOTS OF DUPLICATION HERE
 
@@ -67,11 +67,16 @@ var GlobMatcher = module.exports = function (tape) {
             if (ch !== this.EOF) {
                 tape.prev();
             }
-            chars.push(tape.getMarked());
-            subTokens.push({
-                type: subTypes.TEXT,
-                text: chars.join('')
-            });
+            marked = tape.getMarked();
+            if (marked.length) {
+                chars.push(marked);
+            }
+            if (chars.length) {
+                subTokens.push({
+                    type: subTypes.TEXT,
+                    text: chars.join('')
+                });
+            }
             tape.popMark();
             this.token = {
                 type: t.GLOB,
@@ -81,7 +86,17 @@ var GlobMatcher = module.exports = function (tape) {
             this.stop();
         } else if (ch in SPECIALS) {
             tape.prev();
-            chars.push(tape.getMarked());
+            marked = tape.getMarked();
+            if (marked.length) {
+                chars.push(marked);
+            }
+            if (chars.length) {
+                subTokens.push({
+                    type: subTypes.TEXT,
+                    text: chars.join('')
+                });
+                chars = [];
+            }
             tape.next();
             tape.setMark();
             if (ch === '*') {
