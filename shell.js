@@ -18,6 +18,10 @@ var NodeLiteral = require('./src/ast/nodes/nodeLiteral');
 var utils = require('./src/utils');
 require('colors');
 
+process.on('SIGINT', function () {
+    console.log('SIGINT');
+});
+
 var lineReader = new LineReader(process.stdout);
 var keyHandler = new KeyHandler(process.stdin);
 
