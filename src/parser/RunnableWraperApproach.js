@@ -2,6 +2,8 @@ var vm = require('vm');
 var path = require('path');
 var cp = require('child_process');
 var spawn = cp.spawn;
+var fs = require('fs');
+var util = require('util');
 
 var utils = require('../../src/utils');
 var Visitor = require('../../src/ast/visitors/visitor');
@@ -20,7 +22,8 @@ var ExecuterVisitor = function (commandSet, context) {
 
 var p = ExecuterVisitor.prototype = new Visitor();
 
-function noop () {}
+function noop() {
+}
 
 p.visitREDIR = function (redir) {
     // HANDLED DIRECTLY IN COMMAND
@@ -141,17 +144,78 @@ p.visitSEQUENCE = function (sequence) {
 };
 
 p.visitGLOB = function (glob) {
-    // TODO CHECK IF IT REALLY IS GLOB, IF SO RETURN ARRAY OF MATCHED FILENAMES, ELSE RETURN ARRAY WITH LITERAL AS ONLY ELEMENT
     var subTokens = glob.glob.subTokens;
-    var text = '';
-    subTokens.forEach(function (subtoken, i) {
-        if (i === 0 && subtoken.text === '~') {
-            text += utils.getUserHome();
-        } else {
-            text += subtoken.text;
+
+    /* If the first token is ~ then expand it to home dir if it is alone or if it is followed by a path separator */
+    if (subTokens[0].text === '~' && (subTokens.length === 1 || subTokens[1].type.id === 'SEPARATOR')) {
+        subTokens[0].text = utils.getUserHome();
+    }
+
+    /* First phase: transform the subtoken list into another one with literal path components and globbed path components */
+    var tokenGroups = [];
+    var group = [];
+    var lastGroup;
+    var globbing = false;
+    subTokens.forEach(function (subToken, i) {
+        group.push(subToken);
+        if (subToken.type.id === 'SEPARATOR' || i === subTokens.length - 1) {
+            lastGroup = tokenGroups[tokenGroups.length - 1];
+            if (lastGroup && !globbing && !lastGroup.globbing) {
+                lastGroup.group = lastGroup.group.concat(group);
+            } else {
+                tokenGroups.push({
+                    glob: globbing,
+                    group: group
+                });
+                globbing = false;
+            }
+            group = [];
+        } else if (subToken.type.id === 'STAR' || subToken.type.id === 'QUESTION') {
+            globbing = true;
         }
     });
-    return text;
+
+    /* Second phase: build the list of matched paths evaluating one component at a time. For literals, append it to each one */
+    var extracted = [''], aux;
+    var join, regex, dirs;
+    tokenGroups.forEach(function (tokenGroup, i) {
+        if (tokenGroup.glob) {
+            regex = buildRegex(tokenGroup.group);
+            aux = [];
+            extracted.forEach(function (extr) {
+                dirs = fs.readdirSync(extr);
+                dirs.forEach(function (dir) {
+                    if (regex.test(dir)) {
+                        aux.push(extr + dir);
+                    }
+                });
+            });
+            extracted = aux;
+        } else {
+            join = tokenGroup.group.reduce(function (prev, token) {
+                return prev + token.text;
+            }, '');
+            extracted = extracted.map(function (extr) {
+                return extr + join;
+            });
+        }
+    });
+
+    function buildRegex (tokenGroup) {
+        var re = '^';
+        tokenGroup.forEach(function (token) {
+            if (token.type.id === 'STAR') {
+                re += '.*';
+            } else if (token.type.id === 'QUESTION') {
+                re += '.';
+            } else {
+                re += token.text.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+            }
+        });
+        return new RegExp(re);
+    }
+
+    return extracted;
 };
 
 p.visitJS = function (token) {
