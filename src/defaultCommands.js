@@ -38,16 +38,24 @@ module.exports = function (context) {
 
 };
 
-function cd(args) {
-    var dir = args[0];
-    return new FunRunner(function (stdio) {
-        try {
-            return process.chdir(dir);
-        } catch (ex) {
-            return new ErrorWrapper(ex);
+var cd = (function () {
+    var previous = process.cwd();
+    return function cd(args) {
+        var dir = args[0] || utils.getUserHome();
+        if (dir === '-') {
+            dir = previous;
         }
-    });
-}
+        return new FunRunner(function (stdio) {
+            try {
+                var tmp = process.cwd();
+                process.chdir(dir);
+                previous = tmp;
+            } catch (ex) {
+                return new ErrorWrapper(ex);
+            }
+        });
+    };
+}());
 
 function stub(args) {
     return new FunRunner(function (stdio) {
