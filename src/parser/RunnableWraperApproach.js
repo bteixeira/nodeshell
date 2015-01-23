@@ -183,7 +183,7 @@ p.visitGLOB = function (glob) {
             regex = buildRegex(tokenGroup.group);
             aux = [];
             extracted.forEach(function (extr) {
-                dirs = fs.readdirSync(extr);
+                dirs = fs.readdirSync(extr || '.');
                 dirs.forEach(function (dir) {
                     if (regex.test(dir)) {
                         aux.push(extr + dir);
@@ -212,6 +212,7 @@ p.visitGLOB = function (glob) {
                 re += token.text.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
             }
         });
+        re += '$';
         return new RegExp(re);
     }
 

@@ -42,6 +42,25 @@ var GlobMatcher = module.exports = function (tape) {
         } else {
             this.state = st.INSIDE;
             this.tape.pushMark();
+            if (ch in SPECIALS) {
+                this.tape.setMark();
+                if (ch === '*') {
+                    subTokens.push({
+                        type: subTypes.STAR,
+                        text: ch
+                    });
+                } else if (ch === '?') {
+                    subTokens.push({
+                        type: subTypes.QUESTION,
+                        text: ch
+                    });
+                } else if (ch === path.sep) {
+                    subTokens.push({
+                        type: subTypes.SEPARATOR,
+                        text: ch
+                    });
+                }
+            }
         }
     });
 

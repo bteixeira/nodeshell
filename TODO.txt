@@ -366,3 +366,22 @@ API for command set
     usual utilities for adding from file, dir, and paths
     builtins are also runnables -- create class for JS runnables, that should make this easier and can also be used for the parser
     allow adding a command by name and a function which returns a runnable -- this will be used for aliases which are just a wrapper around a cpRunnable
+
+It just came to my attention one aspect in which we do not provide bash-compatibility and won't in the near future.
+
+When expanding globs, bash does not include hidden files (starting with ".") unless the dot is there before the pattern,
+or unless the dotglob option is set.
+Currently, nsh's expansion does indeed include all paths that match a glob, including hidden files. I understand that
+this is an issue, especially considering compatibility with shell scripts that may blindly do something like `rm *.js`
+assuming that .nsh.js would not be deleted, for example.
+
+However, if we did decide do not expand to hidden files, we would have to provide a way for the user to specify when to
+have each behaviour. Also, this would add complexity if we are to maintain portability, because in certain systems we
+can not simply test the filename against a pattern. Additionally, it seems to me that this is a minor issue in a daily
+usage: hidden files or directories are usually employed with the purpose of configuration, or to in some way change the
+behaviour of the current directory (e.g., ".git", ".bashrc", ".lock"). The names of these files or directories have
+patterns which do not usually match those of normal, "work" files. I guess if you were inside the Dooper project
+directory you could do `rm *dooper*` and delete ".dooper" along with "run1dooper.log", but if you called `rm *.log` (much
+more common imho) it's a stretch to think you would be removing some configuration file for which the name ended in ".log".
+Therefore I won't invest resources in this in the near future, knowing however that this may be a serious issue under
+the wrong circumstances, and should therefore be addressed in a stable build.
