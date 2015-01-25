@@ -56,7 +56,6 @@ var clt = require('./commandLineTokenizer');
 
 p.parse = function (line) {
     this.tape.tokens = clt(line);
-    console.log('>>>', require('util').inspect(this.tape.tokens, {depth: 10}));
     this.tape.pos = 0;
     this.firstCommand = true;
     var ret = this.COMMAND_LINE();
@@ -129,7 +128,6 @@ p.SIMPLE_COMMAND = function () {
 
     while (true) {
         current = this.tape.next();
-        console.log('ARG!', current.type.id, t.JS);
         if (current.type === t.GLOB) {
             args.push(ast.GLOB(current));
         } else if (current.type === t.JSToken) {
