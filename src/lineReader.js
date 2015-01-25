@@ -83,6 +83,10 @@ LineReader.prototype.accept = function () {
     this.emit('accept', line);
 };
 
+LineReader.prototype.isEmpty = function () {
+    return this.line.length === 0;
+};
+
 /**
  * Inserts test at the current cursor position. Moves the cursor accordingly.
  * @param str

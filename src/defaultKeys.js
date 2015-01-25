@@ -46,8 +46,13 @@ module.exports = function(keyHandler, lineReader, history, autocompleter) {
         lineReader.deleteLine();
     });
 
-    keyHandler.bind(['CTRL+C', 'CTRL+D'], function () {
-        this.input.close();
+    keyHandler.bind(['CTRL+C'], function () {
+        process.kill(process.pid, 'SIGINT'); // Trigger SIGINT and let listeners do something about it
+    });
+    keyHandler.bind(['CTRL+D'], function () {
+        if (lineReader.isEmpty()) {
+            process.exit();
+        }
     });
 
     keyHandler.bind(['UP', 'CTRL+P'], function () {
@@ -62,8 +67,8 @@ module.exports = function(keyHandler, lineReader, history, autocompleter) {
     });
 
     keyHandler.bind('CTRL+L', function () {
-        readline.cursorTo(this.output, 0, 0);
-        readline.clearScreenDown(this.output);
+        readline.cursorTo(lineReader.output, 0, 0);
+        readline.clearScreenDown(lineReader.output);
         lineReader.refreshLine();
     });
 

@@ -19,7 +19,8 @@ var utils = require('./src/utils');
 require('colors');
 
 process.on('SIGINT', function () {
-    console.log('SIGINT');
+    console.log('\nSIGINT\n');
+    lineReader.refreshLine();
 });
 
 var lineReader = new LineReader(process.stdout);
