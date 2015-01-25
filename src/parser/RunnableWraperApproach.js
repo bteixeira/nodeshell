@@ -29,6 +29,10 @@ p.visitREDIR = function (redir) {
     // HANDLED DIRECTLY IN COMMAND
 };
 
+p.toString = function () {
+    return 'RunnableWrapperApproach';
+};
+
 p.visitCOMMAND = function (token) {
 //    return an object that
 //        has a set of [fd->stream] mappings which will be applied when running
@@ -227,7 +231,7 @@ p.visitJS = function (token) {
     var me = this;
     return {
         run: function (callback) {
-            var result = vm.runInContext(token.js, me.context);
+            var result = vm.runInContext(token.js.js, me.context);
             callback(result);
         },
         hasConfig: function (fd) {
@@ -254,6 +258,10 @@ p.visitDQSTRING = function (dqstring) {
 // HOW TO RUN VISIT() ONLY ONCE??? -> SOME PRE-VISIT SUPER METHOD?
 
 var superVisit = p.visit;
+
+p.visitERROR = function (err) {
+    return err;
+};
 
 p.visit = function (node) {
     this.visit = superVisit; // temporarily. tricky. never saw this anywhere. wonder if it really works

@@ -60,7 +60,7 @@ p.parse = function (line) {
     this.firstCommand = true;
     var ret = this.COMMAND_LINE();
     if (this.firstCommand && ret.err) {
-        ret = ast.JS(line);
+        ret = ast.JS({text: line, js: line});
     }
     return ret;
 };
@@ -130,7 +130,7 @@ p.SIMPLE_COMMAND = function () {
         current = this.tape.next();
         if (current.type === t.GLOB) {
             args.push(ast.GLOB(current));
-        } else if (current.type === t.JS) {
+        } else if (current.type === t.JSToken) {
             args.push(ast.JS(current));
         } else if (current.type === t.DQSTRING) {
             args.push(ast.DQSTRING(current));
@@ -249,7 +249,7 @@ p.COMMAND_LINE = function () {
         return subs;
     }
     if (this.tape.hasMore()) {
-        return ERROR('EOF');
+        return this.ERROR('EOF');
     }
     return subs;
 };

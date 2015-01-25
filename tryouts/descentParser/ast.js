@@ -58,7 +58,8 @@ exports.GLOB = function (glob) {
 exports.JS = function (js) {
     return {
         type: 'JS',
-        js: js
+        js: js.js,
+        text: js.text
     };
 };
 exports.DQSTRING = function (dqstring) {

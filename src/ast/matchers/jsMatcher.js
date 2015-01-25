@@ -13,6 +13,8 @@ var JSMatcher = module.exports = function (tape) {
     });
     this.on(st.START, '(', function () {
         this.state = st.INSIDE;
+        tape.pushMark();
+        tape.setMark();
     });
     this.on(st.START, this.ANY, function () {
         this.error();
@@ -40,7 +42,11 @@ var JSMatcher = module.exports = function (tape) {
         if (this.stack[this.stack.length - 1] === '(') {
             this.stack.pop();
         } else {
-            this.token = {type: t.JSToken, text: this.tape.getMarked()};
+            this.tape.prev();
+            var js = this.tape.getMarked();
+            this.tape.next();
+            this.tape.popMark();
+            this.token = {type: t.JSToken, text: this.tape.getMarked(), js: js};
             this.stop();
         }
     });
