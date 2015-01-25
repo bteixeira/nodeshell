@@ -231,7 +231,7 @@ p.visitJS = function (token) {
     var me = this;
     return {
         run: function (callback) {
-            var result = vm.runInContext(token.js, me.context);
+            var result = vm.runInContext(token.js.js, me.context);
             callback(result);
         },
         hasConfig: function (fd) {
