@@ -115,6 +115,8 @@ lineReader
                 }
                 doneCB(result);
             });
+        } else if (ast.err) {
+            doneCB(ast);
         } else {
             runner = executer.visit(ast);
             runner.run(doneCB);

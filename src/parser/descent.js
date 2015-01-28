@@ -167,6 +167,7 @@ p.PIPELINE = function () {
         if (next.err) {
             // no need to rewind more, recursed call should have rewinded
             this.tape.prev();
+            return next;
         } else {
             return ast.PIPELINE(simple, next);
         }
