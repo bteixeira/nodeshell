@@ -19,12 +19,16 @@ var utils = require('./src/utils');
 require('colors');
 
 process.on('SIGINT', function () {
-    console.log('\nSIGINT\n');
-    lineReader.refreshLine();
+    console.log('\nSIGINT'.blue.bold);
+    if (!paused) {
+        console.log();
+        lineReader.refreshLine();
+    }
 });
 
 var lineReader = new LineReader(process.stdout);
 var keyHandler = new KeyHandler(process.stdin);
+var paused = false;
 
 var permanent = {
     process: process,
@@ -79,6 +83,7 @@ function doneCB (result) {
     lineReader.refreshLine();
     process.stdin.resume();
     process.stdin.setRawMode(true);
+    paused = false;
 }
 
 var commands = defaultCommands(ctx);
@@ -96,6 +101,7 @@ lineReader
     .on('accept', function (line) {
         process.stdin.setRawMode(false);
         process.stdin.pause();
+        paused = true;
         var runner, err;
         var ast = parser.parseCmdLine(line);
         if (ast.err && ast.firstCommand) {
@@ -108,7 +114,6 @@ lineReader
                     console.log(inspect(err));
                 }
                 doneCB(result);
-
             });
         } else {
             runner = executer.visit(ast);

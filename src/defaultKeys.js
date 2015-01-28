@@ -51,6 +51,7 @@ module.exports = function(keyHandler, lineReader, history, autocompleter) {
     });
     keyHandler.bind(['CTRL+D'], function () {
         if (lineReader.isEmpty()) {
+            console.log();
             process.exit();
         }
     });
