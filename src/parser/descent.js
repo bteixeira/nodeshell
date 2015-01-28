@@ -1,4 +1,5 @@
 var util = require('util');
+var ErrorWrapper = require('../errorWrapper');
 
 var Parser = module.exports = function (commands) {
     this.commands = commands;
@@ -54,15 +55,19 @@ var clt = require('./commandLineTokenizer');
 
 
 
-p.parse = function (line) {
+p.parseCmdLine = function (line) {
     this.tape.tokens = clt(line);
     this.tape.pos = 0;
     this.firstCommand = true;
     var ret = this.COMMAND_LINE();
     if (this.firstCommand && ret.err) {
-        ret = ast.JS({text: line, js: line});
+        ret.firstCommand = true;
     }
     return ret;
+};
+
+p.parseJS = function (line) {
+    return ast.JS({text: line, js: line});
 };
 
 p.ERROR = function () {
@@ -123,7 +128,7 @@ p.SIMPLE_COMMAND = function () {
     cmd = this.tape.next();
     if (cmd.type !== t.GLOB || !this.commands.isCmd(cmd.text)) {
         // TODO REWIND ENOUGH TOKENS (use redirs.length)
-        return this.ERROR();
+        return new ErrorWrapper('Unknown command: \'' + cmd.text + '\'');
     }
 
     while (true) {
@@ -171,56 +176,30 @@ p.PIPELINE = function () {
     return simple;
 };
 
-p.AND_LIST = function () {
-    var pipeline = this.PIPELINE();
-    if (pipeline.err) {
-        return pipeline;
-    }
-
-    var next = this.tape.next();
-    if (next.type === t.DAMP) {
-        next = this.LIST();
-        if (next.err) {
-            // no need to rewind more, recursed call should have rewinded
-            this.tape.prev();
-        } else {
-            return ast.AND_LIST(pipeline, next);
-        }
-    } else {
-        this.tape.prev();
-    }
-    return pipeline;
-};
-
-
-p.OR_LIST = function () {
-    var pipeline = this.PIPELINE();
-    if (pipeline.err) {
-        return pipeline;
-    }
-
-    var next = this.tape.next();
-    if (next.type === t.DPIPE) {
-        next = this.LIST();
-        if (next.err) {
-            // no need to rewind more, recursed call should have rewinded
-            this.tape.prev();
-        } else {
-            return ast.OR_LIST(pipeline, next);
-        }
-    } else {
-        this.tape.prev();
-    }
-    return pipeline;
-};
-
-
 p.LIST = function () {
-    var list = this.AND_LIST();
-    if (list.err) {
-        list = this.OR_LIST();
+    var pipeline = this.PIPELINE();
+    if (pipeline.err) {
+        return pipeline;
     }
-    return list; // even if there was an error, return it
+
+    var next = this.tape.next();
+    if (next.type === t.DPIPE || next.type === t.DAMP) {
+        var listType = next.type;
+        next = this.LIST();
+        if (next.err) {
+            // no need to rewind more, recursed call should have rewinded
+            this.tape.prev();
+        } else {
+            if (listType === t.DPIPE) {
+                return ast.OR_LIST(pipeline, next);
+            } else {
+                return ast.AND_LIST(pipeline, next);
+            }
+        }
+    } else {
+        this.tape.prev();
+    }
+    return pipeline;
 };
 
 

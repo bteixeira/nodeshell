@@ -96,13 +96,24 @@ lineReader
     .on('accept', function (line) {
         process.stdin.setRawMode(false);
         process.stdin.pause();
-        var ast = parser.parse(line);
-//        console.log(util.inspect(ast, {depth: 5}));
-        var runner = executer.visit(ast);
-        runner.run(doneCB);
+        var runner, err;
+        var ast = parser.parseCmdLine(line);
+        if (ast.err && ast.firstCommand) {
+            err = ast;
+            ast = parser.parseJS(line);
+            runner = executer.visit(ast);
+            runner.run(function (result) {
+                if (result instanceof ErrorWrapper) {
+                    // Magic! If line is ambiguous and could have been both a command and JS, but both errored, show both errors
+                    console.log(inspect(err));
+                }
+                doneCB(result);
 
-//        var ast = parser.parse(line);
-//        executer.visit(ast, doneCB);
+            });
+        } else {
+            runner = executer.visit(ast);
+            runner.run(doneCB);
+        }
     });
 
 /**/
