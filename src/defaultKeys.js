@@ -1,4 +1,5 @@
 var readline = require('readline');
+var EventEmitter = require('events').EventEmitter;
 
 module.exports = function(keyHandler, lineReader, history, autocompleter) {
 
@@ -80,30 +81,30 @@ module.exports = function(keyHandler, lineReader, history, autocompleter) {
     });
 
     keyHandler.bind('CTRL+Z', function () {
-        if (process.platform == 'win32') {
-            return;
-        }
-        if (EventEmitter.listenerCount(this, 'SIGTSTP') > 0) {
-            this.emit('SIGTSTP');
-        } else {
-            process.once('SIGCONT', (function (self) {
-                return function () {
-                    // Don't raise events if stream has already been abandoned.
-                    if (!self.paused) {
-                        // Stream must be paused and resumed after SIGCONT to catch
-                        // SIGINT, SIGTSTP, and EOF.
-                        self.pause();
-                        self.emit('SIGCONT');
-                    }
-                    // explictly re-enable "raw mode" and move the cursor to
-                    // the correct position.
-                    // See https://github.com/joyent/node/issues/3295.
-                    self._setRawMode(true);
-                    self.line.refreshLine();
-                };
-            })(this));
-            this._setRawMode(false);
-            process.kill(process.pid, 'SIGTSTP');
-        }
+//        if (process.platform == 'win32') {
+//            return;
+//        }
+//        if (EventEmitter.listenerCount(this, 'SIGTSTP') > 0) {
+//            this.emit('SIGTSTP');
+//        } else {
+//            process.once('SIGCONT', (function (self) {
+//                return function () {
+//                    // Don't raise events if stream has already been abandoned.
+//                    if (!self.paused) {
+//                        // Stream must be paused and resumed after SIGCONT to catch
+//                        // SIGINT, SIGTSTP, and EOF.
+//                        self.pause();
+//                        self.emit('SIGCONT');
+//                    }
+//                    // explictly re-enable "raw mode" and move the cursor to
+//                    // the correct position.
+//                    // See https://github.com/joyent/node/issues/3295.
+//                    self._setRawMode(true);
+//                    self.line.refreshLine();
+//                };
+//            })(this));
+//            this._setRawMode(false);
+//            process.kill(process.pid, 'SIGTSTP');
+//        }
     });
 };

@@ -25,6 +25,29 @@ process.on('SIGINT', function () {
         lineReader.refreshLine();
     }
 });
+process.on('SIGCHLD', function () {
+    if (paused) {
+        console.log('\nSIGCHLD -- job management is not supported, please manage child process with signals'.blue.bold);
+        lineReader.refreshLine();
+        process.stdin.resume();
+        process.stdin.setRawMode(true);
+        paused = false;
+    }
+});
+process.on('SIGTSTP', function () {
+//    console.log('\nSIGTSTP'.blue.bold);
+//    if (!paused) {
+//        console.log();
+//        lineReader.refreshLine();
+//    }
+});
+
+'HUP INT QUIT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM STKFLT CHLD CONT TSTP TTIN TTOU URG XCPU XFSZ VTALRM PROF WINCH POLL PWR SYS'
+    .split(' ').forEach(function (sig) {
+        process.on('SIG' + sig, function () {
+            console.log(('SIG' + sig).yellow.bold);
+        });
+    });
 
 var lineReader = new LineReader(process.stdout);
 var keyHandler = new KeyHandler(process.stdin);
@@ -60,9 +83,6 @@ var permanent = {
         }
     }
 };
-
-//process.on('SIGINT', function() {
-//});
 
 var extend = utils.extend;
 
