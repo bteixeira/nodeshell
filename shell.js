@@ -53,20 +53,10 @@ var permanent = {
     NSH: {
         lineReader: lineReader,
         bindings: keyHandler,
-        utils: utils,
-        alias: function (handle, body) {
-//            console.log('aliasing', handle, body);
-            commands.addCommand(handle, function (cb, args) {
-//                console.log('running aliased');
-                var ast = parser.parse(body);
-                args = args.map(function (arg) {
-                    return new NodeLiteral(arg);
-                });
-                // assume it's a command
-                ast.args = ast.args.concat(args); // TODO STRING vs NODE?
-                executer.visit(ast, cb);
-            });
-        }
+        utils: utils
+//        alias: function (handle, body) {
+            // TODO implement aliases again
+//        }
     }
 };
 
