@@ -6,9 +6,7 @@ var Commands = require('./src/commands');
 var LineReader = require('./src/lineReader');
 var defaultCommands = require('./src/defaultCommands');
 
-//var Parser = require('./src/parser/parser');
 var Parser = require('./src/parser/descent');
-//var Executer = require('./src/ast/visitors/visitorExecuter');
 var Executer = require('./src/parser/RunnableWraperApproach');
 
 var ErrorWrapper = require('./src/errorWrapper');
@@ -35,19 +33,7 @@ process.on('SIGCHLD', function () {
     }
 });
 process.on('SIGTSTP', function () {
-//    console.log('\nSIGTSTP'.blue.bold);
-//    if (!paused) {
-//        console.log();
-//        lineReader.refreshLine();
-//    }
 });
-
-'HUP INT QUIT ILL TRAP ABRT BUS FPE USR1 SEGV USR2 PIPE ALRM TERM STKFLT CHLD CONT TSTP TTIN TTOU URG XCPU XFSZ VTALRM PROF WINCH POLL PWR SYS'
-    .split(' ').forEach(function (sig) {
-        process.on('SIG' + sig, function () {
-            console.log(('SIG' + sig).yellow.bold);
-        });
-    });
 
 var lineReader = new LineReader(process.stdout);
 var keyHandler = new KeyHandler(process.stdin);
