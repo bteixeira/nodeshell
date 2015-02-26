@@ -50,29 +50,33 @@ Tape.prototype.peek = function () {
 
 /**
  * Moves the pointer forward until the first character that matches the given pattern.
- * @param re the pattern to test or. If it is a string, then it is assumed to be the set of characters to match. If it
- *      is a regular expression, then each character is tested against it.
+ * @param filter string of characters to match. Or RegExp object to use. Or filter function which takes one
  */
-Tape.prototype.skipTo = function (re) {
-    if (utils.isString(re)) {
-        re = new RegExp('[' + re + ']');
+Tape.prototype.skipTo = function (filter) {
+    if (utils.isString(filter)) {
+        filter = new RegExp('[' + filter + ']');
     }
-    var c = this.peek();
-    while (!re.test(c) && this.pos < this.sequence.length) {
-        this.pos += 1;
-        c = this.peek();
+    if (!utils.isFunction(filter)) {
+        /* Assumed to be regex */
+        var re = filter;
+        filter = function (item) {
+            return re.test(item);
+        }
+    }
+    while (!filter(this.peek()) && this.hasMore()) {
+        this.next();
     }
 };
 
 /**
- * Moves the pointer forward past all whitespace characters.
+ * Moves the pointer forward past all whitespace items. TODO if an item is not string then it should be converted
  */
 Tape.prototype.skipWS = function () {
     this.skipTo(/\S/);
 };
 
 /**
- * Moves the pointer forward to the next non-whitespace character.
+ * Moves the pointer forward to the next non-whitespace item. TODO if an item is not string then it should be converted
  */
 Tape.prototype.skipNonWS = function () {
     this.skipTo(/\s/);
