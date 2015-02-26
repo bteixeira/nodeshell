@@ -53,10 +53,11 @@ var permanent = {
     NSH: {
         lineReader: lineReader,
         bindings: keyHandler,
-        utils: utils
+        utils: utils,
 //        alias: function (handle, body) {
             // TODO implement aliases again
 //        }
+        home: __dirname
     }
 };
 

@@ -43,12 +43,17 @@ Commands.prototype.addFromDir = function (dir) {
     try {
         files = fs.readdirSync(dir);
     } catch (ex) {
+        /* Probably directory in PATH that doesn't exist */
         return;
     }
     files.forEach(function (file) {
-        file = path.resolve(dir, file);
-        if (isExecutable(file)) {
-            me.addFromFile(file);
+        try {
+            file = path.resolve(dir, file);
+            if (isExecutable(file)) {
+                me.addFromFile(file);
+            }
+        } catch (ex) {
+            /* Broken symlink will throw this, maybe isExecutable shouldn't follow links? */
         }
     });
 };
