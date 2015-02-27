@@ -83,7 +83,7 @@ describe('Tape', function () {
         assert.equal(marked, test.substring(3, 17));
     });
 
-    it('also supports arrays', function (){
+    it('also supports arrays of objects', function (){
         var arr = [{
             name: 'Cave',
             id: 1
@@ -121,6 +121,31 @@ describe('Tape', function () {
         assert.equal(marked[1].name, 'Ratman');
         assert.equal(tape.hasMore(), true);
         assert.equal(tape.pos, 4);
+    });
+
+    it('casts objects to string when doing string operations', function () {
+        var arr = [
+            { toString: function () { return '';} },
+            { toString: function () { return '   ';} },
+            { toString: function () { return '\t';} },
+            { toString: function () { return '\r\n';} },
+            { toString: function () { return 'aa';} },
+            { toString: function () { return 'aaa';} },
+            { toString: function () { return ' ';} },
+            { toString: function () { return 'bbb';} },
+            { toString: function () { return 'bb';} },
+            { toString: function () { return 'cccc';} }
+        ];
+
+        tape = new Tape(arr);
+
+        tape.skipWS();
+        tape.pos.should.be.exactly(4);
+        tape.skipNonWS();
+        tape.pos.should.be.exactly(6);
+        tape.next();
+        tape.skipTo(/c+/);
+        tape.pos.should.be.exactly(9);
     });
 
 });
