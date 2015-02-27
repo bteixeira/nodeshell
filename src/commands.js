@@ -24,7 +24,12 @@ var isExecutable = Commands.isExecutable = function (file) {
     if (process.platform === 'win32') {
         return /\.(exe|bat)$/.test(file);
     }
-    var stat = fs.statSync(file);
+    try {
+        var stat = fs.statSync(file);
+    } catch (ex) {
+        /* Broken symlink will throw this */
+        return false;
+    }
     return (stat && (stat.mode & 0111)); // test for *any* of the execute bits
 };
 
@@ -47,13 +52,9 @@ Commands.prototype.addFromDir = function (dir) {
         return;
     }
     files.forEach(function (file) {
-        try {
-            file = path.resolve(dir, file);
-            if (isExecutable(file)) {
-                me.addFromFile(file);
-            }
-        } catch (ex) {
-            /* Broken symlink will throw this, maybe isExecutable shouldn't follow links? */
+        file = path.resolve(dir, file);
+        if (isExecutable(file)) {
+            me.addFromFile(file);
         }
     });
 };
