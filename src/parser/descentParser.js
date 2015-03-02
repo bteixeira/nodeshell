@@ -1,32 +1,9 @@
 var util = require('util');
 var ErrorWrapper = require('../errorWrapper');
+var Tape = require('../tape');
 
 var Parser = module.exports = function (commands) {
     this.commands = commands;
-
-    this.tape = {
-        next: function () {
-            var c;
-            if (!this.hasMore()) {
-                c = {
-                    type: 'EOF'
-                };
-            } else {
-                c = this.tokens[this.pos];
-            }
-//        console.log('>getting token ' + c.type.id + ':' + c.text + '...');
-            this.pos = Math.min(this.pos + 1, this.tokens.length + 1);
-            return c;
-        },
-        prev: function () {
-            var c = this.tokens[this.pos];
-            this.pos = Math.max(this.pos - 1, 0);
-            return c;
-        },
-        hasMore: function () {
-            return this.pos < this.tokens.length;
-        }
-    };
 };
 
 var p = Parser.prototype;
@@ -49,15 +26,12 @@ addAll('jsMatcher');
 addAll('pathMatcher');
 addAll('redirMatcher');
 
-var ast = require('../ast/nodes/descent');
+var ast = require('../ast/nodes/descentParserNodes');
 
 var clt = require('./commandLineTokenizer');
 
-
-
 p.parseCmdLine = function (line) {
-    this.tape.tokens = clt(line);
-    this.tape.pos = 0;
+    this.tape = new Tape(clt(line));
     this.firstCommand = true;
     var ret = this.COMMAND_LINE();
     if (this.firstCommand && ret.err) {
@@ -75,7 +49,7 @@ p.ERROR = function () {
         type: 'ERROR',
         err: true,
         pos: this.tape.pos,
-        token: this.tape.tokens[this.tape.pos]
+        token: this.tape.peek()
     };
 };
 
@@ -131,7 +105,7 @@ p.SIMPLE_COMMAND = function () {
         return new ErrorWrapper('Unknown command: \'' + cmd.text + '\'');
     }
 
-    while (true) {
+    while (this.tape.hasMore()) {
         current = this.tape.next();
         if (current.type === t.GLOB) {
             args.push(ast.GLOB(current));
@@ -157,7 +131,7 @@ p.PIPELINE = function () {
 
     var simple = this.SIMPLE_COMMAND();
 
-    if (simple.err) {
+    if (simple.err || !this.tape.hasMore()) {
         return simple;
     }
 
@@ -167,7 +141,7 @@ p.PIPELINE = function () {
         if (next.err) {
             // no need to rewind more, recursed call should have rewinded
             this.tape.prev();
-            return next;
+            return next; // TODO return something else which wraps `next`
         } else {
             return ast.PIPELINE(simple, next);
         }
@@ -179,7 +153,7 @@ p.PIPELINE = function () {
 
 p.LIST = function () {
     var pipeline = this.PIPELINE();
-    if (pipeline.err) {
+    if (pipeline.err || !this.tape.hasMore()) {
         return pipeline;
     }
 
@@ -206,7 +180,7 @@ p.LIST = function () {
 
 p.SUBSHELL = function () {
     var list = this.LIST();
-    if (list.err) {
+    if (list.err || !this.tape.hasMore()) {
         return list;
     }
     var next = this.tape.next();

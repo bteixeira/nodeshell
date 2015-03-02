@@ -19,11 +19,23 @@ var Tape = module.exports = function (sequence) {
     this.marks = [];
 };
 
+/* EOF returned when next is called after the end of the sequence. Can be compared for equality. */
+Tape.EOF = Tape.prototype.EOF = {
+    toString: function () {
+        return 'EOF';
+    }
+};
+
 /**
  * Returns the character at current position and moves the pointer one character forward.
  * @returns {string} the character at the current position
  */
 Tape.prototype.next = function () {
+    if (!this.hasMore()) {
+        //console.log('no more items');
+        //throw 3;
+        return this.EOF;
+    }
     var c = this.peek();
     this.pos = Math.min(this.pos + 1, this.sequence.length);
     return c;
@@ -69,14 +81,14 @@ Tape.prototype.skipTo = function (filter) {
 };
 
 /**
- * Moves the pointer forward past all whitespace items. TODO if an item is not string then it should be converted
+ * Moves the pointer forward past all whitespace items.
  */
 Tape.prototype.skipWS = function () {
     this.skipTo(/\S/);
 };
 
 /**
- * Moves the pointer forward to the next non-whitespace item. TODO if an item is not string then it should be converted
+ * Moves the pointer forward to the next non-whitespace item.
  */
 Tape.prototype.skipNonWS = function () {
     this.skipTo(/\s/);

@@ -1,5 +1,6 @@
 var assert = require('assert');
 var Tape = require('../src/tape');
+var should = require('should');
 
 describe('Tape', function () {
 
@@ -12,6 +13,7 @@ describe('Tape', function () {
 
     it('is initialized to the first character', function () {
         assert.equal(tape.peek(), test.charAt(0));
+
     });
 
     it('moves to the next character', function () {
@@ -146,6 +148,14 @@ describe('Tape', function () {
         tape.next();
         tape.skipTo(/c+/);
         tape.pos.should.be.exactly(9);
+    });
+
+    it('returns EOF when there are no more items', function () {
+        while (tape.hasMore()) {
+            tape.next();
+        }
+        var item = tape.next();
+        item.should.be.exactly(tape.EOF);
     });
 
 });

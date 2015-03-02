@@ -6,7 +6,7 @@ var Commands = require('./src/commands');
 var LineReader = require('./src/lineReader');
 var defaultCommands = require('./src/defaultCommands');
 
-var Parser = require('./src/parser/descent');
+var Parser = require('./src/parser/descentParser');
 var Executer = require('./src/parser/RunnableWraperApproach');
 
 var ErrorWrapper = require('./src/errorWrapper');
