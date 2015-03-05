@@ -177,7 +177,13 @@ p.LIST = function () {
     return pipeline;
 };
 
-
+/**
+ * LIST
+ *
+ * LIST AMP
+ *
+ * LIST AMP SUBSHELL
+ */
 p.SUBSHELL = function () {
     var list = this.LIST();
     if (list.err || !this.tape.hasMore()) {
@@ -197,6 +203,9 @@ p.SUBSHELL = function () {
     }
 };
 
+/**
+ * SUBSHELL EOF
+ */
 p.COMMAND_LINE = function () {
     var subs = this.SUBSHELL();
     if (subs.err) {
