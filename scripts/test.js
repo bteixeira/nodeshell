@@ -21,22 +21,21 @@ function allFiles(root, callback) {
 /** List of source files */
 var src = {};
 
-//allFiles('src', function (filename) {
-//    if (/\.js$/.test(filename)) {
-//        src[path.resolve(filename)] = true;
-//    }
-//});
-//
-//
+allFiles('src', function (filename) {
+    if (/\.js$/.test(filename)) {
+        src[path.resolve(filename)] = true;
+    }
+});
+
+
 var mocha = new Mocha;
-//
-//// Add all files in /test to mocha
-//allFiles('test', function (filename) {
-//    if (/\.js$/.test(filename)) {
-//        mocha.addFile(filename);
-//    }
-//});
-mocha.addFile('test/tape.test.js');
+
+// Add all files in /test to mocha
+allFiles('test', function (filename) {
+    if (/\.js$/.test(filename)) {
+        mocha.addFile(filename);
+    }
+});
 
 // istanbul works with this global, I think it is possible to get rid of it but couldn't figure it out
 var coverageVar = '$$cov_' + new Date().getTime() + '$$';

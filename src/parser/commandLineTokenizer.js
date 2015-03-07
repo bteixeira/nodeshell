@@ -20,7 +20,9 @@ module.exports = function (line) {
             tape.next();
             continue;
         } else if (c === '"') {
-            matcher = new DQStringMatcher(tape);
+            token = DQStringMatcher.run(tape);
+            tokens.push(token);
+            continue;
         } else if (c === '(') {
             matcher = new JSMatcher(tape);
         } else if (c === '|' || c === '&') {
@@ -42,9 +44,9 @@ module.exports = function (line) {
         } else {
             matcher = new GlobMatcher(tape);
         }
-        var t = matcher.run();
+        token = matcher.run();
 //        console.log('got a token ' + t.type + ': ' + t.text);
-        tokens.push(t);
+        tokens.push(token);
     }
 
     return tokens;

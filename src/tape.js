@@ -127,10 +127,12 @@ Tape.prototype.pushMark = function () {
 };
 
 /**
- * Discards the current mark position and replaces it with the one at the top of the stack.
+ * Discards the current mark position and replaces it with the one at the top of the stack. Returns the discarded mark position.
  */
 Tape.prototype.popMark = function () {
+    var old = this.mark;
     this.mark = this.marks.pop();
+    return old;
 };
 
 /**

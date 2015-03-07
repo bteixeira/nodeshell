@@ -158,4 +158,13 @@ describe('Tape', function () {
         item.should.be.exactly(tape.EOF);
     });
 
+    it('returns the current mark when popping it', function () {
+        tape.setMark();
+        tape.pos = 3;
+        tape.pushMark();
+        tape.setMark();
+        var pos = tape.popMark();
+        pos.should.equal(3);
+    });
+
 });

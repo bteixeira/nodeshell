@@ -7,7 +7,7 @@ var LineReader = require('./src/lineReader');
 var defaultCommands = require('./src/defaultCommands');
 
 var Parser = require('./src/parser/descentParser');
-var Executer = require('./src/parser/RunnableWraperApproach');
+var Executer = require('./src/parser/RunnableWrapperExecuterVisitor');
 
 var ErrorWrapper = require('./src/errorWrapper');
 var History = require('./src/history');
