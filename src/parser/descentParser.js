@@ -1,7 +1,8 @@
 var util = require('util');
 var ErrorWrapper = require('../errorWrapper');
 var Tape = require('../tape');
-var DQStringMatcher = require('../ast/matchers/dqStringMatcher');
+var dQStringMatcher = require('../ast/matchers/dqStringMatcher');
+var jsMatcher = require('../ast/matchers/jsMatcher');
 
 var Parser = module.exports = function (commands) {
     this.commands = commands;
@@ -22,7 +23,6 @@ function addAll (matcherType) {
 }
 addAll('chainMatcher');
 addAll('globMatcher');
-addAll('jsMatcher');
 addAll('pathMatcher');
 addAll('redirMatcher');
 
@@ -109,9 +109,9 @@ p.SIMPLE_COMMAND = function () {
         current = this.tape.next();
         if (current.type === t.GLOB) {
             args.push(ast.GLOB(current));
-        } else if (current.type === t.JSToken) {
+        } else if (current.type === jsMatcher.tokens.JSTOKEN) {
             args.push(ast.JS(current));
-        } else if (current.type === DQStringMatcher.tokens.DQSTRING) {
+        } else if (current.type === dQStringMatcher.tokens.DQSTRING) {
             args.push(ast.DQSTRING(current));
         } else {
             this.tape.prev();

@@ -22,9 +22,6 @@ var ExecuterVisitor = function (commandSet, context) {
 
 var p = ExecuterVisitor.prototype = new Visitor();
 
-function noop() {
-}
-
 p.visitREDIR = function (redir) {
     // HANDLED DIRECTLY IN COMMAND
 };
@@ -228,7 +225,7 @@ p.visitJS = function (token) {
     return {
         run: function (callback) {
             try {
-                var result = vm.runInContext(token.js.js, me.context);
+                var result = vm.runInContext(token.token.text, me.context);
                 callback(result);
             } catch (e) {
                 callback(new ErrorWrapper(e));

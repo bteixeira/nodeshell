@@ -2,9 +2,9 @@ var util = require('util');
 
 var Tape = require('../tape');
 
-var JSMatcher = require('../ast/matchers/jsMatcher');
+var jSMatcher = require('../ast/matchers/jsMatcher');
 var RedirMatcher = require('../ast/matchers/redirMatcher');
-var DQStringMatcher = require('../ast/matchers/dqStringMatcher');
+var dQStringMatcher = require('../ast/matchers/dqStringMatcher');
 var ChainMatcher = require('../ast/matchers/chainMatcher');
 var GlobMatcher = require('../ast/matchers/globMatcher');
 
@@ -20,11 +20,13 @@ module.exports = function (line) {
             tape.next();
             continue;
         } else if (c === '"') {
-            token = DQStringMatcher.run(tape);
+            token = dQStringMatcher.run(tape);
             tokens.push(token);
             continue;
         } else if (c === '(') {
-            matcher = new JSMatcher(tape);
+            token = jSMatcher.run(tape);
+            tokens.push(token);
+            continue;
         } else if (c === '|' || c === '&') {
             matcher = new ChainMatcher(tape);
         } else if (c === '>' || c === '<' || /^\d$/.test(c)) {

@@ -1,121 +1,77 @@
-var TapeStateMachine = require('../../parser/tapeStateMachine');
-var util = require('util');
+var dQStringMatcher = require('./dqStringMatcher');
 var utils = require('../../utils');
 
-var JSMatcher = module.exports = function (tape) {
-    TapeStateMachine.call(this, tape);
-    tape.setMark();
-    this.state = st.START;
+exports.run = function (tape) {
+    if (tape.peek() !== '(') {
+        return {
+            type: t.JS_ERROR,
+            text: tape.peek(),
+            pos: tape.pos
+        };
+    }
 
+    tape.pushMark();
+    tape.setMark(); // TODO PUSH MARK BEFORE CALLING MATCHER
 
-    this.on(st.START, /\s/, function () {
-        tape.setMark();
-    });
-    this.on(st.START, '(', function () {
-        this.state = st.INSIDE;
-        tape.pushMark();
-        tape.setMark();
-    });
-    this.on(st.START, this.ANY, function () {
-        this.error();
-    });
+    tape.next();
 
+    var c, type, pos, str, stack = [];
 
-    this.on(st.INSIDE, /[\(\[\{]/, function (ch) {
-        this.stack.push(ch);
-    });
-    this.on(st.INSIDE, ']', function (ch) {
-        if (this.stack[this.stack.length - 1] === '[') {
-            this.stack.pop();
-        } else {
-            this.error();
-        }
-    });
-    this.on(st.INSIDE, '}', function (ch) {
-        if (this.stack[this.stack.length - 1] === '{') {
-            this.stack.pop();
-        } else {
-            this.error();
-        }
-    });
-    this.on(st.INSIDE, ')', function (ch) {
-        if (this.stack[this.stack.length - 1] === '(') {
-            this.stack.pop();
-        } else {
-            this.tape.prev();
-            var js = this.tape.getMarked();
-            this.tape.next();
-            this.tape.popMark();
-            this.token = {type: t.JSToken, text: this.tape.getMarked(), js: js};
-            this.stop();
-        }
-    });
-    this.on(st.INSIDE, '"', function () {
-        this.state = st.DQSTRING;
-    });
-    this.on(st.INSIDE, '\'', function () {
-        this.state = st.SQSTRING;
-    });
-    this.on(st.INSIDE, this.EOF, function () {
-        this.error();
-    });
-    this.on(st.INSIDE, this.ANY, function () {
-    });
+    function top() {
+        return stack[stack.length - 1];
+    }
 
+    while (tape.hasMore()) {
+        c = tape.next();
+        if (c === ')') {
+            if (!stack.length) {
+                type = t.JSTOKEN;
+                break;
+            } else if (top() === '(') {
+                stack.pop();
+            } else {
+                type = t.JS_ERROR;
+                pos = tape.pos - 1;
+                str = c;
+                break;
+            }
 
-    var escaping = false;
-    this.on(st.DQSTRING, '\\', function () {
-        if (escaping) {
-            escaping = false; // skip this char and do nothing
-        } else {
-            escaping = true;
+        } else if (c === '}') {
+            if (top() === '{') {
+                stack.pop();
+            } else {
+                type = t.JS_ERROR;
+                pos = tape.pos;
+                break;
+            }
+        } else if (c === ']') {
+            if (top() === '[') {
+                stack.pop();
+            } else {
+                type = t.JS_ERROR;
+                pos = tape.pos;
+                break;
+            }
+        } else if (/[\(\[\{]/.test(c)) {
+            stack.push(c);
+        } else if (c === '"') {
+            tape.prev();
+            dQStringMatcher.run(tape);
         }
-    });
-    this.on(st.DQSTRING, '"', function () {
-        if (escaping) {
-            escaping = false; // skip this char and do nothing
-        } else {
-            this.state = st.INSIDE;
+        if (!tape.hasMore()) {
+            type = t.JS_ERROR;
+            pos = tape.pos;
         }
-    });
-    this.on(st.DQSTRING, this.ANY, function () {
-        if (escaping) {
-            escaping = false; // skip this char and do nothing
-        }
-    });
+    }
 
-    this.on(st.SQSTRING, '\\', function () {
-        escaping = !escaping;
-    });
-    this.on(st.SQSTRING, '\'', function () {
-        if (escaping) {
-            escaping = false; // skip this char and do nothing
-        } else {
-            this.state = st.INSIDE;
-        }
-    });
-    this.on(st.SQSTRING, this.ANY, function () {
-        if (escaping) {
-            escaping = false; // skip this char and do nothing
-        }
-    });
-
+    str = str || tape.getMarked();
+    var mark = tape.popMark();
+    pos = pos || mark;
+    return {
+        type: type,
+        text: str,
+        pos: pos
+    };
 };
 
-util.inherits(JSMatcher, TapeStateMachine);
-
-var st = JSMatcher.prototype.states = utils.createEnum('START', 'INSIDE', 'DQSTRING', 'SQSTRING');
-
-var t = JSMatcher.prototype.tokens = utils.createEnum('ErrorToken', 'JSToken');
-
-var run_ = TapeStateMachine.prototype.run;
-
-JSMatcher.prototype.run = function () {
-    this.stack = [];
-    run_.call(this);
-    return this.token;
-};
-JSMatcher.prototype.error = function () {
-    this.token = {type: t.ErrorToken, text: this.tape.getMarked()};
-    this.stop();
-};
+var t = exports.tokens = utils.createEnum('JS_ERROR', 'JSTOKEN');
