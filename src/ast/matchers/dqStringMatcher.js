@@ -3,7 +3,11 @@ var utils = require('../../utils');
 
 exports.run = function (tape) {
     if (tape.peek() !== '"') {
-        return t.NO_DQ_STRING;
+        return {
+            type: t.NO_DQSTRING,
+            text: tape.peek(),
+            pos: tape.pos
+        };
     }
 
     tape.pushMark();
