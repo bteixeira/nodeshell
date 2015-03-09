@@ -64,6 +64,6 @@ exports.JS = function (js) {
 exports.DQSTRING = function (dqstring) {
     return {
         type: 'DQSTRING',
-        dqstring: dqstring
+        token: dqstring
     };
 };

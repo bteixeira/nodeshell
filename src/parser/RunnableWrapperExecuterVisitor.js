@@ -30,7 +30,7 @@ p.visitREDIR = function (redir) {
 };
 
 p.toString = function () {
-    return 'RunnableWrapperApproach';
+    return 'RunnableWrapperExecuterVisitor';
 };
 
 p.visitCOMMAND = function (token) {
@@ -224,10 +224,6 @@ p.visitGLOB = function (glob) {
 };
 
 p.visitJS = function (token) {
-    // run js and return result
-//    function run (callback) {
-//        callback(exec(js));
-//    }
     var me = this;
     return {
         run: function (callback) {
@@ -247,8 +243,10 @@ p.visitJS = function (token) {
 };
 
 p.visitDQSTRING = function (dqstring) {
-    // TODO JUST RETURN TEXT? DO I NEED TO TAKE CARE OF ESCAPES?
-    return dqstring.dqstring.string;
+    console.log('text:', dqstring.token.text);
+    var str = vm.runInNewContext(dqstring.token.text);
+    console.log('result:', str);
+    return str;
 };
 
 // OVERRIDE VISIT()

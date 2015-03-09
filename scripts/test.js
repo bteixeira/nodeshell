@@ -47,7 +47,7 @@ var transformer = instrumenter.instrumentSync.bind(instrumenter);
 
 istanbul.matcherFor({
         root: 'src',
-        includes: [ '**/*.js' ]
+        includes: [ 'tape.js' ]
     },
     function (err, matchFn) {
         if (err) {

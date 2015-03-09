@@ -1,0 +1,25 @@
+TAPE
+
+It's not a Stream because it:
+    - allows going back and forth through the items in a repeatable way
+    - explicitly supports any kind of data items and not just strings
+    - allows marking positions for later reference and obtaining sub sections of the tape
+
+I would like to use tapes to traverse:
+    - Strings
+    - Arrays
+    - Streams
+
+Interface.
+You give it an object with .length and .slice and numeric arrays
+You can call
+    next()
+    prev()
+    peek()
+    hasMore()
+    setMark()
+    pushMark()
+    popMark()
+    pos
+    getMarked()
+    skip(filter function or regex)
