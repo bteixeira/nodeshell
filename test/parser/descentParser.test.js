@@ -3,7 +3,7 @@ var should = require('should');
 var Parser = require('../../src/parser/descentParser');
 var Tape = require('../../src/tape');
 var commandsStub = require('../../test/commandsStub');
-var CLT = require('../../src/parser/commandLineTokenizer');
+var CLT = require('../../src/tokenizer/commandLineTokenizer');
 
 describe('Parser', function () {
 

@@ -1,5 +1,5 @@
 var should = require('should');
-var CLT = require('../../src/parser/commandLineTokenizer');
+var CLT = require('../../src/tokenizer/commandLineTokenizer');
 var Tape = require('../../src/tape');
 
 describe('Command Line Tokenizer', function () {

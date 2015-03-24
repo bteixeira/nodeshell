@@ -1,8 +1,10 @@
 var util = require('util');
 var ErrorWrapper = require('../errorWrapper');
 var Tape = require('../tape');
-var dQStringMatcher = require('../ast/matchers/dqStringMatcher');
-var jsMatcher = require('../ast/matchers/jsMatcher');
+var dQStringMatcher = require('../tokenizer/matchers/dqStringMatcher');
+var jsMatcher = require('../tokenizer/matchers/jsMatcher');
+var chainMatcher = require('../tokenizer/matchers/chainMatcher');
+var redirMatcher = require('../tokenizer/matchers/redirMatcher');
 
 var Parser = module.exports = function (commands) {
     this.commands = commands;
@@ -13,7 +15,7 @@ var p = Parser.prototype;
 var t = {};
 
 function addAll (matcherType) {
-    var matcher = require('../ast/matchers/' + matcherType);
+    var matcher = require('../tokenizer/matchers/' + matcherType);
     var p, tk = matcher.prototype.tokens;
     for (p in tk) {
         if (tk.hasOwnProperty(p)) {
@@ -21,14 +23,12 @@ function addAll (matcherType) {
         }
     }
 }
-addAll('chainMatcher');
 addAll('globMatcher');
 addAll('pathMatcher');
-addAll('redirMatcher');
 
 var ast = require('../ast/nodes/descentParserNodes');
 
-var clt = require('./commandLineTokenizer');
+var clt = require('./../tokenizer/commandLineTokenizer');
 
 p.parseCmdLine = function (line) {
     this.tape = new Tape(clt(line));
@@ -59,8 +59,8 @@ p.REDIRECTION = function () {
 
     var first = this.tape.next(); // contains direction and possibly fd
 
-    var allowed = [t.GT, t.GTGT, t.GTAMP, t.LG, t.LTGT, t.LTAMP];
-    if (allowed.indexOf(first.type) === -1) {
+    var allowed = redirMatcher.tokens;//[t.GT, t.GTGT, t.GTAMP, t.LG, t.LTGT, t.LTAMP];
+    if (!(first.type.id in allowed)) {
         this.tape.prev();
         return this.ERROR(allowed);
     }
@@ -136,7 +136,7 @@ p.PIPELINE = function () {
     }
 
     var next = this.tape.next();
-    if (next.type === t.PIPE) {
+    if (next.type === chainMatcher.tokens.PIPE) {
         next = this.PIPELINE();
         if (next.err) {
             // no need to rewind more, recursed call should have rewinded
@@ -158,14 +158,14 @@ p.LIST = function () {
     }
 
     var next = this.tape.next();
-    if (next.type === t.DPIPE || next.type === t.DAMP) {
+    if (next.type === chainMatcher.tokens.DPIPE || next.type === chainMatcher.tokens.DAMP) {
         var listType = next.type;
         next = this.LIST();
         if (next.err) {
             // no need to rewind more, recursed call should have rewinded
             this.tape.prev();
         } else {
-            if (listType === t.DPIPE) {
+            if (listType === chainMatcher.tokens.DPIPE) {
                 return ast.OR_LIST(pipeline, next);
             } else {
                 return ast.AND_LIST(pipeline, next);
@@ -190,7 +190,7 @@ p.SUBSHELL = function () {
         return list;
     }
     var next = this.tape.next();
-    if (next.type === t.AMP) {
+    if (next.type === chainMatcher.tokens.AMP) {
         next = this.SUBSHELL();
         if (next.err) {
             return ast.SEQUENCE(list);

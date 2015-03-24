@@ -64,22 +64,22 @@ p.visitCOMMAND = function (token) {
             if (!utils.isNumber(fd)) {
                 fd = 0;
             }
-            runner.configFd(fd, fs.createReadStream(target));
+            runner.configFd(fd, fs.createReadStream(target.text));
         } else if (direction === 'GT') {
             if (!utils.isNumber(fd)) {
                 fd = 1;
             }
-            runner.configFd(fd, fd.createWriteStream(target)); // truncates
+            runner.configFd(fd, fs.createWriteStream(target.text)); // truncates
         } else if (direction === 'GTGT') {
             if (!utils.isNumber(fd)) {
                 fd = 1;
             }
-            runner.configFd(fd, fd.createWriteStream(target, {flags: 'a'})); // truncates
+            runner.configFd(fd, fs.createWriteStream(target.text, {flags: 'a'}));
         } else if (direction === 'LTGT') {
             if (!utils.isNumber(fd)) {
                 fd = 0;
             }
-            runner.configFd(fd, fd.createWriteStream(target, {flags: 'a'})); // truncates
+            runner.configFd(fd, fs.createWriteStream(target.text, {flags: 'a'}));
         } else if (direction === 'GTAMP') {
             // TODO THIS DOESN'T REALLY WORK RIGHT NOW, FD VALUE IS PASSED DIRECTLY TO SPAWN SO IT REFERS TO PARENT'S FD. SAME GOES FOR LTAMP
             if (!utils.isNumber(fd)) {

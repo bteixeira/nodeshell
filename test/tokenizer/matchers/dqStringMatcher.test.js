@@ -1,4 +1,4 @@
-var dQStringMatcher = require('../../../src/ast/matchers/dqStringMatcher');
+var dQStringMatcher = require('../../../src/tokenizer/matchers/dqStringMatcher');
 var Tape = require('../../../src/tape');
 
 describe('Matcher for Double-Quoted String', function () {

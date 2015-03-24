@@ -28,57 +28,39 @@ p._getStream = function (id) {
 };
 
 p.run = function (callback) {
-//    var stdio = [];
-//    var i, stream;
-//    for (i = 0 ; i < Math.max(this._inputs.length, this._outputs.length) ; i++) {
-//        if (this._inputs[i] || this._outputs[i]) {
-//            stdio[i] = 'pipe';
-//        }
-//    }
-    var child = this._child = cp.spawn(this._path, this._args, {stdio: /*'inherit'*/ this._stdio});
-    this._started = true;
-//    for (i = 0 ; i < Math.max(this._inputs.length, this._outputs.length) ; i++) {
-//        if (this._inputs[i]) {
-//            stream = this._getStream(this._inputs[i]);
-//            stream.pipe(child.stdio[i]);
-//        }
-//        if (this._outputs[i]) {
-//            stream = this._getStream(this._outputs[i]);
-//            child.stdio[i].pipe(stream);
-//        }
-//    }
-    child.on('exit', function (status) {
-        callback(status);
-    });
-    this.pipes = child.stdio;
-};
 
-//p.redirOutput = function (fd, to) {
-//    this._outputs[fd] = to;
-//    if (this._started) { // TODO CONSIDER REFUSING TO REPIPE WHEN ALREADY STARTED
-//        this._child.stdio[fd].pipe(this._getStream(to)); // TODO CHECK TYPE
-//    }
-//};
-//
-//p.redirInput = function (fd, from) {
-//    this._inputs[fd] = from;
-//    if (this._started) {
-//        this._getStream(from).pipe(this._child.stdio[fd]);
-//    }
-//};
-//
-//p.hasOutput = function (fd) {
-//    return this._outputs[fd];
-//};
-//
-//p.hasInput = function (fd) {
-//    return this._inputs[fd];
-//};
+    var n = 0;
+    var waitable = []; // file streams which have to be listened to for the 'open' event before launching the child process
+    this._stdio.forEach(function (stream) {
+        if (stream.constructor === fs.ReadStream || stream.constructor === fs.WriteStream) {
+            waitable.push(stream);
+            stream.on('open', function () {
+                n++;
+                verify()
+            });
+        }
+    });
+
+    var me = this;
+    function verify() {
+        if (n === waitable.length) {
+            var child = me._child = cp.spawn(me._path, me._args, {stdio: /*'inherit'*/ me._stdio});
+            me._started = true;
+            child.on('exit', function (status) {
+                callback(status);
+            });
+            me.pipes = child.stdio;
+        }
+    }
+
+    verify();
+
+};
 
 p.configFd = function (fd, config) {
     this._stdio[fd] = config;
 };
 
 p.hasConfig = function (fd) {
-    return fd < this._stdio.length;
+    return (typeof this._stdio[fd]) !== 'undefined';
 };

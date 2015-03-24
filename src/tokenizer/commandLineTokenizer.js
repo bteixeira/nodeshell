@@ -2,11 +2,11 @@ var util = require('util');
 
 var Tape = require('../tape');
 
-var jSMatcher = require('../ast/matchers/jsMatcher');
-var RedirMatcher = require('../ast/matchers/redirMatcher');
-var dQStringMatcher = require('../ast/matchers/dqStringMatcher');
-var ChainMatcher = require('../ast/matchers/chainMatcher');
-var GlobMatcher = require('../ast/matchers/globMatcher');
+var jSMatcher = require('./matchers/jsMatcher');
+var redirMatcher = require('./matchers/redirMatcher');
+var dQStringMatcher = require('./matchers/dqStringMatcher');
+var chainMatcher = require('./matchers/chainMatcher');
+var GlobMatcher = require('./matchers/globMatcher');
 
 module.exports = function (line) {
     var tape = new Tape(line.toString());
@@ -28,13 +28,14 @@ module.exports = function (line) {
             tokens.push(token);
             continue;
         } else if (c === '|' || c === '&') {
-            matcher = new ChainMatcher(tape);
+            token = chainMatcher.run(tape);
+            tokens.push(token);
+            continue;
         } else if (c === '>' || c === '<' || /^\d$/.test(c)) {
             tape.setMark();
             tape.pushMark();
-            matcher = new RedirMatcher(tape);
-            token = matcher.run();
-            if (token.type === matcher.tokens.NOTREDIR) {
+            token = redirMatcher.run(tape);
+            if (token.type === redirMatcher.tokens.NOTREDIR) {
                 tape.popMark();
                 tape.rewindToMark();
                 matcher = new GlobMatcher(tape);

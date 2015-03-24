@@ -1,4 +1,4 @@
-var jsMatcher = require('../../../src/ast/matchers/jsMatcher');
+var jsMatcher = require('../../../src/tokenizer/matchers/jsMatcher');
 var Tape = require('../../../src/tape');
 
 describe('Matcher for Javascript snippets', function () {

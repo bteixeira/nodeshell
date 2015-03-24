@@ -20,7 +20,7 @@ addAll('redirMatcher');
 
 var ast = require('./ast');
 
-var clt = require('../../src/parser/commandLineTokenizer');
+var clt = require('../../src/tokenizer/commandLineTokenizer');
 
 var tape = {
     next: function () {
