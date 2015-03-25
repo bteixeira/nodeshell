@@ -17,6 +17,49 @@ var BREAKERS = utils.strToObj('&|<>("');
 
 var SPECIALS = utils.createEnum('*', '?', path.sep);
 
+//exports.run = function (tape) {
+//
+//    var subtokens = [];
+//
+//    tape.pushMark();
+//    tape.set();
+//
+//    var c = tape.next();
+//    var type;
+//
+//    function escape() {
+//        if (!tape.hasMore()) {
+//            type = t.UNTERMINATED_ESCAPE;
+//        }
+//    }
+//
+//    if (c === '\\') {
+//        escape();
+//    } else if (c === '*') {
+//        // TODO push star
+//    } else if (c === '?') {
+//        // TODO push question
+//    } else if (/\s/.test(c) || c in BREAKERS) {
+//        // TODO return t.NO_GLOB
+//    }
+//
+//    while (!type && tape.hasMore()) {
+//        c = tape.next();
+//
+//        if (c === '\\') {
+//            escape();
+//        } else if (c === '*') {
+//            // TODO push star
+//        } else if (c === '?') {
+//            // TODO push question
+//        } else if (/\s/.test(c) || c in BREAKERS) {
+//            tape.prev();
+//            break;
+//        }
+//    }
+//
+//};
+
 var GlobMatcher = module.exports = function (tape) {
     TapeStateMachine.call(this, tape);
     tape.setMark();

@@ -24,7 +24,7 @@ function addAll (matcherType) {
     }
 }
 addAll('globMatcher');
-addAll('pathMatcher');
+//addAll('pathMatcher');
 
 var ast = require('../ast/nodes/descentParserNodes');
 
@@ -56,6 +56,10 @@ p.ERROR = function () {
 /******************* TODO TODO TODO MUST CONSIDER EOF WHEN CALLING tape.next() ********************/
 
 p.REDIRECTION = function () {
+
+    if (!this.tape.hasMore()) {
+        return this.ERROR(t.GLOB);
+    }
 
     var first = this.tape.next(); // contains direction and possibly fd
 
