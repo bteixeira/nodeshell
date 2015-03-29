@@ -202,7 +202,7 @@ p.visitGLOB = function (glob) {
         }
     });
 
-    function buildRegex (tokenGroup) {
+    function buildRegex(tokenGroup) {
         var re = '^';
         tokenGroup.forEach(function (token) {
             if (token.type.id === 'STAR') {

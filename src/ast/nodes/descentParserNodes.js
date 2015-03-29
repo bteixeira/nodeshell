@@ -41,11 +41,11 @@ exports.OR_LIST = function (left, right) {
     };
 };
 
-exports.SEQUENCE = function (background, next) {
+exports.SEQUENCE = function (left, right) {
     return {
         type: 'SEQUENCE',
-        background: background,
-        next: next
+        left: left,
+        right: right
     };
 };
 

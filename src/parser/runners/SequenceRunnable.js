@@ -8,7 +8,7 @@ var p = Sequence.prototype;
 function noop () {
 }
 
-p.run = function () {
+p.run = function (callback) {
     this._left.run(noop);
     if (this._right) {
         this._right.run(callback);
@@ -17,20 +17,19 @@ p.run = function () {
     }
 };
 
-//p.redirOutput = function (fd, to) {
-//    this._left.redirOutput(fd, to);
-//    this._right.redirOutput(fd, to);
-//};
-//
-//p.redirInput = function (fd, from) {
-//    this._left.redirInput(fd, from);
-//    this._right.redirInput(fd, from);
-//};
-//
-//p.hasOutput = function (fd) {
-//    return this._left.hasOutput(fd) || this._right.hasOutput(fd);
-//};
-//
-//p.hasInput = function (fd) {
-//    return this._left.hasInput(fd) || this._right.hasInput(fd);
-//};
+p.hasConfig = function (fd) {
+    if (this._right) {
+        return this._right.hasConfig(fd);
+    } else {
+        return fd === 0 || this._left.hasConfig(fd);
+    }
+};
+
+p.configFd = function (fd, stream) {
+    if (fd !== 0) {
+        this._left.configFd(fd, stream);
+    }
+    if (this._right) {
+        this._right.configFd(fd, stream);
+    }
+};
