@@ -17,22 +17,38 @@ var BREAKERS = utils.strToObj('&|<>("');
 
 var SPECIALS = utils.createEnum('*', '?', path.sep);
 
-//exports.run = function (tape) {
-//
-//    var subtokens = [];
-//
-//    tape.pushMark();
-//    tape.set();
-//
+function matchText(tape) {
+    tape.pushMark();
+    tape.setMark();
+
+    var c = tape.peek();
+
+    while (!(c in BREAKERS) && !(c in SPECIALS) && c !== '\\' && tape.hasMore()) {
+        tape.next();
+        c = tape.peek();
+    }
+
+    var text = tape.getMarked();
+    tape.popMark();
+    return text;
+}
+
+//function match
+
+exports.run = function (tape) {
+
+    tape.pushMark();
+    tape.setMark();
+
 //    var c = tape.next();
 //    var type;
-//
+
 //    function escape() {
 //        if (!tape.hasMore()) {
 //            type = t.UNTERMINATED_ESCAPE;
 //        }
 //    }
-//
+
 //    if (c === '\\') {
 //        escape();
 //    } else if (c === '*') {
@@ -57,8 +73,46 @@ var SPECIALS = utils.createEnum('*', '?', path.sep);
 //            break;
 //        }
 //    }
-//
-//};
+
+    var c = tape.peek();
+    if (!tape.hasMore() || c in BREAKERS || /\s/.test(c)) {
+        return {
+            type: t.NO_GLOB,
+            pos: tape.popMark(),
+            text: c
+        };
+    }
+
+    var subTokens = [];
+    var subToken;
+    do {
+        if (c in BREAKERS) {
+            break;
+        } else if (c in SPECIALS) {
+            subTokens.push(matchSpecial(tape));
+        } else if (c === '\\') {
+            subToken = matchEscape(tape);
+            if (subToken.err) {
+                tape.rewindToMark();
+                tape.popMark();
+                return subToken;
+            }
+            subTokens.push(subToken);
+        } else {
+            subTokens.push(matchText(tape));
+        }
+        c = tape.peek();
+    } while (tape.hasMore());
+
+    var text = tape.getMarked();
+    tape.popMark();
+    return {
+        type: t.GLOB,
+        pos: tape.mark,
+        text: text,
+        subTokens: subTokens
+    }
+};
 
 var GlobMatcher = module.exports = function (tape) {
     TapeStateMachine.call(this, tape);
