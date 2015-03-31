@@ -17,6 +17,8 @@ var BREAKERS = utils.strToObj('&|<>("');
 
 var SPECIALS = utils.createEnum('*', '?', path.sep);
 
+var subTypes = utils.createEnum('TEXT', 'STAR', 'QUESTION', 'SEPARATOR');
+
 function matchText(tape) {
     tape.pushMark();
     tape.setMark();
@@ -30,49 +32,56 @@ function matchText(tape) {
 
     var text = tape.getMarked();
     tape.popMark();
-    return text;
+    return {
+        type: subTypes.TEXT,
+        text: text
+    };
 }
 
-//function match
+function matchSpecial (tape) {
+    var c = tape.next();
+    var type;
+    if (c === '*') {
+        type = subTypes.STAR;
+    } else if (c === '?') {
+        type = subTypes.QUESTION;
+    }
+    return {
+        type: type,
+        text: c
+    };
+}
+
+function matchEscape (tape) {
+    if (tape.next() !== '\\') {
+        return {
+            err: true
+        };
+    }
+
+    if (!tape.hasMore()) {
+        return {
+            pos: tape.pos,
+            type: t.UNTERMINATED_ESCAPE,
+            err: true
+        }
+    }
+
+    var c = tape.next();
+    if (c in ESCAPABLES) {
+        c = ESCAPABLES[c];
+    }
+
+    return {
+        type: subTypes.TEXT,
+        text: c
+    };
+}
 
 exports.run = function (tape) {
 
     tape.pushMark();
     tape.setMark();
-
-//    var c = tape.next();
-//    var type;
-
-//    function escape() {
-//        if (!tape.hasMore()) {
-//            type = t.UNTERMINATED_ESCAPE;
-//        }
-//    }
-
-//    if (c === '\\') {
-//        escape();
-//    } else if (c === '*') {
-//        // TODO push star
-//    } else if (c === '?') {
-//        // TODO push question
-//    } else if (/\s/.test(c) || c in BREAKERS) {
-//        // TODO return t.NO_GLOB
-//    }
-//
-//    while (!type && tape.hasMore()) {
-//        c = tape.next();
-//
-//        if (c === '\\') {
-//            escape();
-//        } else if (c === '*') {
-//            // TODO push star
-//        } else if (c === '?') {
-//            // TODO push question
-//        } else if (/\s/.test(c) || c in BREAKERS) {
-//            tape.prev();
-//            break;
-//        }
-//    }
 
     var c = tape.peek();
     if (!tape.hasMore() || c in BREAKERS || /\s/.test(c)) {
@@ -98,6 +107,9 @@ exports.run = function (tape) {
                 return subToken;
             }
             subTokens.push(subToken);
+        } else if (c === path.sep) {
+            tape.next();
+            subTokens.push({type: subTypes.SEPARATOR, text: c});
         } else {
             subTokens.push(matchText(tape));
         }
