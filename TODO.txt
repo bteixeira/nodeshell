@@ -385,3 +385,22 @@ directory you could do `rm *dooper*` and delete ".dooper" along with "run1dooper
 more common imho) it's a stretch to think you would be removing some configuration file for which the name ended in ".log".
 Therefore I won't invest resources in this in the near future, knowing however that this may be a serious issue under
 the wrong circumstances, and should therefore be addressed in a stable build.
+
+
+
+------------------------------------------------------------
+
+Changes needed to get autocomplete:
+-   All matchers must clearly indicate when the returned token was an error (probably with an 'error' property set to
+    truthy value); additionally, that error must indicate the character that was found and a set of allowed characters.
+    This includes EOF
+
+-   The CLT must check for an error returned from a matcher. If it is possible to recover from the error, try the next
+    matcher, but keep the error object. If the subsequent matchers all return errors, aggregate all expected symbols.
+    If there is an unrecoverable error, propagate it to the parser
+
+(this part striked out) - The DescentParser must immediately propagate an error coming from the CLT
+
+-   All parser (grammar) functions must adopt the same behavior as the CLT; that is, they must clearly indicate expected
+    tokens or grammar symbols in the error, they must check and keep track of errors from recursed calls, and they must
+    propagate unrecoverable errors with all the possible allowed symbols

@@ -24,25 +24,8 @@ function addAll (matcherType) {
     }
 }
 addAll('globMatcher');
-//addAll('pathMatcher');
 
 var ast = require('../ast/nodes/descentParserNodes');
-
-var clt = require('./../tokenizer/commandLineTokenizer');
-
-p.parseCmdLine = function (line) {
-    this.tape = new Tape(clt(line));
-    this.firstCommand = true;
-    var ret = this.COMMAND_LINE();
-    if (this.firstCommand && ret.err) {
-        ret.firstCommand = true;
-    }
-    return ret;
-};
-
-p.parseJS = function (line) {
-    return ast.JS({text: line, js: line});
-};
 
 p.ERROR = function () {
     return {

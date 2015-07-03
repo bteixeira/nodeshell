@@ -5,7 +5,7 @@ var Tape = require('../../src/tape');
 var commandsStub = require('../../test/commandsStub');
 var CLT = require('../../src/tokenizer/commandLineTokenizer');
 
-describe('Parser', function () {
+describe('DefaultParser', function () {
 
     var parser = new Parser(commandsStub);
 

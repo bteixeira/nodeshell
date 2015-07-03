@@ -6,7 +6,7 @@ var Commands = require('./src/commands');
 var LineReader = require('./src/lineReader');
 var defaultCommands = require('./src/defaultCommands');
 
-var Parser = require('./src/parser/descentParser');
+var DefaultParser = require('./src/parser/defaultLineParser');
 var Executer = require('./src/parser/RunnableWrapperExecuterVisitor');
 
 var ErrorWrapper = require('./src/errorWrapper');
@@ -100,10 +100,10 @@ lineReader
         process.stdin.pause();
         paused = true;
         var runner, err;
-        var ast = parser.parseCmdLine(line);
+        var ast = DefaultParser.parseCmdLine(line, commands);
         if (ast.err && ast.firstCommand) {
             err = ast;
-            ast = parser.parseJS(line);
+            ast = DefaultParser.parseJS(line);
             runner = executer.visit(ast);
             runner.run(function (result) {
                 if (result instanceof ErrorWrapper) {
@@ -121,9 +121,9 @@ lineReader
     });
 
 /**/
-var parser = new Parser(
-    commands
-);
+//var parser = new DefaultParser(
+//    commands
+//);
 /**/
 
 var history = new History(lineReader);
