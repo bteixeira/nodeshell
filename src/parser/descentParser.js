@@ -27,12 +27,13 @@ addAll('globMatcher');
 
 var ast = require('../ast/nodes/descentParserNodes');
 
-p.ERROR = function () {
+p.ERROR = function (expected) {
     return {
         type: 'ERROR',
         err: true,
         pos: this.tape.pos,
-        token: this.tape.peek()
+        token: this.tape.peek(),
+        expected: expected
     };
 };
 
@@ -87,7 +88,15 @@ p.SIMPLE_COMMAND = function () {
     } while (!current.err);
 
     cmd = this.tape.next();
-    if (cmd.type !== t.GLOB || !this.commands.isCmd(cmd.text)) {
+    if (cmd.type && cmd.type.id === 'COMPLETION') {
+        // TODO RETURN COMPLETION OBJECT FOR COMMAND NAME
+        console.log('returning completion');
+        return {
+            type: 'COMPLETION',
+            'completion-type': 'COMMAND-NAME',
+            prefix: cmd.text
+        };
+    } else if (cmd.type !== t.GLOB || !this.commands.isCmd(cmd.text)) {
         // TODO REWIND ENOUGH TOKENS (use redirs.length)
         return new ErrorWrapper('Unknown command: \'' + cmd.text + '\'');
     }
@@ -110,8 +119,23 @@ p.SIMPLE_COMMAND = function () {
             }
         }
     }
+
     this.firstCommand = false;
-    return ast.COMMAND(cmd.text, args, redirs);
+    var node = ast.COMMAND(cmd.text, args, redirs);
+
+    if (this.tape.hasMore() && this.tape.peek().type.id === 'COMPLETION') {
+        // TODO RETURN COMPLETION OBJECT CONTAINING AST NODE BUILT SO FAR
+//        console.log('returning completion 2');
+
+        return {
+            type: 'COMPLETION',
+            'completion-type': 'COMMAND-ARGUMENT',
+            node: node,
+            prefix: this.tape.next().text
+        };
+    }
+    console.log('returning node without completion');
+    return node;
 };
 
 p.PIPELINE = function () {

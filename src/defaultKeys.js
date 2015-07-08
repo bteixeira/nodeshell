@@ -1,7 +1,7 @@
 var readline = require('readline');
 var EventEmitter = require('events').EventEmitter;
 
-module.exports = function(keyHandler, lineReader, history, autocompleter) {
+module.exports = function(keyHandler, lineReader, history, complete) {
 
     keyHandler.bindDefault(function (ch, key) {
         if (ch && ch.length === 1) {
@@ -65,7 +65,7 @@ module.exports = function(keyHandler, lineReader, history, autocompleter) {
     });
 
     keyHandler.bind('TAB', function () {
-        autocompleter.complete();
+        complete();
     });
 
     keyHandler.bind('CTRL+L', function () {

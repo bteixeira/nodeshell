@@ -7,6 +7,7 @@ var LineReader = require('./src/lineReader');
 var defaultCommands = require('./src/defaultCommands');
 
 var DefaultParser = require('./src/parser/defaultLineParser');
+var CompletionParser = require('./src/parser/completionParser');
 var Executer = require('./src/parser/RunnableWrapperExecuterVisitor');
 
 var ErrorWrapper = require('./src/errorWrapper');
@@ -129,7 +130,12 @@ lineReader
 var history = new History(lineReader);
 
 var autocompleter = new Autocompleter(lineReader, ctx, commands);
-require('./src/defaultKeys')(keyHandler, lineReader, history, autocompleter);
+function complete () {
+    var line = lineReader.getLine();
+    CompletionParser.parseCmdLine(line, commands);
+}
+//require('./src/defaultKeys')(keyHandler, lineReader, history, autocompleter);
+require('./src/defaultKeys')(keyHandler, lineReader, history, complete);
 
 
 function runUserFile () {
