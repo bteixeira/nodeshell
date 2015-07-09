@@ -131,8 +131,7 @@ var history = new History(lineReader);
 
 var autocompleter = new Autocompleter(lineReader, ctx, commands);
 function complete () {
-    var line = lineReader.getLine();
-    CompletionParser.parseCmdLine(line, commands);
+    CompletionParser.parseCmdLine(lineReader, commands);
 }
 //require('./src/defaultKeys')(keyHandler, lineReader, history, autocompleter);
 require('./src/defaultKeys')(keyHandler, lineReader, history, complete);

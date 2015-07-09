@@ -90,7 +90,7 @@ p.SIMPLE_COMMAND = function () {
     cmd = this.tape.next();
     if (cmd.type && cmd.type.id === 'COMPLETION') {
         // TODO RETURN COMPLETION OBJECT FOR COMMAND NAME
-        console.log('returning completion');
+        //console.log('returning completion');
         return {
             type: 'COMPLETION',
             'completion-type': 'COMMAND-NAME',
@@ -134,7 +134,7 @@ p.SIMPLE_COMMAND = function () {
             prefix: this.tape.next().text
         };
     }
-    console.log('returning node without completion');
+    //console.log('returning node without completion');
     return node;
 };
 

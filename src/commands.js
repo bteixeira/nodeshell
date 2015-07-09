@@ -116,7 +116,11 @@ Commands.prototype.getCmd = function (name, args) {
 };
 
 Commands.prototype.getCommandNames = function () {
-    return Object.keys(this.commands)
+    var names = Object.keys(this.commands);
+    if (this.parent) {
+        Array.prototype.push.apply(names, this.parent.getCommandNames());
+    }
+    return names;
 };
 
 //Commands.prototype.runCmd = function (name, args, cb) {
