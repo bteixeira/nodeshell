@@ -123,3 +123,32 @@ nodeshell
 //exports.parseJS = function (line) {
 //    return ast.JS({text: line, js: line});
 //};
+
+
+var cmdConfig = {
+    git: {
+        add: ['-n', '-v', '--force', '-f', '--interactive', '-i', '--patch', '-p',
+            '--edit', '-e', '--all', '--no-all', '--ignore-removal', '--no-ignore-removal', '--update', '-u',
+            '--intent-to-add', '-N', '--refresh', '--ignore-errors', '--ignore-missing',
+            '--', '<pathspec>'],
+        branch: [],
+        checkout: [],
+        clone: [],
+        commit: [],
+        diff: [],
+        fetch: [],
+        grep: [],
+        init: [],
+        log: [],
+        merge: [],
+        mv: [],
+        pull: [],
+        push: [],
+        rebase: [],
+        reset: [],
+        rm: [],
+        show: [],
+        status: []
+    }
+
+};
