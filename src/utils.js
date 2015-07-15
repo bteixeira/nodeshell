@@ -31,6 +31,14 @@ exports.isUndefined = exports.isUndef = function (candidate) {
     return typeof candidate === 'undefined';
 };
 
+/**
+ * Returns true if candidate is an Object which is NOT a Function, RegExp, Array, Number, String, Error or Date
+ */
+exports.isObject = function (candidate) {
+    /* According to Javascript Garden this is the one and only way to reliably do this */
+    return Object.prototype.toString.call(candidate) === '[object Object]';
+};
+
 /*
  TODO need tests
  */
