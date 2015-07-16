@@ -195,13 +195,13 @@ function getCompletionsFromValue(cmdName, args, prefix, val, nest) {
     }
 }
 
-function $dirName(cmd, args, prefix) {
+var $dirName = exports.$dirName = function (cmd, args, prefix) {
     return $fileName(cmd, args, prefix).filter(function(file) {
         return fs.statSync(file).isDirectory();
     });
-}
+};
 
-function $fileName(cmd, args, prefix) {
+var $fileName = exports.$fileName = function (cmd, args, prefix) {
     var idx = prefix.lastIndexOf(path.sep);
     var dir = prefix.substring(0, idx);
     var filePrefix = prefix.substring(idx + 1);
@@ -224,82 +224,8 @@ function $fileName(cmd, args, prefix) {
         var isDir = fs.statSync(path.join(dir, file)).isDirectory();
         return prefix.substring(0, idx + 1) + file + (isDir ? '/' : '');
     });
-}
+};
 
 var $default = $fileName;
 
-function $branch () {
-    return ['STUB-BRANCH-NAME'];
-}
-
-function $commit () {
-    return ['STUB-COMMIT-ID'];
-}
-
-function $path () {
-    return ['STUB-PATH'];
-}
-
-var cmdConfig = {
-
-    cd: $dirName,
-
-    git: {
-        add: ['-n', '-v', '--force', '-f', '--interactive', '-i', '--patch', '-p',
-            '--edit', '-e', '--all', '--no-all', '--ignore-removal', '--no-ignore-removal', '--update', '-u',
-            '--intent-to-add', '-N', '--refresh', '--ignore-errors', '--ignore-missing',
-            '--', '<pathspec>'],
-        branch: [
-
-            '--color', '--color=<when>', '--no-color', '-r', '-a', '--list', '-v', '--abbrev=<length>', '--no-abbrev',
-'--column', '--column=<options>', '--no-column', '--merged', '--no-merged', '--contains', '<commit>', '<pattern>',
-
-            '--set-upstream', '--track', '--no-track', '-l', '-f', '<branchname>', '<start-point>',
-
-            '--set-upstream-to=<upstream>', '-u <upstream>', '--unset-upstream [<branchname>]', '-m', '-M', '-d', '-D', '-r', '--edit-description'
-
-],
-        /* Let's try to make a real case out of checkout */
-        checkout: [
-            '-q', '-f', '-m', $branch, $commit,
-            {'--detach': [$branch, $commit]},
-            {'-b': $branch},
-            {'-B': $branch},
-            {'--orphan': $branch},
-            '--ours', '--theirs', '--conflict=<style>',
-            {'--': $path},
-            '-p', '--patch'
-
-        ],
-        clone: [],
-        commit: [],
-        diff: [],
-        fetch: [],
-        grep: [],
-        init: [],
-        log: [],
-        merge: [],
-        mv: [],
-        pull: [],
-        push: [],
-        rebase: [],
-        reset: [],
-        rm: [],
-        show: [],
-        status: [],
-        help: ['add', 'branch', 'checkout', 'clone', 'commit', 'diff', 'fetch',
-            'grep',
-            'init',
-            'log',
-            'merge',
-            'mv',
-            'pull',
-            'push',
-            'rebase',
-            'reset',
-            'rm',
-            'show',
-            'status']
-    }
-
-};
+var cmdConfig = exports.cmdConfig = {};

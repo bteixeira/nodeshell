@@ -55,6 +55,7 @@ var permanent = {
         lineReader: lineReader,
         bindings: keyHandler,
         utils: utils,
+        completion: CompletionParser,
 //        alias: function (handle, body) {
             // TODO implement aliases again
 //        }
@@ -133,6 +134,7 @@ var autocompleter = new Autocompleter(lineReader, ctx, commands);
 function complete () {
     CompletionParser.parseCmdLine(lineReader, commands);
 }
+require('./src/defaultCmdConfig')(CompletionParser);
 //require('./src/defaultKeys')(keyHandler, lineReader, history, autocompleter);
 require('./src/defaultKeys')(keyHandler, lineReader, history, complete);
 
