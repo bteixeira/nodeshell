@@ -240,9 +240,9 @@ p.visitJS = function (token) {
 };
 
 p.visitDQSTRING = function (dqstring) {
-    console.log('text:', dqstring.token.text);
+    //console.log('text:', dqstring.token.text);
     var str = vm.runInNewContext(dqstring.token.text);
-    console.log('result:', str);
+    //console.log('result:', str);
     return str;
 };
 

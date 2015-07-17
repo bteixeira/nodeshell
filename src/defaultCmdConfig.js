@@ -1,13 +1,24 @@
-var $branch = function () {
-    return ['STUB-BRANCH-NAME'];
+var cp = require('child_process');
+
+var $branch = function (cmd, args, prefix) {
+    //return ['STUB-BRANCH-NAME'];
+    try {
+        // TODO THIS RELIES ON BASH SYNTAX AND IS NOT CROSS PLATFORM
+        var branches = cp.execSync('git for-each-ref "refs/heads/' + prefix + '*" "--format=%(refname:short)"', {cwd: process.cwd()});
+        return branches.toString().trim().split('\n');
+    } catch (ex) {
+        console.log(ex);
+    }
 };
 
 var $commit = function () {
-    return ['STUB-COMMIT-ID'];
+    //return ['STUB-COMMIT-ID'];
+    return [];
 };
 
 var $path = function() {
-    return ['STUB-PATH'];
+    //return ['STUB-PATH'];
+    return [];
 };
 
 
@@ -35,7 +46,11 @@ module.exports = function (completer) {
         ],
         /* Let's try to make a real case out of checkout */
         checkout: [
-            '-q', '-f', '-m', $branch, $commit,
+            '-q',
+            '-f',
+            '-m',
+            $branch,
+            $commit,
             {'--detach': [$branch, $commit]},
             {'-b': $branch},
             {'-B': $branch},
@@ -43,7 +58,6 @@ module.exports = function (completer) {
             '--ours', '--theirs', '--conflict=<style>',
             {'--': $path},
             '-p', '--patch'
-
         ],
         clone: [],
         commit: [],

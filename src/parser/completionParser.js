@@ -56,16 +56,12 @@ exports.parseCmdLine = function (lineReader, commands) {
             var cmd = ret.node.cmd;
 
             if (cmd in cmdConfig) {
-                //console.log('\ncustom completion for', cmd);
                 config = cmdConfig[cmd];
             } else {
-                console.log('no custom completion for', cmd);
                 config = $default;
             }
-            //console.log('getting completions with config', config);
 
             var args = ret.node.args.map(function(arg) {
-                //console.log('arg is', arg);
                 return arg.glob.text;
             });
             completions = getCompletionsFromValue(cmd, args, ret.prefix, config);
@@ -154,7 +150,6 @@ nodeshell
 //};
 
 function getCompletionsFromArray(cmdName, args, prefix, array) {
-    //console.log('\ngetting for arr', cmdName, args, prefix, array, '|');
     var result = [];
     array.forEach(function (val) {
         var comps = getCompletionsFromValue(cmdName, args, prefix, val);
@@ -166,7 +161,6 @@ function getCompletionsFromArray(cmdName, args, prefix, array) {
 
 function getCompletionsFromObject(cmdName, args, prefix, object, nest) {
     nest = nest || 0;
-    //console.log('\ngetting for obj', cmdName, args, prefix, object, nest, '|');
     var result = [];
     //var keys = Object.keys(object);
     if (nest === args.length) {
