@@ -34,11 +34,16 @@ exports.run = function (tape) {
         }
     }
 
-    var str = tape.getMarked();
+    var text = tape.getMarked();
     var pos = tape.popMark();
+
+    if (text.join) {
+        text = text.join('');
+    }
+
     return {
         type: type,
-        text: str,
+        text: text,
         pos: pos
     };
 

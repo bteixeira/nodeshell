@@ -1,10 +1,6 @@
 var DescentParser = require('./descentParser');
 var Tape = require('../tape');
 var clt = require('../tokenizer/commandLineTokenizer');
-var ast = require('../ast/nodes/descentParserNodes');
-var CompletionToken = require('./completionToken');
-var Autocompleter = require('../autocompleter');
-var autocomp = new Autocompleter();
 var path = require('path');
 var fs = require('fs');
 var utils = require('../utils');
@@ -12,22 +8,16 @@ var utils = require('../utils');
 exports.parseCmdLine = function (lineReader, commands) {
     var parser = new DescentParser(commands);
 
-    var tokens = clt(lineReader.getLine());
-    var last = tokens[tokens.length - 1];
-    tokens[tokens.length - 1] = new CompletionToken(last);
+    var line = lineReader.getLine();
+    var idx = lineReader.cursor;
+    line = line.split('');
+    line.splice(idx, 0, {type: 'COMPLETION'});
 
-//    console.log('\n', tokens);
+    var tokens = clt(line);
 
     parser.tape = new Tape(tokens);
     parser.firstCommand = true;
     var ret = parser.COMMAND_LINE();
-
-    /*
-    console.log(ret);
-    return;
-    */
-
-    // TODO
 
     var completions = [];
 
@@ -47,11 +37,6 @@ exports.parseCmdLine = function (lineReader, commands) {
         // if command argument, check completion config including default, filtered by prefix
         else if (ret['completion-type'] === 'COMMAND-ARGUMENT') {
 
-            //completions = autocomp.getFiles(ret.prefix);
-
-
-            // TODO RETRIEVE AUTOCOMPLETIONS FOR SPECIFIC COMMAND
-
             var config;
             var cmd = ret.node.cmd;
 
@@ -65,9 +50,6 @@ exports.parseCmdLine = function (lineReader, commands) {
                 return arg.glob.text;
             });
             completions = getCompletionsFromValue(cmd, args, ret.prefix, config);
-
-
-
 
         }
         // otherwise, show error while completing
@@ -119,35 +101,8 @@ exports.parseCmdLine = function (lineReader, commands) {
         lineReader.refreshLine();
     }
 
-
-/*
-n
-
-nodesh
-node
-nodeshock
-nodes
-nodeshell
-
-
-
- */
-
-
-
-
-
-
-
-//    if (parser.firstCommand && ret.err) {
-//        ret.firstCommand = true;
-//    }
-//    return ret;
 };
 
-//exports.parseJS = function (line) {
-//    return ast.JS({text: line, js: line});
-//};
 
 function getCompletionsFromArray(cmdName, args, prefix, array) {
     var result = [];
@@ -162,7 +117,6 @@ function getCompletionsFromArray(cmdName, args, prefix, array) {
 function getCompletionsFromObject(cmdName, args, prefix, object, nest) {
     nest = nest || 0;
     var result = [];
-    //var keys = Object.keys(object);
     if (nest === args.length) {
         return Object.keys(object).filter(function (key) {
             return key.indexOf(prefix) === 0;

@@ -6,12 +6,13 @@ var jSMatcher = require('./matchers/jsMatcher');
 var redirMatcher = require('./matchers/redirMatcher');
 var dQStringMatcher = require('./matchers/dqStringMatcher');
 var chainMatcher = require('./matchers/chainMatcher');
-var GlobMatcher = require('./matchers/globMatcher');
+var globMatcher = require('./matchers/globMatcher');
+//var GlobMatcher = require('./matchers/globMatcher');
 
 module.exports = function (line) {
-    var tape = new Tape(line.toString());
+    var tape = new Tape(line);
 
-    var matcher, c, tokens = [];
+    var c, tokens = [];
     var token;
 
     while (tape.hasMore()) {
@@ -21,16 +22,16 @@ module.exports = function (line) {
             continue;
         } else if (c === '"') {
             token = dQStringMatcher.run(tape);
-            tokens.push(token);
-            continue;
+
+            //continue;
         } else if (c === '(') {
             token = jSMatcher.run(tape);
-            tokens.push(token);
-            continue;
+            //tokens.push(token);
+            //continue;
         } else if (c === '|' || c === '&') {
             token = chainMatcher.run(tape);
-            tokens.push(token);
-            continue;
+            //tokens.push(token);
+            //continue;
         } else if (c === '>' || c === '<' || /^\d$/.test(c)) {
             tape.setMark();
             tape.pushMark();
@@ -38,18 +39,28 @@ module.exports = function (line) {
             if (token.type === redirMatcher.tokens.NOTREDIR) {
                 tape.popMark();
                 tape.rewindToMark();
-                matcher = new GlobMatcher(tape);
-            } else {
+                //matcher = new GlobMatcher(tape);
+                token = globMatcher.run(tape);
+                //tokens.push(token);
+            } //else {
                 // the mark is in the stack, forever...
-                tokens.push(token);
-                continue;
-            }
+                //tokens.push(token);
+                //continue;
+            //}
         } else {
-            matcher = new GlobMatcher(tape);
+            //matcher = new GlobMatcher(tape);
+            token = globMatcher.run(tape);
+            //tokens.push(token);
+            //continue;
         }
-        token = matcher.run();
-//        console.log('got a token ' + t.type + ': ' + t.text);
+
         tokens.push(token);
+        if (token.type === 'COMPLETION') {
+            break
+        }
+        //token = matcher.run();
+//        console.log('got a token ' + t.type + ': ' + t.text);
+//        tokens.push(token);
     }
 
     return tokens;

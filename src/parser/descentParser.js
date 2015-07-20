@@ -5,25 +5,13 @@ var dQStringMatcher = require('../tokenizer/matchers/dqStringMatcher');
 var jsMatcher = require('../tokenizer/matchers/jsMatcher');
 var chainMatcher = require('../tokenizer/matchers/chainMatcher');
 var redirMatcher = require('../tokenizer/matchers/redirMatcher');
+var globMatcher = require('../tokenizer/matchers/globMatcher');
 
 var Parser = module.exports = function (commands) {
     this.commands = commands;
 };
 
 var p = Parser.prototype;
-
-var t = {};
-
-function addAll (matcherType) {
-    var matcher = require('../tokenizer/matchers/' + matcherType);
-    var p, tk = matcher.prototype.tokens;
-    for (p in tk) {
-        if (tk.hasOwnProperty(p)) {
-            t[p] = tk[p];
-        }
-    }
-}
-addAll('globMatcher');
 
 var ast = require('../ast/nodes/descentParserNodes');
 
@@ -42,12 +30,12 @@ p.ERROR = function (expected) {
 p.REDIRECTION = function () {
 
     if (!this.tape.hasMore()) {
-        return this.ERROR(t.GLOB);
+        return this.ERROR(globMatcher.tokens.GLOB);
     }
 
     var first = this.tape.next(); // contains direction and possibly fd
 
-    var allowed = redirMatcher.tokens;//[t.GT, t.GTGT, t.GTAMP, t.LG, t.LTGT, t.LTAMP];
+    var allowed = redirMatcher.tokens;
     if (!(first.type.id in allowed)) {
         this.tape.prev();
         return this.ERROR(allowed);
@@ -55,17 +43,17 @@ p.REDIRECTION = function () {
 
     if (!this.tape.hasMore()) {
         this.tape.prev();
-        return this.ERROR(t.GLOB);
+        return this.ERROR(globMatcher.tokens.GLOB);
     }
 
     var second = this.tape.next(); // target
-    if (second.type !== t.GLOB) {
+    if (second.type !== globMatcher.tokens.GLOB) {
         this.tape.prev();
         this.tape.prev();
-        return this.ERROR(t.GLOB);
+        return this.ERROR(globMatcher.tokens.GLOB);
     }
 
-    if (first.type === t.GTAMP || first.type === t.LTAMP) {
+    if (first.type === redirMatcher.tokens.GTAMP || first.type === redirMatcher.tokens.LTAMP) {
         if (isNaN(Number(second.text))) {
             return this.ERROR();
         }
@@ -88,7 +76,7 @@ p.SIMPLE_COMMAND = function () {
     } while (!current.err);
 
     cmd = this.tape.next();
-    if (cmd.type && cmd.type.id === 'COMPLETION') {
+    if (cmd.type && cmd.type === 'COMPLETION') {
         // TODO RETURN COMPLETION OBJECT FOR COMMAND NAME
         //console.log('returning completion');
         return {
@@ -96,14 +84,14 @@ p.SIMPLE_COMMAND = function () {
             'completion-type': 'COMMAND-NAME',
             prefix: cmd.text
         };
-    } else if (cmd.type !== t.GLOB || !this.commands.isCmd(cmd.text)) {
+    } else if (cmd.type !== globMatcher.tokens.GLOB || !this.commands.isCmd(cmd.text)) {
         // TODO REWIND ENOUGH TOKENS (use redirs.length)
         return new ErrorWrapper('Unknown command: \'' + cmd.text + '\'');
     }
 
     while (this.tape.hasMore()) {
         current = this.tape.next();
-        if (current.type === t.GLOB) {
+        if (current.type === globMatcher.tokens.GLOB) {
             args.push(ast.GLOB(current));
         } else if (current.type === jsMatcher.tokens.JSTOKEN) {
             args.push(ast.JS(current));
@@ -123,7 +111,7 @@ p.SIMPLE_COMMAND = function () {
     this.firstCommand = false;
     var node = ast.COMMAND(cmd.text, args, redirs);
 
-    if (this.tape.hasMore() && this.tape.peek().type.id === 'COMPLETION') {
+    if (this.tape.hasMore() && this.tape.peek().type === 'COMPLETION') {
         // TODO RETURN COMPLETION OBJECT CONTAINING AST NODE BUILT SO FAR
 //        console.log('returning completion 2');
 

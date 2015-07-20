@@ -33,6 +33,10 @@ exports.run = function (tape) {
     var text = tape.getMarked();
     var pos = tape.popMark();
 
+    if (text.join) {
+        text = text.join('');
+    }
+
     return {
         type: type,
         text: text,

@@ -15,7 +15,7 @@ exports.run = function (tape) {
 
     tape.next();
 
-    var c, type, pos, str, stack = [];
+    var c, type, pos, text, stack = [];
 
     function top() {
         return stack[stack.length - 1];
@@ -32,7 +32,7 @@ exports.run = function (tape) {
             } else {
                 type = t.JS_ERROR;
                 pos = tape.pos - 1;
-                str = c;
+                text = c;
                 break;
             }
 
@@ -64,12 +64,17 @@ exports.run = function (tape) {
         }
     }
 
-    str = str || tape.getMarked();
+    text = text || tape.getMarked();
     var mark = tape.popMark();
     pos = pos || mark;
+
+    if (text.join) {
+        text = text.join('');
+    }
+
     return {
         type: type,
-        text: str,
+        text: text,
         pos: pos
     };
 };
