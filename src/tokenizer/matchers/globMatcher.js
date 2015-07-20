@@ -24,7 +24,7 @@ function matchText(tape) {
 
     var c = tape.peek();
 
-    while (!(c in BREAKERS) && !/\s/.test(c) && !(c in SPECIALS) && c !== '\\' && tape.hasMore()) {
+    while (!(c in BREAKERS) && !/^\s$/.test(c) && !(c in SPECIALS) && c !== '\\' && tape.hasMore()) {
         tape.next();
         c = tape.peek();
     }
@@ -83,7 +83,7 @@ exports.run = function (tape) {
     tape.setMark();
 
     var c = tape.peek();
-    if (!tape.hasMore() || c in BREAKERS || /\s/.test(c)) {
+    if (!tape.hasMore() || c in BREAKERS || /^\s$/.test(c)) {
         return {
             type: t.NO_GLOB,
             pos: tape.popMark(),
