@@ -24,12 +24,15 @@ function matchText(tape) {
 
     var c = tape.peek();
 
-    while (!(c in BREAKERS) && !/^\s$/.test(c) && !(c in SPECIALS) && c !== '\\' && tape.hasMore()) {
+    while (!(c in BREAKERS) && !/^\s$/.test(c) && !(c in SPECIALS) && c !== '\\' && tape.hasMore() && c.type !== 'COMPLETION') {
         tape.next();
         c = tape.peek();
     }
 
     var text = tape.getMarked();
+    if (text.join) {
+        text = text.join('');
+    }
     tape.popMark();
     return {
         type: subTypes.TEXT,
