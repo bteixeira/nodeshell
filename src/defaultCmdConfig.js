@@ -142,4 +142,18 @@ module.exports = function (completer) {
             'status']
     };
 
+    /**
+     * Ruby on Rails
+     */
+    cfg.rails = {
+        generate: [],
+        console: [],
+        server: [],
+        dbconsole: [],
+        'new': [],
+        application: [],
+        destroy: [],
+        plugin: 'new',
+        runner: []
+    };
 };
