@@ -16,11 +16,10 @@ var $commit = function () {
     return [];
 };
 
-var $path = function() {
+var $path = function () {
     //return ['STUB-PATH'];
     return [];
 };
-
 
 
 module.exports = function (completer) {
@@ -97,9 +96,9 @@ module.exports = function (completer) {
         init: [],
         log: [],
         merge: [
-                '--abort', '-n', '--stat', '--no-commit', '--squash', '--edit', '--no-edit', {'strategy': '$strategy'},
-                {'-X': '$strategyOptions'}, '-S', '--rerere-autoupdate', '--no-rerere-autoupdate', '-m', '$commit', 'HEAD'
-            ],
+            '--abort', '-n', '--stat', '--no-commit', '--squash', '--edit', '--no-edit', {'strategy': '$strategy'},
+            {'-X': '$strategyOptions'}, '-S', '--rerere-autoupdate', '--no-rerere-autoupdate', '-m', '$commit', 'HEAD'
+        ],
         mv: [],
         pull: [],
         push: [],
@@ -155,5 +154,51 @@ module.exports = function (completer) {
         destroy: [],
         plugin: 'new',
         runner: []
+    };
+
+    /**
+     * Bower
+     */
+    var bowerOpts = ['-f', '--force', '-j', '--json', '-l', '--log-level', '-o', '--offline', '-q', '--quiet', '-s', '--silent', '-V', '--verbose', '--allow-root', '--version', '--no-color'];
+    cfg.bower = {
+        cache: {
+            clean: bowerOpts,
+            list: bowerOpts
+        },
+        home: bowerOpts,
+        info:bowerOpts,
+        init: bowerOpts,
+        install: [bowerOpts, '-F', '--force-latest', '-p', '--production', '-S', '--save', '-D', '--save-dev', '-E', '--save-exact'],
+        link: bowerOpts,
+        list: [bowerOpts, '-p', '--paths', '-r', '--relative'],
+        login: [bowerOpts, '-t', '--token'],
+        lookup: bowerOpts,
+        prune: bowerOpts,
+        register: bowerOpts,
+        search: bowerOpts,
+        update: [bowerOpts, '-F', '--force-latest', '-p', '--production'],
+        uninstall: [bowerOpts, '-S', '--save', '-D', '--save-dev'],
+        unregister: bowerOpts,
+        version: [bowerOpts, 'major', 'minor', 'patch', '-m', '--message'],
+
+        help: [
+            'cache',
+            'help',
+            'home',
+            'info',
+            'init',
+            'install',
+            'link',
+            'list',
+            'login',
+            'lookup',
+            'prune',
+            'register',
+            'search',
+            'update',
+            'uninstall',
+            'unregister',
+            'version'
+        ]
     };
 };
