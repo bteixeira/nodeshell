@@ -32,13 +32,13 @@ module.exports = function (completer) {
         add: ['-n', '-v', '--force', '-f', '--interactive', '-i', '--patch', '-p',
             '--edit', '-e', '--all', '--no-all', '--ignore-removal', '--no-ignore-removal', '--update', '-u',
             '--intent-to-add', '-N', '--refresh', '--ignore-errors', '--ignore-missing',
-            '--', '<pathspec>'],
+            '--', '<pathspec>', completer.$fileName],
         branch: [
 
             '--color', '--color=<when>', '--no-color', '-r', '-a', '--list', '-v', '--abbrev=<length>', '--no-abbrev',
             '--column', '--column=<options>', '--no-column', '--merged', '--no-merged', '--contains', '<commit>', '<pattern>',
 
-            '--set-upstream', '--track', '--no-track', '-l', '-f', '<branchname>', '<start-point>',
+            '--set-upstream', '--track', '--no-track', '-l', '-f', '<start-point>', '-D', $branch,
 
             '--set-upstream-to=<upstream>', '-u <upstream>', '--unset-upstream [<branchname>]', '-m', '-M', '-d', '-D', '-r', '--edit-description'
 
