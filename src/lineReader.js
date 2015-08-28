@@ -47,9 +47,9 @@ function countLength(str) {
                 length += 1;
             }
         } else if (status === 1) {
-            if (ch === 91) { // valid escape sequence
+            if (ch === 91) { // left bracket, introduces multi-character sequence
                 status = 2;
-            } else if (ch > 63 && ch < 96) { // left bracket, introduces multi-character sequence
+            } else if (ch > 63 && ch < 96) { // valid one-character escape sequence
                 status = 0;
             } else { // invalid, I don't know why the escape char is here and I'll assume it's supposed to be printed or something
                 length += 2; // count both the escape and the current character
@@ -74,6 +74,43 @@ LineReader.prototype.setPrompt = function (prompt) {
     return this;
 };
 
+/**
+ * Returns the current two-dimension cursor position starting from the line where the prompt is. This is *not* the
+ * cursor position on the screen.
+ *
+ * EXAMPLE 1:
+ * prompt is "IS IT NOW?", inserted text is "uga bugah", the console has 20 columns and the cursor is at the end -- result is {cols: 19, rows: 0}
+ *
+ * EXAMPLE 2:
+ * same thing, but prompt is "IS\nIT\nNOW?" -- result is {cols: 13, rows: 2}
+ *
+ * @returns {{cols: number, rows: number}}
+ */
+LineReader.prototype.getCursorPos = function () {
+
+    var columns = this.output.columns;
+
+    var lines = this._prompt.split(/[\r\n]/);
+    var lineCols;
+    var lineRows = 0;
+
+    lines.forEach(function (ln) {
+        var lnLength = countLength(ln);
+        lineCols = lnLength % columns;
+        lineRows += (lnLength - lineCols) / columns + 1;
+    });
+
+    lineRows -= 1;
+
+    var cursorPos = this.cursor + lineCols;
+    var cols = cursorPos % columns;
+    var rows = (cursorPos - cols) / columns + lineRows;
+    return {
+        cols: cols,
+        rows: rows
+    };
+};
+
 /** TODO get rid of this, line reader does not need to know about accepting lines so move this out of here. That way we
  * can implement multi-line inputs.
  */
@@ -84,12 +121,13 @@ LineReader.prototype.accept = function () {
 };
 
 LineReader.prototype.isEmpty = function () {
+    /* It's probably preferable to check the string length than use countLength() */
     return this.line.length === 0;
 };
 
 /**
- * Inserts test at the current cursor position. Moves the cursor accordingly.
- * @param str
+ * Inserts text at the current cursor position. Moves the cursor accordingly.
+ * @param str the string to insert
  */
 LineReader.prototype.insert = function (str) {
     //BUG: Problem when adding tabs with following content.
@@ -99,11 +137,14 @@ LineReader.prototype.insert = function (str) {
         var begin = this.line.slice(0, this.cursor);
         var end = this.line.slice(this.cursor, this.line.length);
         this.line = begin + str + end;
+
+        // TODO this should probably be countLength(str) and not str.length, confirm
         this.cursor += str.length;
+
         this.refreshLine();
     } else {
         this.line += str;
-        this.cursor += str.length;
+        this.cursor += str.length; // TODO again, this should probably be countLength(str) and not str.length, confirm
         if (this.getCursorPos().cols === 0) {
             this.refreshLine();
         } else {
@@ -116,7 +157,7 @@ LineReader.prototype.insert = function (str) {
 
 /**
  * Move the cursor
- * @param dx the number of characters to move
+ * @param dx the number of characters to move forward (negative numbers will cause the cursor to move backward)
  */
 LineReader.prototype.moveCursor = function (dx) {
     var oldcursor = this.cursor;
@@ -363,38 +404,6 @@ LineReader.prototype.refreshLine = function () {
     }
 
     this.prevRows = cursorPos.rows;
-};
-
-/**
- * Returns the current two-dimension cursor position starting from the line where the prompt is. This is *not* the
- * cursor position on the screen.
- *
- * @returns {{cols: number, rows: number}}
- */
-LineReader.prototype.getCursorPos = function () {
-
-    var columns = this.output.columns;
-
-    var lines = this._prompt.split(/[\r\n]/);
-    var lineCols;
-    var lineRows = 0;
-
-    lines.forEach(function (ln) {
-        var lnLength = countLength(ln);
-        lineCols = lnLength % columns;
-        lineRows += (lnLength - lineCols) / columns + 1;
-    });
-
-    lineRows -= 1;
-
-
-    var cursorPos = this.cursor + lineCols;
-    var cols = cursorPos % columns;
-    var rows = (cursorPos - cols) / columns + lineRows;
-    return {
-        cols: cols,
-        rows: rows
-    };
 };
 
 module.exports = LineReader;

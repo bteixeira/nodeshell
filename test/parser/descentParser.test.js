@@ -47,7 +47,9 @@ describe('DefaultParser', function () {
     });
 
     it('handles single command [git]', function () {
-        ast = parser.parseCmdLine('git');
+        var tokens = CLT('git');
+        parser.tape = new Tape(tokens);
+        ast = parser.COMMAND_LINE();
 
         ast.type.should.equal('COMMAND');
         ast.cmd.should.equal('git');
