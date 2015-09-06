@@ -6,11 +6,11 @@
 var nodeReadline = require('readline');
 
 var KeyHandler = require('../src/keyhandler');
-var LineReader = require('../src/lineReader');
 
 var stdout = process.stdout;
+var stdin = process.stdin;
 
-var keyHandler = new KeyHandler(process.stdin);
+var keyHandler = new KeyHandler(stdin);
 
 keyHandler.bind('UP', function () {
     nodeReadline.moveCursor(stdout, 0, -1);
@@ -33,7 +33,21 @@ keyHandler.bind('CTRL+C', function () {
 });
 
 keyHandler.bind('CTRL+X', function () {
-    nodeReadline.cursorTo(stdout, 0, 0);
+    stdin.once('data', function (data) {
+        var coords = data.toString().slice(2).split(';').map(parseFloat);
+        nodeReadline.cursorTo(stdout, 0, 0);
+        stdout.write('POS:' + coords.join(';') + ' |');
+        nodeReadline.cursorTo(stdout, coords[1] - 1, coords[0] - 1);
+    });
+    stdout.write('\033[6n');
+});
+
+keyHandler.bind('CTRL+S', function () {
+    stdout.write('\033[s');
+});
+
+keyHandler.bind('CTRL+R', function () {
+    stdout.write('\033[u');
 });
 
 keyHandler.bindDefault(function (ch, key) {
