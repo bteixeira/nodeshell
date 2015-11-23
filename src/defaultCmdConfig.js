@@ -1,7 +1,6 @@
 var cp = require('child_process');
 
 var $branch = function (cmd, args, prefix) {
-    //return ['STUB-BRANCH-NAME'];
     try {
         // TODO THIS RELIES ON BASH SYNTAX AND IS NOT CROSS PLATFORM
         var branches = cp.execSync('git for-each-ref "refs/heads/' + prefix + '*" "--format=%(refname:short)"', {cwd: process.cwd()});
@@ -196,7 +195,7 @@ module.exports = function (completer) {
         mv: [],
         pull: [],
         push: [],
-        rebase: [],
+        rebase: [$branch],
         reset: [],
         rm: [],
         show: [],
