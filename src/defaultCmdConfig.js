@@ -190,7 +190,7 @@ module.exports = function (completer) {
         ].sort(),
         merge: [
             '--abort', '-n', '--stat', '--no-commit', '--squash', '--edit', '--no-edit', {'strategy': '$strategy'},
-            {'-X': '$strategyOptions'}, '-S', '--rerere-autoupdate', '--no-rerere-autoupdate', '-m', '$commit', 'HEAD'
+            {'-X': '$strategyOptions'}, '-S', '--rerere-autoupdate', '--no-rerere-autoupdate', '-m', '$commit', 'HEAD', $branch
         ],
         mv: [],
         pull: [],
