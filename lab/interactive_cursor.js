@@ -4,6 +4,7 @@
  */
 
 var nodeReadline = require('readline');
+require('colors');
 
 var KeyHandler = require('../src/keyhandler');
 
@@ -32,6 +33,16 @@ keyHandler.bind('CTRL+C', function () {
     process.exit(0);
 });
 
+/*
+keyHandler.bind('RETURN', function () {
+    stdout.write('RETURN');
+});
+
+keyHandler.bind('ENTER', function () {
+    stdout.write('ENTER');
+});
+*/
+
 keyHandler.bind('CTRL+X', function () {
     stdin.once('data', function (data) {
         var coords = data.toString().slice(2).split(';').map(parseFloat);
@@ -42,16 +53,43 @@ keyHandler.bind('CTRL+X', function () {
     stdout.write('\033[6n');
 });
 
-keyHandler.bind('CTRL+S', function () {
+function saveCursor() {
     stdout.write('\033[s');
-});
+}
 
-keyHandler.bind('CTRL+R', function () {
+keyHandler.bind('CTRL+S', saveCursor);
+
+function restoreCursor() {
     stdout.write('\033[u');
-});
+}
+
+keyHandler.bind('CTRL+R', restoreCursor);
 
 keyHandler.bindDefault(function (ch, key) {
     if (ch && ch.length === 1) {
-        stdout.write(ch);
+        //stdout.write(ch);
+        stdout.write('string');
+        saveCursor();
+        stdout.write('\n');
+        forceRedraw();
+        restoreCursor();
     }
 });
+
+function draw() {
+    nodeReadline.cursorTo(stdout, 0, stdout.rows - 1);
+    stdout.write(new Date().toString().black.whiteBG);
+}
+function safeDraw() {
+    saveCursor();
+    draw();
+    restoreCursor();
+}
+safeDraw();
+var id = setInterval(safeDraw, 10000);
+
+function forceRedraw() {
+    clearInterval(id);
+    draw();
+    id = setInterval(safeDraw, 10000);
+}
