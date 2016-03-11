@@ -404,3 +404,84 @@ Changes needed to get autocomplete:
 -   All parser (grammar) functions must adopt the same behavior as the CLT; that is, they must clearly indicate expected
     tokens or grammar symbols in the error, they must check and keep track of errors from recursed calls, and they must
     propagate unrecoverable errors with all the possible allowed symbols
+
+
+
+
+
+
+
+
+--- Thoughts for window management
+
+Nsh starts.
+It doesn't know on which row the cursor is.
+But it can reserve the current row and all below it.
+It can also guarantee that there are X rows beneath the cursor by entering new lines.
+
+Can we have an API like this:
+
+/*** Normal prompt plus footer row with real-time clock ***/
+nsh.layout.set({
+    rows: [
+        {
+            prompt: true,
+            height: 'greedy' // TODO HOW TO SAY THAT A ROW SHOULD BE STICKY TO THE BOTTOM? LIKE THIS?
+        },
+        {
+            name: 'footer',
+            height: 1
+        }
+    ]
+});
+setTimeout( => nsh.layout.panels.footer.write(new Date()));
+
+/* OR */
+/*** Normal prompt, plus up to 3 rows beneath it with autocompletion, like zsh does ***/
+
+nsh.layout.set({
+    name: 'topLevel'
+    rows: [
+        {
+            prompt: true,
+            height: 'greedy' // can't be, or completion will stick to the bottom, need to come up with another way to make footer stick to bottom
+        },
+        {
+            name: 'completion',
+            height: 'reluctant' // no initial content, so starts at height=0 ?
+        },
+        {
+            name: 'footer',
+            height: 1
+        }
+    ]
+});
+
+
+/*** Normal prompt, plus real time clock on footer, plus right sidebar with file list ***/
+nsh.layout.set({
+    rows: [
+        {
+            name: 'upper-row',
+            cols: [
+                {
+                    prompt: true,
+                    width: auto
+                },
+                {
+                    name: 'sidebar',
+                    width: '20%' /* or 0.2 */ // probably leave percentages for later, as they need to be updated when screen resizes...
+                }
+            ]
+        },
+        {
+            name: 'footer',
+            height: 1
+        }
+    ]
+});
+
+
+---
+A quick test is to just create a bottom row and sidebar and check that the text from the command line never overflows
+there (constrain the prompt to a specific area)
