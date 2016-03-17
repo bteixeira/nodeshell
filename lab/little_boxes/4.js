@@ -27,8 +27,6 @@ keyHandler.bindDefault(function (ch, key) {
 });
 
 
-
-
 keyHandler.bind('TAB', function (ch, key) {
     switchPanel();
 });
@@ -40,7 +38,7 @@ function switchPanel() {
     var a = (active + 1) % panels.length;
     panels[a].activate();
 }
-function insert (ch, skip) {
+function insert(ch, skip) {
     if (!this._content) {
         this._content = [];
     }
@@ -76,7 +74,7 @@ function insert (ch, skip) {
         }
     }
 }
-function rewrite () {
+function rewrite() {
     if (!this._content) {
         this._content = [];
     }
@@ -85,7 +83,7 @@ function rewrite () {
     this.rewind();
     var me = this;
     this._content.forEach(function (ch) {
-        me.insert(ch, true); // TODO REWRITE ITSELF WAS TRIGGERED BY AN insert ON ANOTHER PANEL, WILL THIS EVER CAUSE A LOOP?
+        me.insert(ch, true); // TODO rewrite ITSELF WAS TRIGGERED BY AN insert ON ANOTHER PANEL, WILL THIS EVER CAUSE A LOOP?
     });
     stdout.write('\033[K');
     panels[a].activate();
