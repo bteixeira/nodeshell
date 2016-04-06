@@ -78,6 +78,12 @@ var Center = function (panel) {
             var totalHeight = this.getMinHeight() + this.getAfterSpace(null);
             stdout.write(new Array(totalHeight).join('\n'));
             rl.moveCursor(stdout, 0, -totalHeight + 1);
+        },
+        drawBelow: function () {
+            footer.rewrite();
+        },
+        rewrite: function () {
+            panel.rewrite();
         }
     };
     panel.setParent(me);
@@ -111,6 +117,11 @@ var Footer = function (panel) {
         },
         isFooter: function () {
             return true;
+        },
+        drawBelow: function () {
+        },
+        rewrite: function () {
+            panel.rewrite();
         }
     };
     panel.setParent(me);
@@ -185,7 +196,7 @@ var Columns = function (children, layout) {
             return this.getMinHeight();
         },
         getAfterSpace: function (child) {
-            return parent.getAfterSpace(this);
+            return (this.getMinHeight() - child.getMinHeight()) + parent.getAfterSpace(this);
         },
         getMinHeight: function () {
             var max = 0;
@@ -201,6 +212,32 @@ var Columns = function (children, layout) {
         },
         isFooter: function () {
             return parent.isFooter();
+        },
+        drawBelow: function (child) {
+            // TODO MUST CLEAN BOTTOM LINE OF SIBLINGS
+            var me = this;
+            var h = this.getMinHeight();
+            children.forEach(function (ch) {
+                //h = ch.height(); // TODO ISN'T THIS me.getMinHeight() ???
+                if (ch !== child && ch.getMinHeight() < h) {
+                    // CALCULATE OFFSET BETWEEN ACTIVE AND LAST ROW OF ch, USING LOGIC FROM activate() (HARDEST PART IS SWITCHES BETWEEN FOOTER AND CENTER, DOES THAT EVER HAPPEN? I THINK NOT, CONFIRM)
+                    var offsetThis = me.getOffset(ch);
+                    var offsetThat = active.offset();
+                    var delta = [offsetThis[0] - offsetThat[0], offsetThis[1] - offsetThat[1]];
+                    // MAKE JUMP
+                    rl.moveCursor(stdout, delta[1], delta[0] + h - 1);
+                    // WRITE FULL LINE OF SPACES ACCORDING TO ch'S WIDTH
+                    stdout.write(new Array(ch.width() + 1).join(' ')); // TODO APPARENTLY THIS DOESN'T WORK IF IT'S THE LAST COLUMN OF THE SCREEN...
+                    // MAKE REVERSE JUMP BACK TO ACTIVE, BASED ON PREVIOUS OFFSET PLUS ch'S WIDTH
+                    rl.moveCursor(stdout, -delta[1]-ch.width(), -delta[0] - h + 1);
+                }
+            });
+            parent.drawBelow(this);
+        },
+        rewrite: function () {
+            children.forEach(function (child) {
+                child.rewrite();
+            });
         }
     };
     children.forEach(function (child) {
@@ -209,7 +246,7 @@ var Columns = function (children, layout) {
     return me;
 };
 
-var Rows = function (children, layout) {
+var Rows = function (children) {
 
     var parent;
     //var children = [];
@@ -261,6 +298,23 @@ var Rows = function (children, layout) {
         },
         isFooter: function () {
             return parent.isFooter();
+        },
+        drawBelow: function (child) {
+            var found = false;
+            children.forEach(function (ch) {
+                if (found) {
+                    ch.rewrite();
+                }
+                if (child === ch) {
+                    found = true;
+                }
+            });
+            parent.drawBelow(this);
+        },
+        rewrite: function () {
+            children.forEach(function (child) {
+                child.rewrite();
+            });
         }
     };
 
@@ -297,24 +351,20 @@ var Writer = function () {
                 }
                 if (col > this.width()) {
                     var prevHeight = this.height();
-                    stdout.write(new Array(this.afterSpace() + 2).join('\n'));
-                    rl.moveCursor(stdout, this.offsetH(), -this.afterSpace()); // afterspace?
-                    stdout.write('\033[K');
-                    //drawFooter();
                     if (!skip) {
                         col = 1;
                         row += 1;
+                    }
+                    stdout.write(new Array(this.afterSpace() + 2).join('\n'));
+                    rl.moveCursor(stdout, this.offsetH(), -this.afterSpace()); // afterspace?
+                    stdout.write(new Array(this.width() + 1).join(' '));
+                    rl.moveCursor(stdout, -this.width(), 0);
+                    if (!skip) {
                         if (this.isFooter() && this.height() > prevHeight) {
                             linesAdded += 1;
                         }
                         // TODO MUST FIGURE OUT WHICH PANELS NEED TO REDRAW
-
-                        //if (this === writers[0] || this === writers[1]) {
-                        //    writers[2].rewrite();
-                        //    writers[3].rewrite();
-                        //} else if (this === writers[2]) {
-                        //    writers[3].rewrite();
-                        //}
+                        parent.drawBelow(this);
                     }
                 }
             }
@@ -327,11 +377,13 @@ var Writer = function () {
             content.forEach(function (ch) {
                 me.insert(ch, true); // TODO rewrite ITSELF WAS TRIGGERED BY AN insert ON ANOTHER PANEL, WILL THIS EVER CAUSE A LOOP?
             });
-            stdout.write('\033[K');
-            writers[a].activate();
+            //stdout.write('\033[K');
+            stdout.write(new Array(this.width() - col + 2).join(' '));
+            rl.moveCursor(stdout, -this.width() + col - 1, 0);
+            a.activate();
         },
         rewind: function () {
-            rl.moveCursor(stdout, col + 1, row + 1);
+            rl.moveCursor(stdout, -col + 1, -row + 1);
         },
         activate: function () {
             var offsetThis = this.offset();
