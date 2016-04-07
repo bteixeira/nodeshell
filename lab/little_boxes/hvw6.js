@@ -1,6 +1,6 @@
 /* Yet another iteration */
-/* FIXED: figuring out which panels need to be refreshed when new lines are added */
-/* NEED TO FIX: there are still a couple of bugs with redrawing */
+/* FIXED: Seems that panel refreshing is working! */
+/* NEED TO FIX: ? */
 
 var stdout = process.stdout;
 var stdin = process.stdin;
@@ -42,7 +42,8 @@ function switchPanel() {
 }
 var active;
 var lastActive;
-var linesAdded = 0;
+//var linesAdded = 0;
+var oldFooterHeight = 0;
 
 var Center = function (panel) {
     //var panel;
@@ -225,9 +226,15 @@ var Columns = function (children, layout) {
                     // MAKE JUMP
                     rl.moveCursor(stdout, delta[1], delta[0] + h - 1);
                     // WRITE FULL LINE OF SPACES ACCORDING TO ch'S WIDTH
-                    stdout.write(new Array(ch.width() + 1).join(' ')); // TODO APPARENTLY THIS DOESN'T WORK IF IT'S THE LAST COLUMN OF THE SCREEN...
+                    stdout.write(new Array(ch.width() + 1).join(' '));
                     // MAKE REVERSE JUMP BACK TO ACTIVE, BASED ON PREVIOUS OFFSET PLUS ch'S WIDTH
-                    rl.moveCursor(stdout, -delta[1]-ch.width(), -delta[0] - h + 1);
+                    rl.moveCursor(stdout, -delta[1]-ch.width()
+                        +
+                        (
+                            // if this panel is on the right edge of the screen, the cursor is actually one character behind
+                            me.getOffsetH(ch) + ch.width() === stdout.columns ? 1 : 0
+                        )
+                        , -delta[0] - h + 1);
                 }
             });
             parent.drawBelow(this);
@@ -236,6 +243,9 @@ var Columns = function (children, layout) {
             children.forEach(function (child) {
                 child.rewrite();
             });
+        },
+        width: function () {
+            return this.getWidth(null);
         }
     };
     children.forEach(function (child) {
@@ -313,6 +323,9 @@ var Rows = function (children) {
             children.forEach(function (child) {
                 child.rewrite();
             });
+        },
+        width: function () {
+            return this.getWidth(null);
         }
     };
 
@@ -345,22 +358,27 @@ var Writer = function () {
                 stdout.write(ch);
                 if (!skip) {
                     content.push(ch);
-                    col += 1;
                 }
+                col += 1;
                 if (col > this.width()) {
-                    var prevHeight = this.height();
-                    if (!skip) {
+                    //var prevHeight = this.height();
+                    //if (!skip) {
                         col = 1;
                         row += 1;
-                    }
+                    //}
                     stdout.write(new Array(this.afterSpace() + 2).join('\n'));
-                    rl.moveCursor(stdout, this.offsetH(), -this.afterSpace()); // afterspace?
-                    stdout.write(new Array(this.width() + 1).join(' '));
-                    rl.moveCursor(stdout, -this.width(), 0);
+                    rl.moveCursor(stdout, this.offsetH(), -this.afterSpace());
                     if (!skip) {
-                        if (this.isFooter() && this.height() > prevHeight) {
-                            linesAdded += 1;
-                        }
+                        stdout.write(new Array(this.width() + 1).join(' '));
+                        rl.moveCursor(stdout, -this.width() +
+                            (
+                                // if this panel is on the right edge of the screen, the cursor is actually one character behind
+                                this.offsetH() + this.width() === stdout.columns ? 1 : 0
+                            )
+                            , 0);
+                        //if (this.isFooter() && this.height() > prevHeight) {
+                        //    linesAdded += 1;
+                        //}
                         // TODO MUST FIGURE OUT WHICH PANELS NEED TO REDRAW
                         parent.drawBelow(this);
                     }
@@ -372,6 +390,7 @@ var Writer = function () {
             this.activate();
             this.rewind();
             var me = this;
+            row = col = 1;
             content.forEach(function (ch) {
                 me.insert(ch, true); // TODO rewrite ITSELF WAS TRIGGERED BY AN insert ON ANOTHER PANEL, WILL THIS EVER CAUSE A LOOP?
             });
@@ -393,13 +412,14 @@ var Writer = function () {
             } else if (this.isFooter() && !active.isFooter()) {
                 saveCursor();
                 lastActive = active;
-                rl.cursorTo(stdout, offsetThis[1], stdout.rows - footer.getMinHeight() + offsetThis[0] + row - 1);
+                rl.cursorTo(stdout, offsetThis[1], stdout.rows - footer.getMinHeight() + offsetThis[0]);
+                oldFooterHeight = footer.getMinHeight();
             } else {
                 if (active.isFooter() && !this.isFooter()) {
                     restoreCursor();
                     active = lastActive;
-                    diff = linesAdded;
-                    linesAdded = 0;
+                    diff = footer.getMinHeight() - oldFooterHeight;
+                    //linesAdded = 0;
                 }
 
                 var offsetThat = active.offset();
