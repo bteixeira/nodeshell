@@ -485,3 +485,47 @@ nsh.layout.set({
 ---
 A quick test is to just create a bottom row and sidebar and check that the text from the command line never overflows
 there (constrain the prompt to a specific area)
+
+--
+
+// This is probably how it's gonna look:
+
+nsh.layout.set({
+    center: {
+        cols: [
+            {
+                rows: [
+                    {
+                        prompt: true
+                    }, {
+                        name: 'completion'
+                    }
+                ],
+                width: auto
+            }, {
+                name: 'separator-top',
+                fill: '|',
+                width: 1
+            }, {
+                name: 'sidebar',
+                minHeight: 5,
+                width: 40
+            }
+        ]
+    },
+    footer: {
+        cols: [
+            {
+                name: 'status',
+                width: 'auto'
+            }, {
+                name: 'separator-bottom',
+                fill: '|',
+                width: 1
+            }, {
+                name: 'time',
+                width: 20
+            }
+        ]
+    }
+});

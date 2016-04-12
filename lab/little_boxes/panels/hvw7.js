@@ -36,9 +36,6 @@ function switchPanel() {
     activeI = (activeI + 1) % writers.length;
     writers[activeI].activate();
 }
-//var active;
-//var linesAdded = 0;
-//var oldFooterHeight = 0;
 
 var Center = require('./center');
 
