@@ -11,13 +11,13 @@ module.exports = function (panel, stdout, footer) {
         getChildOffsetV: function (child) {
             return 0;
         },
-        getWidth: function (child) {
+        getChildWidth: function (child) {
             return stdout.columns;
         },
-        getHeight: function (child) {
-            this.getMinHeight();
+        getChildHeight: function (child) {
+            return panel.getMinHeight();
         },
-        getAfterSpace: function (child) {
+        getSpaceBelowChild: function (child) {
             return footer.getMinHeight();
         },
         getMinHeight: function () {
@@ -27,11 +27,11 @@ module.exports = function (panel, stdout, footer) {
             return false;
         },
         reserveSpace: function () {
-            var totalHeight = this.getMinHeight() + this.getAfterSpace(null);
+            var totalHeight = this.getMinHeight() + this.getSpaceBelowChild(null);
             stdout.write(new Array(totalHeight).join('\n'));
             rl.moveCursor(stdout, 0, -totalHeight + 1);
         },
-        drawBelow: function () {
+        drawBelowChild: function (child) {
             footer.rewrite();
         },
         rewrite: function () {

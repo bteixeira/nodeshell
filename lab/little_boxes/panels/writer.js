@@ -10,13 +10,11 @@ module.exports = function Writer (stdout) {
     var col = 1;
     var footer;
 
-    // TODO SET PARENT ?
-
     var me = {
         setFooter: function (footer_) {
             footer = footer_;
         },
-        insert: function (ch, skip) {
+        insert: function (ch, skipChecks) {
             if (ch.charCodeAt(0) === 127) {
                 if (col > 1) {
                     stdout.write(ch);
@@ -27,31 +25,22 @@ module.exports = function Writer (stdout) {
                 }
             } else {
                 stdout.write(ch);
-                if (!skip) {
+                if (!skipChecks) {
                     content.push(ch);
                 }
                 col += 1;
                 if (col > this.width()) {
-                    //var prevHeight = this.height();
-                    //if (!skip) {
                     col = 1;
                     row += 1;
-                    //}
                     stdout.write(new Array(this.afterSpace() + 2).join('\n'));
-                    rl.moveCursor(stdout, this.offsetH(), -this.afterSpace());
-                    if (!skip) {
+                    rl.moveCursor(stdout, this.getOffsetH(), -this.afterSpace());
+                    if (!skipChecks) {
                         stdout.write(new Array(this.width() + 1).join(' '));
-                        rl.moveCursor(stdout, -this.width() +
-                            (
+                        rl.moveCursor(stdout, -this.width() + (
                                 // if this panel is on the right edge of the screen, the cursor is actually one character behind
-                                this.offsetH() + this.width() === stdout.columns ? 1 : 0
-                            )
-                            , 0);
-                        //if (this.isFooter() && this.height() > prevHeight) {
-                        //    linesAdded += 1;
-                        //}
-                        // TODO MUST FIGURE OUT WHICH PANELS NEED TO REDRAW
-                        parent.drawBelow(this);
+                                this.getOffsetH() + this.width() === stdout.columns ? 1 : 0
+                            ), 0);
+                        parent.drawBelowChild(this);
                     }
                 }
             }
@@ -68,7 +57,7 @@ module.exports = function Writer (stdout) {
             stdout.write(new Array(this.width() - col + 2).join(' '));
             rl.moveCursor(stdout, -this.width() + col - (
                     // if this panel is on the right edge of the screen, the cursor is actually one character behind
-                    this.offsetH() + this.width() === stdout.columns ? 0 : 1
+                    this.getOffsetH() + this.width() === stdout.columns ? 0 : 1
                 ), 0);
             active.activate();
         },
@@ -76,7 +65,7 @@ module.exports = function Writer (stdout) {
             rl.moveCursor(stdout, -col + 1, -row + 1);
         },
         activate: function () {
-            var offsetThis = this.offset();
+            var offsetThis = this.getOffset();
             var diff = 0;
             var active = Writer.active;
             if (!active) {
@@ -93,10 +82,9 @@ module.exports = function Writer (stdout) {
                     restoreCursor(stdout);
                     active = lastActive;
                     diff = footer.getMinHeight() - oldFooterHeight;
-                    //linesAdded = 0;
                 }
 
-                var offsetThat = active.offset();
+                var offsetThat = active.getOffset();
                 var delta = [offsetThis[0] - offsetThat[0], offsetThis[1] - offsetThat[1]];
 
                 rl.moveCursor(stdout, delta[1], delta[0] - diff);
@@ -106,18 +94,18 @@ module.exports = function Writer (stdout) {
 
         },
         width: function () {
-            return parent.getWidth(this);
+            return parent.getChildWidth(this);
         },
         height: function () {
-            return parent.getHeight(this);
+            return parent.getChildHeight(this);
         },
         afterSpace: function () {
-            return parent.getAfterSpace(this);
+            return parent.getSpaceBelowChild(this);
         },
-        offsetH: function () {
+        getOffsetH: function () {
             return parent.getChildOffsetH(this);
         },
-        offset: function () {
+        getOffset: function () {
             // RETURNS [row, col]
             var offset = parent.getChildOffset(this);
             return [offset[0] + row - 1, offset[1] + col - 1];

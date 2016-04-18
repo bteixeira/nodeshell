@@ -9,13 +9,13 @@ module.exports = function (panel, stdout) {
         getChildOffsetV: function (child) {
             return 0;
         },
-        getWidth: function (child) {
+        getChildWidth: function (child) {
             return stdout.columns;
         },
-        getHeight: function (child) {
-            return this.getMinHeight();
+        getChildHeight: function (child) {
+            return panel.getMinHeight();
         },
-        getAfterSpace: function (child) {
+        getSpaceBelowChild: function (child) {
             return 0;
         },
         getMinHeight: function () {
@@ -24,7 +24,7 @@ module.exports = function (panel, stdout) {
         isFooter: function () {
             return true;
         },
-        drawBelow: function () {
+        drawBelowChild: function () {
         },
         rewrite: function () {
             panel.rewrite();

@@ -17,13 +17,13 @@ module.exports = function (children) {
             }
             return sum + parent.getChildOffsetV(this);
         },
-        getWidth: function (child) {
-            return parent.getWidth(this);
+        getChildWidth: function (child) {
+            return parent.getChildWidth(this);
         },
-        getHeight: function (child) {
+        getChildHeight: function (child) {
             return child.getMinHeight();
         },
-        getAfterSpace: function (child) {
+        getSpaceBelowChild: function (child) {
             var i;
             for (i = 1; children[i - 1] !== child && i < children.length; i++) {
             }
@@ -31,7 +31,7 @@ module.exports = function (children) {
             for (; i < children.length; i++) {
                 sum += children[i].getMinHeight();
             }
-            sum += parent.getAfterSpace(this);
+            sum += parent.getSpaceBelowChild(this);
             return sum;
         },
         getMinHeight: function () {
@@ -47,7 +47,7 @@ module.exports = function (children) {
         isFooter: function () {
             return parent.isFooter();
         },
-        drawBelow: function (child) {
+        drawBelowChild: function (child) {
             var found = false;
             children.forEach(function (ch) {
                 if (found) {
@@ -57,7 +57,7 @@ module.exports = function (children) {
                     found = true;
                 }
             });
-            parent.drawBelow(this);
+            parent.drawBelowChild(this);
         },
         rewrite: function () {
             children.forEach(function (child) {
@@ -65,7 +65,7 @@ module.exports = function (children) {
             });
         },
         width: function () {
-            return this.getWidth(null);
+            return this.getChildWidth(null);
         }
     };
 
