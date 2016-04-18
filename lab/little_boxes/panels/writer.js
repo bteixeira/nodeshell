@@ -113,11 +113,11 @@ module.exports = function Writer (stdout) {
             return parent.getAfterSpace(this);
         },
         offsetH: function () {
-            return parent.getOffsetH(this);
+            return parent.getChildOffsetH(this);
         },
         offset: function () {
             // RETURNS [row, col]
-            var offset = parent.getOffset(this);
+            var offset = parent.getChildOffset(this);
             return [offset[0] + row - 1, offset[1] + col - 1];
         },
         getMinHeight: function () {

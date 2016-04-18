@@ -1,14 +1,12 @@
 module.exports = function (panel, stdout) {
-    //var panel;
     var me = {
-        getOffset: function (child) {
-            return [this.getOffsetV(child), this.getOffsetH(child)];
+        getChildOffset: function (child) {
+            return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
         },
-        getOffsetH: function (child) {
+        getChildOffsetH: function (child) {
             return 0;
         },
-        getOffsetV: function (child) {
-            //throw('I DONT KNOW HOW TO SOLVE THIS YET');
+        getChildOffsetV: function (child) {
             return 0;
         },
         getWidth: function (child) {

@@ -3,13 +3,13 @@ module.exports = function (children) {
     var parent;
 
     var me = {
-        getOffset: function (child) {
-            return [this.getOffsetV(child), this.getOffsetH(child)];
+        getChildOffset: function (child) {
+            return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
         },
-        getOffsetH: function (child) {
-            return parent.getOffsetH(this);
+        getChildOffsetH: function (child) {
+            return parent.getChildOffsetH(this);
         },
-        getOffsetV: function (child) {
+        getChildOffsetV: function (child) {
             var i;
             var sum = 0;
             for (i = 0; children[i] !== child && i < children.length; i++) {

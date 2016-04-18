@@ -6,10 +6,10 @@ module.exports = function (children, layout, stdout) {
     var parent;
 
     var me = {
-        getOffset: function (child) {
-            return [this.getOffsetV(child), this.getOffsetH(child)];
+        getChildOffset: function (child) {
+            return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
         },
-        getOffsetH: function (child) {
+        getChildOffsetH: function (child) {
             var lt;
             var sum = 0;
             var autoFound = false;
@@ -19,7 +19,7 @@ module.exports = function (children, layout, stdout) {
                 lt = layout[i];
                 if (child === children[i]) {
                     if (!autoFound) {
-                        return sum + parent.getOffsetH(this);
+                        return sum + parent.getChildOffsetH(this);
                     }
                     childFound = true;
                     sumBefore = sum;
@@ -34,11 +34,11 @@ module.exports = function (children, layout, stdout) {
             }
 
             // still here, there is an auto child before the child we're calculating
-            return parent.getOffsetH(this) + sumBefore + (parent.getWidth(this) - sum);
+            return parent.getChildOffsetH(this) + sumBefore + (parent.getWidth(this) - sum);
 
         },
-        getOffsetV: function (child) {
-            return parent.getOffsetV(this);
+        getChildOffsetV: function (child) {
+            return parent.getChildOffsetV(this);
         },
         getWidth: function (child) {
             var sum = 0;
@@ -86,7 +86,7 @@ module.exports = function (children, layout, stdout) {
             children.forEach(function (ch) {
                 if (ch !== child && ch.getMinHeight() < h) {
                     // CALCULATE OFFSET BETWEEN ACTIVE AND LAST ROW OF ch, USING LOGIC FROM activate() (HARDEST PART IS SWITCHES BETWEEN FOOTER AND CENTER, DOES THAT EVER HAPPEN? I THINK NOT, CONFIRM)
-                    var offsetThis = me.getOffset(ch);
+                    var offsetThis = me.getChildOffset(ch);
                     var offsetThat = Writer.active.offset();
                     var delta = [offsetThis[0] - offsetThat[0], offsetThis[1] - offsetThat[1]];
                     // MAKE JUMP
@@ -98,7 +98,7 @@ module.exports = function (children, layout, stdout) {
                         +
                         (
                             // if this panel is on the right edge of the screen, the cursor is actually one character behind
-                            me.getOffsetH(ch) + ch.width() === stdout.columns ? 1 : 0
+                            me.getChildOffsetH(ch) + ch.width() === stdout.columns ? 1 : 0
                         )
                         , -delta[0] - h + 1);
                 }

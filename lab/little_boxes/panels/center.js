@@ -2,13 +2,13 @@ var rl = require('readline');
 
 module.exports = function (panel, stdout, footer) {
     var me = {
-        getOffset: function (child) {
-            return [this.getOffsetV(child), this.getOffsetH(child)];
+        getChildOffset: function (child) {
+            return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
         },
-        getOffsetH: function (child) {
+        getChildOffsetH: function (child) {
             return 0;
         },
-        getOffsetV: function (child) {
+        getChildOffsetV: function (child) {
             return 0;
         },
         getWidth: function (child) {
@@ -19,7 +19,6 @@ module.exports = function (panel, stdout, footer) {
         },
         getAfterSpace: function (child) {
             return footer.getMinHeight();
-            //return 0;
         },
         getMinHeight: function () {
             return panel.getMinHeight();
