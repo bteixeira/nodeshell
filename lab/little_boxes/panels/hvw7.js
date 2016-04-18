@@ -56,8 +56,10 @@ var w3 = new Writer(stdout);
 var w4 = new Writer(stdout);
 var w5 = new Writer(stdout);
 var w6 = new Writer(stdout);
-var rowsTop = new Rows([w2, w1, w3]);
-var colsTop = new Columns([w4, rowsTop, w5, w6], [20, 40, 'auto', 20], stdout);
+var subRows = new Rows([w5, w6]);
+var subCols = new Columns ([w3, subRows], [15, 'auto'], stdout);
+var rowsTop = new Rows([w2, w1, subCols]);
+var colsTop = new Columns([w4, rowsTop], [30, 'auto'], stdout);
 
 var w11 = new Writer(stdout);
 var w12 = new Writer(stdout);

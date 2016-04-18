@@ -15,7 +15,7 @@ module.exports = function (children) {
             for (i = 0; children[i] !== child && i < children.length; i++) {
                 sum += children[i].getMinHeight();
             }
-            return sum;
+            return sum + parent.getChildOffsetV(this);
         },
         getWidth: function (child) {
             return parent.getWidth(this);

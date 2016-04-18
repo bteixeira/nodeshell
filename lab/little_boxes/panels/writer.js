@@ -65,9 +65,11 @@ module.exports = function Writer (stdout) {
             content.forEach(function (ch) {
                 me.insert(ch, true); // TODO rewrite ITSELF WAS TRIGGERED BY AN insert ON ANOTHER PANEL, WILL THIS EVER CAUSE A LOOP?
             });
-            //stdout.write('\033[K');
             stdout.write(new Array(this.width() - col + 2).join(' '));
-            rl.moveCursor(stdout, -this.width() + col - 1, 0);
+            rl.moveCursor(stdout, -this.width() + col - (
+                    // if this panel is on the right edge of the screen, the cursor is actually one character behind
+                    this.offsetH() + this.width() === stdout.columns ? 0 : 1
+                ), 0);
             active.activate();
         },
         rewind: function () {
