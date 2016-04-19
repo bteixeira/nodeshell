@@ -29,18 +29,21 @@ module.exports = function Writer (stdout) {
                     content.push(ch);
                 }
                 col += 1;
-                if (col > this.width()) {
+                var width = parent.getChildWidth(this);
+                var spaceBelow = parent.getSpaceBelowChild(this);
+                var offsetH = parent.getChildOffsetH(this);
+                if (col > width) {
                     col = 1;
                     row += 1;
-                    stdout.write(new Array(this.afterSpace() + 2).join('\n'));
-                    rl.moveCursor(stdout, this.getOffsetH(), -this.afterSpace());
+                    stdout.write(new Array(spaceBelow + 2).join('\n'));
+                    rl.moveCursor(stdout, offsetH, -spaceBelow);
                     if (!skipChecks) {
-                        stdout.write(new Array(this.width() + 1).join(' '));
-                        rl.moveCursor(stdout, -this.width() + (
+                        stdout.write(new Array(width + 1).join(' '));
+                        rl.moveCursor(stdout, -width + (
                                 // if this panel is on the right edge of the screen, the cursor is actually one character behind
-                                this.getOffsetH() + this.width() === stdout.columns ? 1 : 0
+                                offsetH + width === stdout.columns ? 1 : 0
                             ), 0);
-                        parent.drawBelowChild(this);
+                        parent.redrawBelowChild(this);
                     }
                 }
             }
@@ -52,12 +55,14 @@ module.exports = function Writer (stdout) {
             var me = this;
             row = col = 1;
             content.forEach(function (ch) {
-                me.insert(ch, true); // TODO rewrite ITSELF WAS TRIGGERED BY AN insert ON ANOTHER PANEL, WILL THIS EVER CAUSE A LOOP?
+                me.insert(ch, true);
             });
-            stdout.write(new Array(this.width() - col + 2).join(' '));
-            rl.moveCursor(stdout, -this.width() + col - (
+            var width = parent.getChildWidth(this);
+            var offsetH = parent.getChildOffsetH(this);
+            stdout.write(new Array(width - col + 2).join(' '));
+            rl.moveCursor(stdout, -width + col - (
                     // if this panel is on the right edge of the screen, the cursor is actually one character behind
-                    this.getOffsetH() + this.width() === stdout.columns ? 0 : 1
+                    offsetH + width === stdout.columns ? 0 : 1
                 ), 0);
             active.activate();
         },
@@ -75,13 +80,13 @@ module.exports = function Writer (stdout) {
             } else if (this.isFooter() && !active.isFooter()) {
                 saveCursor(stdout);
                 lastActive = active;
-                rl.cursorTo(stdout, offsetThis[1], stdout.rows - footer.getMinHeight() + offsetThis[0]);
-                oldFooterHeight = footer.getMinHeight();
+                rl.cursorTo(stdout, offsetThis[1], stdout.rows - footer.getHeight() + offsetThis[0]);
+                oldFooterHeight = footer.getHeight();
             } else {
                 if (active.isFooter() && !this.isFooter()) {
                     restoreCursor(stdout);
                     active = lastActive;
-                    diff = footer.getMinHeight() - oldFooterHeight;
+                    diff = footer.getHeight() - oldFooterHeight;
                 }
 
                 var offsetThat = active.getOffset();
@@ -91,26 +96,12 @@ module.exports = function Writer (stdout) {
 
             }
             Writer.active = this;
-
-        },
-        width: function () {
-            return parent.getChildWidth(this);
-        },
-        height: function () {
-            return parent.getChildHeight(this);
-        },
-        afterSpace: function () {
-            return parent.getSpaceBelowChild(this);
-        },
-        getOffsetH: function () {
-            return parent.getChildOffsetH(this);
         },
         getOffset: function () {
-            // RETURNS [row, col]
             var offset = parent.getChildOffset(this);
             return [offset[0] + row - 1, offset[1] + col - 1];
         },
-        getMinHeight: function () {
+        getHeight: function () {
             return row;
         },
         setParent: function (parent_) {

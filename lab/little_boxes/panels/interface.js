@@ -1,3 +1,7 @@
+/**
+ * The first thing you will tell me is that I could have used curses.
+ * I could spend a whole beer explaining why that wouldn't work.
+ */
 module.exports = {
 
     /**
@@ -19,24 +23,19 @@ module.exports = {
     /**
      * Gets an array with the Vertical and Horizontal offsets of a child.
      * Anytime a two-dimensional offset is returned as an array, the first position will always be with the vertical
-     * index (lines).
+     * index (lines). Note that this is the opposite of how the Node's Readline usually handles the parameters,
+     * receiving the horizontal offset as the first parameter.
      * @param child
      */
     getChildOffset: function (child) {
     },
 
     /**
-     * Get the width of a child
+     * Get the width of a child. Unlike the height, a panel doesn't know its own width and must ask the parent to
+     * calculate it according to the layout.
      * @param child
      */
     getChildWidth: function (child) {
-    },
-
-    /**
-     * Get the height of a child
-     * @param child
-     */
-    getChildHeight: function (child) {
     },
 
     /**
@@ -47,11 +46,9 @@ module.exports = {
     },
 
     /**
-     * The minimum height of this panel, as opposed to the "virtual" height, only known by the parent. As an example,
-     * in a column layout, all panels will always have the same "virtual" height, even though a panel may have more
-     * lines than the others (and therefore have a higher minimum height than its siblings).
+     * The height of this panel. Unlike the width, each panel can figure out its own height.
      */
-    getMinHeight: function () {
+    getHeight: function () {
     },
 
     /**
@@ -80,19 +77,13 @@ module.exports = {
      * panels that need it.
      * @param child
      */
-    drawBelowChild: function (child) {
+    redrawBelowChild: function (child) {
     },
 
     /**
      * Rewrite the content of this panel. The panel is responsible for moving the cursor from the active panel and back.
      */
     rewrite: function () {
-    },
-
-    /**
-     * Get the width of this panel.
-     */
-    width: function () {
     },
 
     /**
@@ -127,25 +118,7 @@ module.exports = {
 
     /**
      * WRITER ONLY
-     * Get the height of this writer.
-     */
-    height: function () {},
-
-    /**
-     * WRITER ONLY
-     * Get the space below this writer.
-     */
-    afterSpace: function () {},
-
-    /**
-     * WRITER ONLY
-     * Get the horizontal offset of this writer
-     */
-    getOffsetH: function () {},
-
-    /**
-     * WRITER ONLY
-     * Get an array with the offsets of this writer (vertical, horizontal).
+     * Get an array with the offsets of the current cursor position on this writer (vertical, horizontal).
      */
     getOffset: function () {}
 };

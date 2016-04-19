@@ -6,9 +6,9 @@ var Writer = require('./writer');
  * @param children
  *      array with the children panels
  * @param layout
- *      array with width specification. This array must have the same length as `children`. All but one of the
- *      elements must be a number, indicating the width of the respective panel in pixels. The remaining element must be
- *      the string 'auto'; this panel will take the remaining width available to this panel.
+ *      array with width specifications. This array must have the same length as `children`. All but one of the
+ *      elements must be a number, indicating the width of the respective panel in columns. The remaining element must
+ *      be the string 'auto'. The 'auto' child will take the remaining width available to this panel.
  * @param stdout
  */
 module.exports = function (children, layout, stdout) {
@@ -16,8 +16,8 @@ module.exports = function (children, layout, stdout) {
     var parent;
 
     var me = {
-        getChildOffset: function (child) {
-            return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
+        getChildOffsetV: function (child) {
+            return parent.getChildOffsetV(this);
         },
         getChildOffsetH: function (child) {
             var lt;
@@ -49,8 +49,8 @@ module.exports = function (children, layout, stdout) {
             sumBefore += autoWidth;
             return parent.getChildOffsetH(this) + sumBefore;
         },
-        getChildOffsetV: function (child) {
-            return parent.getChildOffsetV(this);
+        getChildOffset: function (child) {
+            return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
         },
         getChildWidth: function (child) {
             var sum = 0;
@@ -70,17 +70,14 @@ module.exports = function (children, layout, stdout) {
             // still here, so this is the auto child
             return parent.getChildWidth(this) - sum;
         },
-        getChildHeight: function (child) {
-            return this.getMinHeight();
-        },
         getSpaceBelowChild: function (child) {
-            return (this.getMinHeight() - child.getMinHeight()) + parent.getSpaceBelowChild(this);
+            return (this.getHeight() - child.getHeight()) + parent.getSpaceBelowChild(this);
         },
-        getMinHeight: function () {
+        getHeight: function () {
             var max = 0;
             children.forEach(function (child) {
-                if (child.getMinHeight() > max) {
-                    max = child.getMinHeight();
+                if (child.getHeight() > max) {
+                    max = child.getHeight();
                 }
             });
             return max;
@@ -91,13 +88,13 @@ module.exports = function (children, layout, stdout) {
         isFooter: function () {
             return parent.isFooter();
         },
-        drawBelowChild: function (child) {
+        redrawBelowChild: function (child) {
             var me = this;
-            var height = this.getMinHeight();
+            var height = this.getHeight();
 
             // Since this call was triggered by a child that added a new line, we need to clear the last line of each sibling.
             children.forEach(function (ch) {
-                if (ch !== child && ch.getMinHeight() < height) {
+                if (ch !== child && ch.getHeight() < height) {
                     var offsetThis = me.getChildOffset(ch);
                     var offsetThat = Writer.active.getOffset();
                     var delta = [
@@ -112,11 +109,12 @@ module.exports = function (children, layout, stdout) {
                     rl.moveCursor(stdout, delta[1], delta[0]);
 
                     // Write full line of spaces according to child's width
-                    stdout.write(new Array(ch.width() + 1).join(' '));
+                    var childWidth = me.getChildWidth(ch);
+                    stdout.write(new Array(childWidth + 1).join(' '));
 
-                    delta[1] += ch.width();
+                    delta[1] += childWidth;
                     // If this panel is on the right edge of the screen, the cursor is actually one character behind
-                    if (me.getChildOffsetH(ch) + ch.width() === stdout.columns) {
+                    if (me.getChildOffsetH(ch) + childWidth === stdout.columns) {
                         delta[1] -= 1;
                     }
 
@@ -124,15 +122,12 @@ module.exports = function (children, layout, stdout) {
                     rl.moveCursor(stdout, -delta[1], -delta[0]);
                 }
             });
-            parent.drawBelowChild(this);
+            parent.redrawBelowChild(this);
         },
         rewrite: function () {
             children.forEach(function (child) {
                 child.rewrite();
             });
-        },
-        width: function () {
-            return this.getChildWidth(null);
         }
     };
     children.forEach(function (child) {

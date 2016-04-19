@@ -1,30 +1,27 @@
 module.exports = function (panel, stdout) {
     var me = {
-        getChildOffset: function (child) {
-            return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
+        getChildOffsetV: function (child) {
+            return 0;
         },
         getChildOffsetH: function (child) {
             return 0;
         },
-        getChildOffsetV: function (child) {
-            return 0;
+        getChildOffset: function (child) {
+            return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
         },
         getChildWidth: function (child) {
             return stdout.columns;
         },
-        getChildHeight: function (child) {
-            return panel.getMinHeight();
-        },
         getSpaceBelowChild: function (child) {
             return 0;
         },
-        getMinHeight: function () {
-            return panel.getMinHeight();
+        redrawBelowChild: function () {
+        },
+        getHeight: function () {
+            return panel.getHeight();
         },
         isFooter: function () {
             return true;
-        },
-        drawBelowChild: function () {
         },
         rewrite: function () {
             panel.rewrite();

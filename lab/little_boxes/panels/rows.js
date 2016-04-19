@@ -3,41 +3,40 @@ module.exports = function (children) {
     var parent;
 
     var me = {
-        getChildOffset: function (child) {
-            return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
-        },
-        getChildOffsetH: function (child) {
-            return parent.getChildOffsetH(this);
-        },
         getChildOffsetV: function (child) {
             var i;
             var sum = 0;
             for (i = 0; children[i] !== child && i < children.length; i++) {
-                sum += children[i].getMinHeight();
+                sum += children[i].getHeight();
             }
             return sum + parent.getChildOffsetV(this);
+        },
+        getChildOffsetH: function (child) {
+            return parent.getChildOffsetH(this);
+        },
+        getChildOffset: function (child) {
+            return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
         },
         getChildWidth: function (child) {
             return parent.getChildWidth(this);
         },
-        getChildHeight: function (child) {
-            return child.getMinHeight();
-        },
         getSpaceBelowChild: function (child) {
             var i;
+            // Find the index of the child
             for (i = 1; children[i - 1] !== child && i < children.length; i++) {
             }
             var sum = 0;
+            // Sum all the heights below the child
             for (; i < children.length; i++) {
-                sum += children[i].getMinHeight();
+                sum += children[i].getHeight();
             }
             sum += parent.getSpaceBelowChild(this);
             return sum;
         },
-        getMinHeight: function () {
+        getHeight: function () {
             var sum = 0;
             children.forEach(function (child) {
-                sum += child.getMinHeight();
+                sum += child.getHeight();
             });
             return sum;
         },
@@ -47,7 +46,7 @@ module.exports = function (children) {
         isFooter: function () {
             return parent.isFooter();
         },
-        drawBelowChild: function (child) {
+        redrawBelowChild: function (child) {
             var found = false;
             children.forEach(function (ch) {
                 if (found) {
@@ -57,15 +56,12 @@ module.exports = function (children) {
                     found = true;
                 }
             });
-            parent.drawBelowChild(this);
+            parent.redrawBelowChild(this);
         },
         rewrite: function () {
             children.forEach(function (child) {
                 child.rewrite();
             });
-        },
-        width: function () {
-            return this.getChildWidth(null);
         }
     };
 
