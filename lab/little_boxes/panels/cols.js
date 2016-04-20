@@ -71,7 +71,7 @@ module.exports = function (children, layout, stdout) {
             return parent.getChildWidth(this) - sum;
         },
         getSpaceBelowChild: function (child) {
-            return (this.getHeight() - child.getHeight()) + parent.getSpaceBelowChild(this);
+            return parent.getSpaceBelowChild(this);
         },
         getHeight: function () {
             var max = 0;
@@ -127,6 +127,11 @@ module.exports = function (children, layout, stdout) {
         rewrite: function () {
             children.forEach(function (child) {
                 child.rewrite();
+            });
+        },
+        setFooter: function (footer_) {
+            children.forEach(function (child) {
+                child.setFooter(footer_);
             });
         }
     };

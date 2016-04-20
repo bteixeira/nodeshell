@@ -33,8 +33,12 @@ module.exports = function (panel, stdout, footer) {
         },
         rewrite: function () {
             panel.rewrite();
+        },
+        setFooter: function (footer_) {
+            panel.setFooter(footer_);
         }
     };
     panel.setParent(me);
+    panel.setFooter(footer);
     return me;
 };

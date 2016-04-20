@@ -62,6 +62,11 @@ module.exports = function (children) {
             children.forEach(function (child) {
                 child.rewrite();
             });
+        },
+        setFooter: function (footer_) {
+            children.forEach(function (child) {
+                child.setFooter(footer_);
+            });
         }
     };
 
