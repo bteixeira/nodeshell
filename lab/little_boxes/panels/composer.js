@@ -1,6 +1,6 @@
-var SingleWriter = require('./composer/singleWriter');
+//var SingleWriter = require('./composer/singleWriter');
+var SingleWriterLayout = require('./composer/singleWriterLayout');
 var CenterFooterLayout = require('./composer/centerFooterLayout');
-var CenterOnlyLayout = require('./composer/centerOnlyLayout');
 var Center = require('./center');
 var Footer = require('./footer');
 var RowsLayout = require('./rows');
@@ -10,12 +10,17 @@ var Writer = require('./writer');
 module.exports = {
     buildInit: function (spec, stdout) {
 
+        if (arguments.length === 1) {
+            stdout = spec;
+            spec = null;
+        }
+
         var names = {};
         var result;
 
-        if (!spec) {
+        if (!spec || !Object.keys(spec).length) {
             // Single Writer layout ...
-            result = SingleWriter(stdout);
+            result = SingleWriterLayout(stdout);
         } else if (spec.center && spec.footer) {
             // CenterFooter layout ...
 
@@ -29,7 +34,7 @@ module.exports = {
         } else {
             // Center only layout ...
             var built = this.build(spec, names, stdout);
-            result = CenterOnlyLayout(built);
+            result = CenterFooterLayout(built);
         }
 
         for (var n in names) {

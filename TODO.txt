@@ -529,3 +529,61 @@ nsh.layout.set({
         ]
     }
 });
+
+
+
+
+
+-- How to reconcile LineReader with Writer
+
+1)  Writer emulates the TTY/process.stdout including the `.columns` and `.rows` properties, and interprets escape
+    sequences;
+
+
+2)  Move some of the behavior from LineReader into Writer. This includes `moveCursor(int)` and `insert(str)`.
+
+    Writer would need to keep track of the size of the input so far, separately from the cursor position. It would,
+    however, not keep track of the whole inserted text.
+    Writer would gain a new method `setText(str)` which would erase the whole window and write that text, regardless of
+    the differences between new and old text. This would mean that there would be no cheap way of changing the middle of
+    the text, although that already happens partially with LineReader (all text to the right of the cursor has to be
+    rewritten).
+
+    LineReader would keep the management of the prompt, needing to keep track of the cursor and the inserted text in
+    order to know whether the cursor should be allowed to move back (depending on whether it is at the beginning of the
+    line) as well as prompt refreshing.
+
+    Disadvantages:
+        - LineReader would be a wrapper around Writer and would duplicate a lot of its interface. Should LineReader be
+        an extension of Writer with prompt logic?
+        - LineReader would lose the ability to interact directly with a stream.Writable
+
+    Regardless, we need to do this:
+        - Writer must support additional characters it does not support yet, such as tabs and newlines
+        - Writer must allow moving the cursor back between lines
+        - Writer must implement `moveCursor(int)`, `insert(str)` (which takes a string or buffer instead of a single
+        character) and `setText(str)`.
+        - LineReader must get rid of the logic that was moved to Writer
+        - LineReader must change some code to interact with a Writer instead of a TTY stream
+        - There must be some code connecting the LineReader with the right Panel of the Layout
+        - There must be new code to clean the screen below the cursor after line has been accepted
+
+3)  Actually, it should be a mix of 1) and 2)...
+    LineReader already works on top of an object which only keeps track of cursor position. LineReader keeps track of
+    cursor too, as well as the whole inserted text; thus LineReader already takes care of optimizing screen writes when
+    changing the middle of the text. No need even to have a `setText` method, as long and the cursor can be moved and
+    text can be inserted at its position (two features already provided by TTY and which Writer could easily implement).
+    Therefore it seems that if Writer implemented `.columns` and `.rows` and LineReader changed the way it moves the
+    cursor (calling a method instead of writing an escape sequence), it would be a nice compromise.
+
+4)  Actually it might be a little more complicated than that. The thing is, if Writer doesn't keep track of the inserted
+    text then it can not redraw on its own; if it does keep track of inserted text for this purpose, then it must also
+    update it when changes are made in the middle. So either a refresh function has to be supplied to the Writer, or the
+    whole logic which keeps track of the text in LineReader must be moved over to Writer, making LineReader much simpler
+    but breaking the simplicity that Writer should have.
+
+
+Changes needed to Writer right now:
+    - Need to support tabs and new lines
+    - Need to support cursor movement between lines
+    - Need to support colored text (correctly calculate the length of text with escape sequences)

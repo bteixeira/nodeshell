@@ -10,6 +10,24 @@ module.exports = function Writer (stdout) {
     var col = 1;
     var footer;
 
+    function insertNewLine(skipChecks) {
+        var spaceBelow = parent.getSpaceBelowChild(this);
+        var offsetH = parent.getChildOffsetH(this);
+        var width = parent.getChildWidth(this);
+        col = 1;
+        row += 1;
+        stdout.write(new Array(spaceBelow + 2).join('\n'));
+        rl.moveCursor(stdout, offsetH, -spaceBelow);
+        if (!skipChecks) {
+            stdout.write(new Array(width + 1).join(' '));
+            rl.moveCursor(stdout, -width + (
+                    // if this panel is on the right edge of the screen, the cursor is actually one character behind
+                    offsetH + width === stdout.columns ? 1 : 0
+                ), 0);
+            parent.redrawBelowChild(this);
+        }
+    }
+
     var me = {
         setFooter: function (footer_) {
             footer = footer_;
@@ -30,21 +48,8 @@ module.exports = function Writer (stdout) {
                 }
                 col += 1;
                 var width = parent.getChildWidth(this);
-                var spaceBelow = parent.getSpaceBelowChild(this);
-                var offsetH = parent.getChildOffsetH(this);
                 if (col > width) {
-                    col = 1;
-                    row += 1;
-                    stdout.write(new Array(spaceBelow + 2).join('\n'));
-                    rl.moveCursor(stdout, offsetH, -spaceBelow);
-                    if (!skipChecks) {
-                        stdout.write(new Array(width + 1).join(' '));
-                        rl.moveCursor(stdout, -width + (
-                                // if this panel is on the right edge of the screen, the cursor is actually one character behind
-                                offsetH + width === stdout.columns ? 1 : 0
-                            ), 0);
-                        parent.redrawBelowChild(this);
-                    }
+                    insertNewLine.call(this, skipChecks);
                 }
             }
         },
@@ -81,12 +86,16 @@ module.exports = function Writer (stdout) {
                 saveCursor(stdout);
                 lastActive = active;
                 rl.cursorTo(stdout, offsetThis[1], stdout.rows - footer.getHeight() + offsetThis[0]);
-                oldFooterHeight = footer.getHeight();
+                if (footer) {
+                    oldFooterHeight = footer.getHeight();
+                }
             } else {
                 if (active.isFooter() && !this.isFooter()) {
                     restoreCursor(stdout);
                     active = lastActive;
-                    diff = footer.getHeight() - oldFooterHeight;
+                    if (footer) {
+                        diff = footer.getHeight() - oldFooterHeight;
+                    }
                 }
 
                 var offsetThat = active.getOffset();

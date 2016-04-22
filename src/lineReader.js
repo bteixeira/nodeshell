@@ -12,7 +12,7 @@ var EventEmitter = require('events').EventEmitter;
  *
  * Much of this code was ripped off from NodeJS's own readline module. Although it provides some handy snippets, this
  * code might change in the future. Readline provides way too much functionality that in Nsh should be somewhere else,
- * and that's why we've written this class instead of reusing readline it. Some exported features of Readline are still
+ * and that's why we've written this class instead of reusing Readline. Some exported features of Readline are still
  * called from here.
  *
  * @param output
@@ -121,7 +121,7 @@ LineReader.prototype.accept = function () {
 };
 
 LineReader.prototype.isEmpty = function () {
-    /* It's probably preferable to check the string length than use countLength() */
+    /* It's probably preferable to check the string length than to use countLength() */
     return this.line.length === 0;
 };
 

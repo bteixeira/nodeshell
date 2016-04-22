@@ -15,7 +15,11 @@ module.exports = function (panel, stdout, footer) {
             return stdout.columns;
         },
         getSpaceBelowChild: function (child) {
-            return footer.getHeight();
+            if (footer) {
+                return footer.getHeight();
+            } else {
+                return 0;
+            }
         },
         getHeight: function () {
             return panel.getHeight();
@@ -29,7 +33,9 @@ module.exports = function (panel, stdout, footer) {
             rl.moveCursor(stdout, 0, -totalHeight + 1);
         },
         redrawBelowChild: function (child) {
-            footer.rewrite();
+            if (footer) {
+                footer.rewrite();
+            }
         },
         rewrite: function () {
             panel.rewrite();
