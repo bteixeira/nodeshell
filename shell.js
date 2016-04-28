@@ -6,6 +6,8 @@ var Commands = require('./src/commands');
 var LineReader = require('./src/lineReader');
 var defaultCommands = require('./src/defaultCommands');
 
+var fs = require('fs');
+
 var DefaultParser = require('./src/parser/defaultLineParser');
 var CompletionParser = require('./src/parser/completionParser');
 var Executer = require('./src/parser/RunnableWrapperExecuterVisitor');
@@ -14,6 +16,9 @@ var ErrorWrapper = require('./src/errorWrapper');
 var History = require('./src/history');
 var utils = require('./src/utils');
 require('colors');
+var readline = require('readline');
+
+var Writer = require('./src/panels/tree/writerPanel');
 
 process.on('SIGINT', function () {
     console.log('\nSIGINT'.blue.bold);
@@ -86,6 +91,9 @@ function doneCB (result) {
     console.log(inspect(result));
     // TODO MAKE READ-ONLY PROPERTIES INSTEAD
     extend(ctx, permanent);
+    layout.reset();
+    layout.reserveSpace();
+    layout.rewrite();
     lineReader.refreshLine();
     process.stdin.resume();
     process.stdin.setRawMode(true);
@@ -105,8 +113,14 @@ lineReader
     })
     .updatePrompt()
     .on('accept', function (line) {
+        layout.separator.cursorTo(1, 1);
+        layout.separator.clearScreenDown();
+        layout.sidebar.cursorTo(1, 1);
+        layout.sidebar.clearScreenDown();
+
         process.stdin.setRawMode(false);
         process.stdin.pause();
+        readline.clearScreenDown(process.stdout);
         paused = true;
         var runner, err;
         var ast = DefaultParser.parseCmdLine(line, commands);
@@ -145,5 +159,45 @@ function runUserFile () {
     utils.sourceSync(path.join('.', NSH_FILE), ctx);
 }
 runUserFile();
+
+var LayoutComposer = require('./src/panels/composer');
+var layout = LayoutComposer.buildInit({
+    cols: [
+        {
+            width: 'auto',
+            name: 'prompt'
+        }, {
+            name: 'separator',
+            width: 3
+        }, {
+            width: 40,
+            name: 'sidebar'
+        }
+    ]
+}, process.stdout);
+
+lineReader.setWriter(layout.prompt);
+
+layout.separator.setRedraw(function () {
+    this.write(' \u2502  \u2502  \u2502  \u2502  \u2502'.blue);
+});
+layout.separator.rewrite();
+layout.sidebar.setRedraw(function () {
+    var me = this;
+    fs.readdir('.', function (err, files) {
+        if (err) {
+            me.write(err.toString().red);
+        } else {
+            if (files.length <= 5) {
+                me.write(files.join('\n') + '\n');
+            } else {
+                me.write(files.slice(0, 4).join('\n') + '\n');
+                me.write('  (' + (files.length - 4) + ' more...)')
+            }
+        }
+    });
+});
+layout.sidebar.rewrite();
+
 
 lineReader.refreshLine();

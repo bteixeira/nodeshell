@@ -67,12 +67,17 @@ keyHandler.bind('CTRL+R', restoreCursor);
 
 keyHandler.bindDefault(function (ch, key) {
     if (ch && ch.length === 1) {
-        //stdout.write(ch);
-        stdout.write('string');
-        saveCursor();
-        stdout.write('\n');
-        forceRedraw();
-        restoreCursor();
+        stdout.write(ch);
+        //stdout.write('string');
+        //saveCursor();
+        //stdout.write('\n');
+        //forceRedraw();
+        //restoreCursor();
+        if (ch === '\n') {
+            stdout.write('backslash-N');
+        } else if (ch === '\r') {
+            stdout.write('backslash-R');
+        }
     }
 });
 

@@ -1,0 +1,33 @@
+Writer
+
+    Aware of its own content. Functions as a buffer and an output stream at the same time.
+    Keeps track of both the whole content and the cursor position. Therefore, the whole layout can be refreshed and
+    expanded dynamically without external code to redraw the text.
+
+    It should maybe have two writing modes: one which overwrites text at the cursor, and one which inserts it (in case
+    the cursor is not at the end).
+
+    This implementation would render the LineReader mostly useless, with most of its logic being moved inside of Writer.
+    LineReader would only keep track of the inserted text and cursor position (both duplicated from Writer) in order to
+    know when the cursor was at the prompt (and therefore could not move back anymore).
+
+    Interface:
+
+        moveCursor(dx) // cursor only moves in one dimension
+        cursorTo(x)
+        .columns
+        .rows
+        write(buf)
+        clearScreenDown()
+        clearScreen()
+        clearLine()
+        clearLineLeft()
+        clearLineRight()
+
+        setFooter(footer)
+        activate()
+        getOffset()
+        getHeight() // same as .columns?
+        setParent(parent)
+        calculateWidth() // calculates the value of .columns
+        isFooter()

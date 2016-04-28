@@ -1,0 +1,2 @@
+Start with proposal 1 because it's faster to integrate.
+Move to proposal 2 afterwards because it actually makes sense.

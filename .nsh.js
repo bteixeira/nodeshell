@@ -29,8 +29,8 @@ var utils = require(nsh.home + '/src/utils');
         }
         cwd = cwd.join(path.sep);
 
-        return '\n' + process.env.USER + colors.grey('@') + hostname + colors.grey(':') + cwd + branch + colors.green(' \u2B22 '); // or \u2B21
+        return process.env.USER + colors.grey('@') + hostname + colors.grey(':') + cwd + branch + colors.green(' \u2B22 '); // or \u2B21
     });
 })();
 
-console.log('Now running NSH');
+//console.log('Now running NSH');

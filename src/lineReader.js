@@ -18,8 +18,10 @@ var EventEmitter = require('events').EventEmitter;
  * @param output
  * @constructor
  */
-var LineReader = function LineReader(output) {
-    this.output = output;
+//var LineReader = function LineReader(output) {
+var LineReader = function LineReader(writer) {
+    //this.output = output;
+    this.writer = writer;
 
     this.setLine('').setPrompt('>>> ').updatePrompt();
     this._prompting = false;
@@ -88,7 +90,8 @@ LineReader.prototype.setPrompt = function (prompt) {
  */
 LineReader.prototype.getCursorPos = function () {
 
-    var columns = this.output.columns;
+    //var columns = this.output.columns;
+    var columns = this.writer.getWidth();
 
     var lines = this._prompt.split(/[\r\n]/);
     var lineCols;
@@ -148,7 +151,8 @@ LineReader.prototype.insert = function (str) {
         if (this.getCursorPos().cols === 0) {
             this.refreshLine();
         } else {
-            this.output.write(str);
+            //this.output.write(str);
+            this.writer.write(str);
         }
         // a hack to get the line refreshed if it's needed
         this.moveCursor(0);
@@ -176,7 +180,8 @@ LineReader.prototype.moveCursor = function (dx) {
 
     // check if cursors are in the same line
     if (oldPos.rows === newPos.rows) {
-        readline.moveCursor(this.output, this.cursor - oldcursor, 0);
+        //readline.moveCursor(this.output, this.cursor - oldcursor, 0);
+        this.writer.moveCursor(this.cursor - oldcursor, 0);
         this.prevRows = newPos.rows;
     } else {
         this.refreshLine();
@@ -315,7 +320,8 @@ LineReader.prototype.setLine = function (line) {
  */
 LineReader.prototype.newLine = function () {
     this.moveToEnd();
-    this.output.write('\r\n');
+    //this.output.write('\r\n');
+    this.writer.write('\r\n');
     this.line = '';
     this.cursor = 0;
     this.prevRows = 0;
@@ -360,7 +366,8 @@ LineReader.prototype.refreshLine = function () {
         this.updatePrompt();
         this._prompting = true;
     }
-    var columns = this.output.columns;
+    //var columns = this.output.columns;
+    var columns = this.writer.getWidth();
 
     var line = this._prompt + this.line;
     var lines = line.split(/[\r\n]/);
@@ -379,31 +386,43 @@ LineReader.prototype.refreshLine = function () {
     // first move to the bottom of the current line, based on cursor pos
     var prevRows = this.prevRows || 0;
     if (prevRows > 0) {
-        readline.moveCursor(this.output, 0, -prevRows);
+        //readline.moveCursor(this.output, 0, -prevRows);
+        this.writer.moveCursor(0, -prevRows);
     }
 
     // Cursor to left edge.
-    readline.cursorTo(this.output, 0);
+    //readline.cursorTo(this.output, 0); // TODO
+    this.writer.cursorTo(0, 0);
     // erase data
-    readline.clearScreenDown(this.output);
+    //readline.clearScreenDown(this.output); // TODO
+    this.writer.clearScreenDown();
 
     // Write the prompt and the current buffer content.
-    this.output.write(line);
+    //this.output.write(line);
+    this.writer.write(line);
 
     // Force terminal to allocate a new line
-    if (lineCols === 0) {
-        this.output.write(' ');
-    }
+        // TODO NOT DOING THIS BREAKS EMULATION
+    //if (lineCols === 0) {
+        //this.output.write(' ');
+        //this._writer.write(' ');
+    //}
 
     // Move cursor to original position.
-    readline.cursorTo(this.output, cursorPos.cols);
+    //readline.cursorTo(process.stdout, cursorPos.cols); // TODO
+    this.writer.cursorTo(cursorPos.cols + 1);
 
     var diff = lineRows - cursorPos.rows - 1;
     if (diff > 0) {
-        readline.moveCursor(this.output, 0, -diff);
+        //readline.moveCursor(this.output, 0, -diff);
+        this.writer.moveCursor(0, -diff);
     }
 
     this.prevRows = cursorPos.rows;
+};
+
+LineReader.prototype.setWriter = function (writer) {
+    this.writer = writer;
 };
 
 module.exports = LineReader;
