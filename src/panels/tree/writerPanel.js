@@ -16,24 +16,23 @@ module.exports = function Writer (stdout) {
         var spaceBelow = parent.getSpaceBelowChild(this);
         var offsetH = parent.getChildOffsetH(this);
         var width = parent.getChildWidth(this);
-        col = 1;
         row += 1;
+        var oldCol = col;
+        col = 1;
         if (row > height) {
             stdout.write(new Array(spaceBelow + 2).join('\n'));
             rl.moveCursor(stdout, offsetH, -spaceBelow);
-            //if (!skipChecks) {
             stdout.write(new Array(width + 1).join(' '));
             rl.moveCursor(stdout, -width + (
                     // if this panel is on the right edge of the screen, the cursor is actually one character behind
                     offsetH + width === stdout.columns ? 1 : 0
                 ), 0);
             parent.redrawBelowChild(this);
-            //}
             this.rows = height = row;
         } else {
-            rl.moveCursor(stdout, -width + (
+            rl.moveCursor(stdout, -oldCol + 1 + (
                     // if this panel is on the right edge of the screen, the cursor is actually one character behind
-                    offsetH + width === stdout.columns ? 1 : 0
+                    offsetH + oldCol === stdout.columns ? 1 : 0
                 ), 1);
         }
     }
@@ -522,6 +521,11 @@ module.exports = function Writer (stdout) {
 
 
         clearScreenDown: function () {
+            var active = Writer.active;
+            if (active !== this) {
+                this.activate();
+            }
+
             var oldCol = col;
             var oldRow = row;
             var width = this.getWidth();
@@ -542,6 +546,10 @@ module.exports = function Writer (stdout) {
             col = width;
 
             this.cursorTo(oldCol, oldRow);
+
+            if (active !== this) {
+                active.activate();
+            }
         },
         clearScreen: function () {
             // TODO
