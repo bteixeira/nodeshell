@@ -392,7 +392,7 @@ LineReader.prototype.refreshLine = function () {
 
     // Cursor to left edge.
     //readline.cursorTo(this.output, 0); // TODO
-    this.writer.cursorTo(0, 0);
+    this.writer.cursorTo(0);
     // erase data
     //readline.clearScreenDown(this.output); // TODO
     this.writer.clearScreenDown();

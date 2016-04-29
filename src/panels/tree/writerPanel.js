@@ -12,26 +12,30 @@ module.exports = function Writer (stdout) {
     var height = 1;
     var redraw = function (){};
 
-    function insertNewLine(skipChecks) {
+    function insertNewLine(/*skipChecks*/) {
         var spaceBelow = parent.getSpaceBelowChild(this);
         var offsetH = parent.getChildOffsetH(this);
         var width = parent.getChildWidth(this);
         col = 1;
         row += 1;
-        stdout.write(new Array(spaceBelow + 2).join('\n'));
-        rl.moveCursor(stdout, offsetH, -spaceBelow);
-        if (!skipChecks) {
+        if (row > height) {
+            stdout.write(new Array(spaceBelow + 2).join('\n'));
+            rl.moveCursor(stdout, offsetH, -spaceBelow);
+            //if (!skipChecks) {
             stdout.write(new Array(width + 1).join(' '));
             rl.moveCursor(stdout, -width + (
                     // if this panel is on the right edge of the screen, the cursor is actually one character behind
                     offsetH + width === stdout.columns ? 1 : 0
                 ), 0);
             parent.redrawBelowChild(this);
+            //}
+            this.rows = height = row;
+        } else {
+            rl.moveCursor(stdout, -width + (
+                    // if this panel is on the right edge of the screen, the cursor is actually one character behind
+                    offsetH + width === stdout.columns ? 1 : 0
+                ), 1);
         }
-        if (row > height) {
-            height = row;
-        }
-        this.rows = height;
     }
 
 
@@ -211,7 +215,75 @@ module.exports = function Writer (stdout) {
             }
             */
             //this.superWrite(str);
-            this.superWrite2(str);
+            //this.superWrite2(str);
+            this.superWrite3(str);
+        },
+        superWrite3: function (buf) {
+            var active = Writer.active;
+            if (active !== this) {
+                this.activate();
+            }
+
+
+
+            var tmp = '';
+            var len = 0;
+
+            iterateEscapedString(buf, function (seq, isEscape) {
+                if (isEscape) {
+                    //stdout.write(seq);
+                    tmp += seq;
+                } else {
+                    if (seq.charCodeAt(0) === 127) { //backspace
+                        //if (col > 1) {
+                        if (col + len > 1) {
+                            //stdout.write(seq);
+                            tmp += seq;
+                            len -= 1;
+                        }
+                    } else if (seq === '\n') {
+                        stdout.write(tmp);
+                        col += len;
+                        tmp = '';
+                        len = 0;
+                        insertNewLine.call(me);
+                    } else if (seq === '\r') {
+                        stdout.write(tmp);
+                        col += len;
+                        tmp = '';
+                        len = 0;
+                        me.moveCursor(-col, 0);
+                    } else {
+                        //stdout.write(seq);
+                        tmp += seq;
+                        len += seq.length;
+                        //col += 1;
+                        //if (col > me.getWidth()) {
+                        if (col + len > me.getWidth()) {
+                            stdout.write(tmp);
+                            col += len;
+                            tmp = '';
+                            len = 0;
+                            insertNewLine.call(me);
+                        }
+                    }
+                }
+            });
+
+            if (tmp) {
+                stdout.write(tmp);
+                col += len;
+                tmp = '';
+                len = 0;
+                if (col > me.getWidth()) {
+                    insertNewLine.call(me);
+                }
+            }
+
+
+            if (active !== this) {
+                active.activate();
+            }
         },
         superWrite2: function (buf) {
             var active = Writer.active;
@@ -452,15 +524,22 @@ module.exports = function Writer (stdout) {
         clearScreenDown: function () {
             var oldCol = col;
             var oldRow = row;
+            var width = this.getWidth();
 
             while (row < height) {
-                this.write( new Array(this.getWidth() - col + 2).join(' ') );
+                //this.write( new Array(this.getWidth() - col + 2).join(' ') );
+                stdout.write( new Array(width - col + 2).join(' ') );
+                rl.moveCursor(stdout, -width, 1);
+                row += 1;
+                col = 1;
             }
 
             // the cursor is on the last line, therefore there must be no character at the last position (otherwise
             // a new line would have been allocated). Therefore do not write until the last character, otherwise a
             // new line will be added as a result of clear screen which doesn't look nice
-            this.write( new Array(this.getWidth() - col + 1).join(' ') );
+            //this.write( new Array(this.getWidth() - col + 1).join(' ') );
+            stdout.write( new Array(width - col + 1).join(' ') );
+            col = width;
 
             this.cursorTo(oldCol, oldRow);
         },
