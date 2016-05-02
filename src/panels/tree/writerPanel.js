@@ -27,8 +27,8 @@ module.exports = function Writer (stdout) {
                     // if this panel is on the right edge of the screen, the cursor is actually one character behind
                     offsetH + width === stdout.columns ? 1 : 0
                 ), 0);
-            parent.redrawBelowChild(this);
             this.rows = height = row;
+            parent.redrawBelowChild(this);
         } else {
             rl.moveCursor(stdout, -oldCol + 1 + (
                     // if this panel is on the right edge of the screen, the cursor is actually one character behind
@@ -440,6 +440,7 @@ module.exports = function Writer (stdout) {
                 ), 0);
             active.activate();
             */
+            this.reset();
             redraw.call(this);
         },
         rewind: function () {
@@ -510,7 +511,7 @@ module.exports = function Writer (stdout) {
          */
         reset: function () {
             content = [];
-            row = col = 1;
+            row = col = height = 1;
         },
 
 

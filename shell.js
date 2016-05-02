@@ -165,7 +165,13 @@ var layout = LayoutComposer.buildInit({
     cols: [
         {
             width: 'auto',
-            name: 'prompt'
+            rows: [
+                {
+                    name: 'prompt'
+                }, {
+                    name: 'completions'
+                }
+            ]
         }, {
             name: 'separator',
             width: 3
@@ -198,6 +204,10 @@ layout.sidebar.setRedraw(function () {
     });
 });
 layout.sidebar.rewrite();
+layout.completions.setRedraw(function () {
+    this.write('Completions go here...');
+});
+layout.completions.rewrite();
 
 
 lineReader.refreshLine();
