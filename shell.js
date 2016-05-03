@@ -81,7 +81,10 @@ var permanent = {
             }, '[alias]');
         },
         home: __dirname,
-        setLayout: setLayout
+        setLayout: setLayout,
+        on: function (event, cb) {
+            // TODO
+        }
     }
 };
 

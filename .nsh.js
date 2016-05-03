@@ -71,7 +71,7 @@ NSH.layout.sidebar.setRedraw(function () {
                 me.write(files.join('\n') + '\n');
             } else {
                 me.write(files.slice(0, 4).join('\n') + '\n');
-                me.write('  (' + (files.length - 4) + ' more...)')
+                me.write(colors.grey('  (' + (files.length - 4) + ' more...)'))
             }
         }
     });
@@ -79,3 +79,35 @@ NSH.layout.sidebar.setRedraw(function () {
 NSH.layout.completions.setRedraw(function () {
     this.write('Completions go here...');
 });
+
+
+
+
+
+/**/
+// TODO THIS IS KINDA HOW IT SHOULD BE
+NSH.on('before-execute before-exit', function () {
+    NSH.layout.separator.clear();
+    NSH.layout.sidebar.clear();
+    NSH.layout.completions.clear();
+});
+NSH.on('before-prompt', function () {
+    NSH.layout.separator.write(colors.blue(' \u2502  \u2502  \u2502  \u2502  \u2502'));
+});
+NSH.lineReader.on('update', function () {
+    // TODO THIS SHOULD TRY TO COMPLETE THE LAST TOKEN WITH A FILENAME, MAYBE THIS SHOULDN'T BE CALLED ON THE lineReader BUT ON THE PARSER OR SOMETHING
+    var me = this;
+    fs.readdir('.', function (err, files) {
+        if (err) {
+            me.write(colors.red(err.toString()));
+        } else {
+            if (files.length <= 5) {
+                me.write(files.join('\n') + '\n');
+            } else {
+                me.write(files.slice(0, 4).join('\n') + '\n');
+                me.write(colors.grey('  (' + (files.length - 4) + ' more...)'))
+            }
+        }
+    });
+});
+// NSH.completions.setPanel(NSH.layout.completions);
