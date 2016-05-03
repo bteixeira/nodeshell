@@ -57,6 +57,7 @@ module.exports = {
     build: function (spec, names, writers, stdout) {
         // TODO MAYBE WE SHOULD CHECK THAT THERE IS NO COLUMNS-COLUMNS OR ROWS-ROWS NESTING
         var me = this;
+        var result;
         if (spec.rows) {
             var rows = [];
             spec.rows.forEach(function (row) {
@@ -67,7 +68,7 @@ module.exports = {
                     names[row.name] = child;
                 }
             });
-            return new RowsLayout(rows);
+            result = new RowsLayout(rows);
         } else if (spec.cols) {
             // TODO MUST CHECK THAT ONE WIDTH IS 'auto' AND THE REST ARE NUMBERS
             // TODO MUST CHECK THAT SUM OF WIDTHS IS NOT LARGER THAN AVAILABLE FOR THIS PANEL
@@ -85,11 +86,16 @@ module.exports = {
                     names[col.name] = child;
                 }
             });
-            return new ColumnsLayout(cols, layout, stdout);
+            result = new ColumnsLayout(cols, layout, stdout);
         } else {
             var writer = new Writer(stdout);
             writers.push(writer);
-            return writer;
+            result = writer;
         }
+        if (spec.name) {
+            names[spec.name] = result;
+            result.name = spec.name;
+        }
+        return result;
     }
 };

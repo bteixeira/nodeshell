@@ -48,6 +48,7 @@ var paused = false;
 function setLayout (spec) {
     // TODO validate spec acording to high-level strict rules
     layout = LayoutComposer.buildInit(spec, process.stdout);
+    lineReader.setWriter(layout.prompt);
     permanent.NSH.layout = layout; // Not so permanent after all...
 }
 
@@ -163,6 +164,10 @@ require('./src/defaultCmdConfig')(CompletionParser);
 require('./src/defaultKeys')(keyHandler, lineReader, history, complete);
 
 
+var layout;
+
+setLayout({name: 'prompt'});
+
 function runUserFile () {
     var NSH_FILE = '.nsh.js';
     var home = utils.getUserHome();
@@ -171,54 +176,10 @@ function runUserFile () {
 }
 runUserFile();
 
-var layout;
-
-setLayout({
-    cols: [
-        {
-            width: 'auto',
-            rows: [
-                {
-                    name: 'prompt'
-                }, {
-                    name: 'completions'
-                }
-            ]
-        }, {
-            name: 'separator',
-            width: 3
-        }, {
-            width: 40,
-            name: 'sidebar'
-        }
-    ]
+layout.writers.forEach(function (writer) {
+    if (writer !== layout.prompt) {
+        writer.rewrite();
+    }
 });
-
-layout.separator.setRedraw(function () {
-    this.write(' \u2502  \u2502  \u2502  \u2502  \u2502'.blue);
-});
-layout.separator.rewrite();
-layout.sidebar.setRedraw(function () {
-    var me = this;
-    fs.readdir('.', function (err, files) {
-        if (err) {
-            me.write(err.toString().red);
-        } else {
-            if (files.length <= 5) {
-                me.write(files.join('\n') + '\n');
-            } else {
-                me.write(files.slice(0, 4).join('\n') + '\n');
-                me.write('  (' + (files.length - 4) + ' more...)')
-            }
-        }
-    });
-});
-layout.sidebar.rewrite();
-layout.completions.setRedraw(function () {
-    this.write('Completions go here...');
-});
-layout.completions.rewrite();
-
-lineReader.setWriter(layout.prompt);
 
 lineReader.refreshLine();

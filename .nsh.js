@@ -1,6 +1,7 @@
 var colors = require('colors');
 var path = require('path');
 var utils = require(nsh.home + '/src/utils');
+var fs = require('fs');
 
 (function () {
     var hostname = require('os').hostname();
@@ -34,3 +35,47 @@ var utils = require(nsh.home + '/src/utils');
 })();
 
 //console.log('Now running NSH');
+
+
+NSH.setLayout({
+    cols: [
+        {
+            width: 'auto',
+            rows: [
+                {
+                    name: 'prompt'
+                }, {
+                    name: 'completions'
+                }
+            ]
+        }, {
+            name: 'separator',
+            width: 3
+        }, {
+            width: 40,
+            name: 'sidebar'
+        }
+    ]
+});
+
+NSH.layout.separator.setRedraw(function () {
+    this.write(colors.blue(' \u2502  \u2502  \u2502  \u2502  \u2502'));
+});
+NSH.layout.sidebar.setRedraw(function () {
+    var me = this;
+    fs.readdir('.', function (err, files) {
+        if (err) {
+            me.write(colors.red(err.toString()));
+        } else {
+            if (files.length <= 5) {
+                me.write(files.join('\n') + '\n');
+            } else {
+                me.write(files.slice(0, 4).join('\n') + '\n');
+                me.write('  (' + (files.length - 4) + ' more...)')
+            }
+        }
+    });
+});
+NSH.layout.completions.setRedraw(function () {
+    this.write('Completions go here...');
+});
