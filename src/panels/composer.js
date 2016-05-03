@@ -12,6 +12,7 @@ module.exports = {
         }
 
         var names = {};
+        var writers = [];
         var result;
 
         if (!spec || !Object.keys(spec).length) {
@@ -37,13 +38,14 @@ module.exports = {
             */
         } else {
             // Center only layout ...
-            var built = this.build(spec, names, stdout);
+            var built = this.build(spec, names, writers, stdout);
             result = CenterFooterLayout(built, null, stdout);
         }
 
         for (var n in names) {
             result[n] = names[n];
         }
+        result.writers = writers;
         /**/
 
         result.prompt.calculateWidth();
@@ -52,13 +54,13 @@ module.exports = {
         return result;
     },
 
-    build: function (spec, names, stdout) {
+    build: function (spec, names, writers, stdout) {
         // TODO MAYBE WE SHOULD CHECK THAT THERE IS NO COLUMNS-COLUMNS OR ROWS-ROWS NESTING
         var me = this;
         if (spec.rows) {
             var rows = [];
             spec.rows.forEach(function (row) {
-                var child = me.build(row, names, stdout);
+                var child = me.build(row, names, writers, stdout);
                 rows.push(child);
                 if (row.name) {
                     // TODO SHOULD WE CHECK FOR UNIQUE NAMES?
@@ -76,7 +78,7 @@ module.exports = {
                     throw 'Column definition needs width specification (either number or "auto")';
                 }
                 layout.push(col.width);
-                var child = me.build(col, names, stdout);
+                var child = me.build(col, names, writers, stdout);
                 cols.push(child);
                 if (col.name) {
                     // TODO SHOULD WE CHECK FOR UNIQUE NAMES?
@@ -85,7 +87,9 @@ module.exports = {
             });
             return new ColumnsLayout(cols, layout, stdout);
         } else {
-            return new Writer(stdout);
+            var writer = new Writer(stdout);
+            writers.push(writer);
+            return writer;
         }
     }
 };

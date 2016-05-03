@@ -12,6 +12,8 @@ var DefaultParser = require('./src/parser/defaultLineParser');
 var CompletionParser = require('./src/parser/completionParser');
 var Executer = require('./src/parser/RunnableWrapperExecuterVisitor');
 
+var LayoutComposer = require('./src/panels/composer');
+
 var ErrorWrapper = require('./src/errorWrapper');
 var History = require('./src/history');
 var utils = require('./src/utils');
@@ -43,6 +45,12 @@ var lineReader = new LineReader(process.stdout);
 var keyHandler = new KeyHandler(process.stdin);
 var paused = false;
 
+function setLayout (spec) {
+    // TODO validate spec acording to high-level strict rules
+    layout = LayoutComposer.buildInit(spec, process.stdout);
+    permanent.NSH.layout = layout; // Not so permanent after all...
+}
+
 var permanent = {
     process: process,
     Buffer: Buffer,
@@ -71,7 +79,8 @@ var permanent = {
 
             }, '[alias]');
         },
-        home: __dirname
+        home: __dirname,
+        setLayout: setLayout
     }
 };
 
@@ -113,10 +122,12 @@ lineReader
     })
     .updatePrompt()
     .on('accept', function (line) {
-        layout.separator.cursorTo(1, 1);
-        layout.separator.clearScreenDown();
-        layout.sidebar.cursorTo(1, 1);
-        layout.sidebar.clearScreenDown();
+        layout.writers.forEach(function (writer) {
+            if (writer !== layout.prompt) {
+                writer.cursorTo(1, 1);
+                writer.clearScreenDown();
+            }
+        });
 
         process.stdin.setRawMode(false);
         process.stdin.pause();
@@ -160,8 +171,9 @@ function runUserFile () {
 }
 runUserFile();
 
-var LayoutComposer = require('./src/panels/composer');
-var layout = LayoutComposer.buildInit({
+var layout;
+
+setLayout({
     cols: [
         {
             width: 'auto',
@@ -180,9 +192,7 @@ var layout = LayoutComposer.buildInit({
             name: 'sidebar'
         }
     ]
-}, process.stdout);
-
-lineReader.setWriter(layout.prompt);
+});
 
 layout.separator.setRedraw(function () {
     this.write(' \u2502  \u2502  \u2502  \u2502  \u2502'.blue);
@@ -209,5 +219,6 @@ layout.completions.setRedraw(function () {
 });
 layout.completions.rewrite();
 
+lineReader.setWriter(layout.prompt);
 
 lineReader.refreshLine();
