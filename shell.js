@@ -161,7 +161,7 @@ lineReader
 var history = new History(lineReader);
 
 function complete () {
-    CompletionParser.parseCmdLine(lineReader, commands);
+    CompletionParser.parseCmdLine(lineReader, commands, layout.completions);
 }
 require('./src/defaultCmdConfig')(CompletionParser);
 require('./src/defaultKeys')(keyHandler, lineReader, history, complete);

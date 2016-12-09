@@ -5,7 +5,7 @@ var path = require('path');
 var fs = require('fs');
 var utils = require('../utils');
 
-exports.parseCmdLine = function (lineReader, commands) {
+exports.parseCmdLine = function (lineReader, commands, panel) {
     var parser = new DescentParser(commands);
 
     var line = lineReader.getLine();
@@ -92,13 +92,17 @@ exports.parseCmdLine = function (lineReader, commands) {
             lineReader.insert(suffix);
         }
 
-        //console.log('COMPLETIONS:', completions);
-        console.log('');
-        completions.forEach(function (completion) {
-            console.log('\t' + completion);
-        });
-        console.log('(' + completions.length + ')\n');
-        lineReader.refreshLine();
+        if (panel) {
+            panel.clearScreen();
+            panel.write('    ' + completions.join('\n    '));
+        } else {
+            console.log('');
+            completions.forEach(function (completion) {
+                console.log('\t' + completion);
+            });
+            console.log('(' + completions.length + ')\n');
+            lineReader.refreshLine();
+        }
     }
 
 };
