@@ -91,7 +91,7 @@ function safeDraw() {
     restoreCursor();
 }
 safeDraw();
-var id = setInterval(safeDraw, 10000);
+// var id = setInterval(safeDraw, 10000);
 
 function forceRedraw() {
     clearInterval(id);

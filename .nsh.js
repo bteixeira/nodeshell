@@ -6,15 +6,23 @@ var fs = require('fs');
 (function () {
     var hostname = require('os').hostname();
     var gitBranchCmd = 'git symbolic-ref --short HEAD 2>/dev/null';
+    var gitDirtyCmd = 'git status --porcelain';
     var execSync = require('child_process').execSync;
 
     nsh.lineReader.setPrompt(function () {
         var branch;
         try {
-            branch = colors.grey('|') + colors.blue(execSync(gitBranchCmd).toString().trim());
+            branch = ' ' + colors.cyan('(' + execSync(gitBranchCmd).toString().trim() + ')');
+            var dirtyOutput = execSync(gitDirtyCmd).toString();
+            var dirty = '';
+            if (dirtyOutput) {
+                dirty = colors.red(' ✘');
+            }
+            branch += dirty;
         } catch (e) {
             branch = '';
         }
+
 
         var home = utils.getUserHome();
         var cwd = process.cwd();
@@ -30,7 +38,10 @@ var fs = require('fs');
         }
         cwd = cwd.join(path.sep);
 
-        return process.env.USER + colors.grey('@') + hostname + colors.grey(':') + cwd + branch + colors.green(' \u2B22 '); // or \u2B21
+        var time = new Date().toTimeString().split(' ')[0];
+
+        return colors.black(colors.whiteBG(' ' + time + ' '))
+            + ' ' + colors.bold(cwd) + branch + ' ' + colors.green('\u2B22 '); // or \u2B21
     });
 })();
 
@@ -77,7 +88,7 @@ NSH.layout.sidebar.setRedraw(function () {
     });
 });
 NSH.layout.completions.setRedraw(function () {
-    this.write('Completions go here...');
+    // this.write('Completions go here...');
 });
 
 
