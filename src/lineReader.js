@@ -15,12 +15,10 @@ var EventEmitter = require('events').EventEmitter;
  * and that's why we've written this class instead of reusing Readline. Some exported features of Readline are still
  * called from here.
  *
- * @param output
+ * @param writer
  * @constructor
  */
-//var LineReader = function LineReader(output) {
 var LineReader = function LineReader(writer) {
-    //this.output = output;
     this.writer = writer;
 
     this.setLine('').setPrompt('>>> ').updatePrompt();
@@ -157,6 +155,7 @@ LineReader.prototype.insert = function (str) {
         // a hack to get the line refreshed if it's needed
         this.moveCursor(0);
     }
+    this.emit('change');
 };
 
 /**
@@ -214,6 +213,7 @@ LineReader.prototype.deleteLeft = function () {
 
         this.cursor--;
         this.refreshLine();
+        this.emit('change');
     }
 };
 
@@ -224,6 +224,7 @@ LineReader.prototype.deleteRight = function () {
     this.line = this.line.slice(0, this.cursor) +
         this.line.slice(this.cursor + 1, this.line.length);
     this.refreshLine();
+    this.emit('change');
 };
 
 LineReader.prototype.moveWordLeft = function () {
@@ -255,6 +256,7 @@ LineReader.prototype.deleteWordLeft = function () {
         this.line = leading + this.line.slice(this.cursor, this.line.length);
         this.cursor = leading.length;
         this.refreshLine();
+        this.emit('change');
     }
 };
 
@@ -268,6 +270,7 @@ LineReader.prototype.deleteWordRight = function () {
         this.line = this.line.slice(0, this.cursor) +
             trailing.slice(match[0].length);
         this.refreshLine();
+        this.emit('change');
     }
 };
 
@@ -278,6 +281,7 @@ LineReader.prototype.deleteLineLeft = function () {
     this.line = this.line.slice(this.cursor);
     this.cursor = 0;
     this.refreshLine();
+    this.emit('change');
 };
 
 /**
@@ -286,6 +290,7 @@ LineReader.prototype.deleteLineLeft = function () {
 LineReader.prototype.deleteLineRight = function () {
     this.line = this.line.slice(0, this.cursor);
     this.refreshLine();
+    this.emit('change');
 };
 
 /**
@@ -295,6 +300,7 @@ LineReader.prototype.deleteLine = function () {
     this.line = '';
     this.cursor = 0;
     this.refreshLine();
+    this.emit('change');
 };
 
 /**
@@ -312,6 +318,7 @@ LineReader.prototype.getLine = function () {
 LineReader.prototype.setLine = function (line) {
     this.line = line;
     this.cursor = line.length;
+    this.emit('change');
     return this;
 };
 
@@ -326,6 +333,7 @@ LineReader.prototype.newLine = function () {
     this.cursor = 0;
     this.prevRows = 0;
     this._prompting = false;
+    this.emit('change');
 };
 
 /**

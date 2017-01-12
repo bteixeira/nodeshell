@@ -65,8 +65,13 @@ exports.parseCmdLine = function (lineReader, commands, panel) {
     // if list of completions
     if (completions.length === 0) {
         // if empty, show message
-        console.log('\nNo completions\n');
-        lineReader.refreshLine();
+        if (panel) {
+            panel.clearScreen();
+            panel.write('\nNo completions\n');
+        } else {
+            console.log('\nNo completions\n');
+            lineReader.refreshLine();
+        }
     } else if (completions.length === 1) {
         // if only one entry, assume it
         //console.log('SUCCESS! COMPLETING WITH:', completions[0]);
@@ -94,7 +99,7 @@ exports.parseCmdLine = function (lineReader, commands, panel) {
 
         if (panel) {
             panel.clearScreen();
-            panel.write('    ' + completions.join('\n    '));
+            panel.write(completions.slice(0, 20).join('    '));
         } else {
             console.log('');
             completions.forEach(function (completion) {

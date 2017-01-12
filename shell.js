@@ -46,7 +46,7 @@ var keyHandler = new KeyHandler(process.stdin);
 var paused = false;
 
 function setLayout (spec) {
-    // TODO validate spec acording to high-level strict rules
+    // TODO validate spec according to high-level strict rules
     layout = LayoutComposer.buildInit(spec, process.stdout);
     lineReader.setWriter(layout.prompt);
     permanent.NSH.layout = layout; // Not so permanent after all...
@@ -186,3 +186,4 @@ layout.writers.forEach(function (writer) {
 });
 
 lineReader.refreshLine();
+// lineReader.on('change', complete);
