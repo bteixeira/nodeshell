@@ -186,4 +186,6 @@ layout.writers.forEach(function (writer) {
 });
 
 lineReader.refreshLine();
-// lineReader.on('change', complete);
+lineReader.on('change', function () {
+    CompletionParser.parseCmdLine(lineReader, commands, layout.completions, false);
+});

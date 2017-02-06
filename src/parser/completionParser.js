@@ -5,7 +5,11 @@ var path = require('path');
 var fs = require('fs');
 var utils = require('../utils');
 
-exports.parseCmdLine = function (lineReader, commands, panel) {
+exports.parseCmdLine = function (lineReader, commands, panel, insert) {
+    if (typeof insert === 'undefined') {
+        insert = true;
+    }
+
     var parser = new DescentParser(commands);
 
     var line = lineReader.getLine();
@@ -75,9 +79,15 @@ exports.parseCmdLine = function (lineReader, commands, panel) {
     } else if (completions.length === 1) {
         // if only one entry, assume it
         //console.log('SUCCESS! COMPLETING WITH:', completions[0]);
-        var suffix = completions[0].substr(ret.prefix.length);
-        lineReader.moveToEnd(); // TODO COMPLETE WHERE THE CURSOR IS, DON'T ASSUME WE ARE COMPLETING THE WHOLE LINE
-        lineReader.insert(suffix + ' ');
+        if (insert) {
+            var suffix = completions[0].substr(ret.prefix.length);
+            lineReader.moveToEnd(); // TODO COMPLETE WHERE THE CURSOR IS, DON'T ASSUME WE ARE COMPLETING THE WHOLE LINE
+            lineReader.insert(suffix + ' ');
+        }
+        if (panel) {
+            panel.clearScreen();
+            panel.write(completions[0]);
+        }
     } else {
         // if more than one
         // start with common:=first
@@ -92,9 +102,11 @@ exports.parseCmdLine = function (lineReader, commands, panel) {
 
         if (common !== ret.prefix) {
             //console.log('WE CAN PARTIALLY COMPLETE WITH:', common);
-            suffix = common.substr(ret.prefix.length);
-            lineReader.moveToEnd(); // TODO COMPLETE WHERE THE CURSOR IS, DON'T ASSUME WE ARE COMPLETING THE WHOLE LINE
-            lineReader.insert(suffix);
+            if (insert) {
+                suffix = common.substr(ret.prefix.length);
+                lineReader.moveToEnd(); // TODO COMPLETE WHERE THE CURSOR IS, DON'T ASSUME WE ARE COMPLETING THE WHOLE LINE
+                lineReader.insert(suffix);
+            }
         }
 
         if (panel) {
