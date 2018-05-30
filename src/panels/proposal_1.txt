@@ -1,0 +1,63 @@
+Writer
+
+    Very simple.
+    Is mostly an emulation of the TTY. Keeps track of the cursor and functions as an output stream. Does not know how to refresh.
+
+    Interface:
+
+        moveCursor(dx, dy)
+        cursorTo(x, y)
+        .columns
+        .rows
+        write(buf)
+        clearScreenDown()
+        clearScreen()
+        clearLine()
+        clearLineLeft()
+        clearLineRight()
+        reset() // set the cursor as being at 1,1 and assume the screen is clear
+
+        setRedraw(cb)
+
+        setFooter(footer)
+        activate()
+        getOffset()
+        getHeight()
+        setParent(parent)
+        calculateWidth() // calculates the value of .columns
+        isFooter()
+
+    One implementation will be meant to wrap the TTY only. It will forward most method and property calls to tty and readline.
+    The other implementation will be meant to be used in a panel tree; it will be assigned a rectangular part of the screen
+    and must manage the cursor position to that effect.
+
+    The exposed interface is very low-level which means that any management of the current text has to be made outside.
+    LineReader already has the code for this; other panels are for now expected to be very simple and able to just
+    rewrite their fixed-size contents in a non-interactive way (example: list of files on the sidebar. even if the new
+    list is shorter than the previous contents, the wrapper knows the list has a fixed size and therefore can just print
+    blank lines at the bottom)
+
+
+
+LineReader
+
+    Will be renamed to something like "Prompt".
+    Will keep most of the current logic and interface. Keeps track of the cursor position too, as well as the input text.
+    Some of the calls will be made to the new Writer methods instead of directly to TTY or readline.
+
+
+
+shell
+
+    A couple of things have to change.
+    When the input is accepted, a new line must be written to process.stdout (*not* the active panel) followed by clear screen.
+    When the prompt is resumed, the top-level layout must reserve space, and must notify all child panels that the cursor
+    is now at the top-left position (no point notifying that the screen is clear, since they don't keep track of screen contents.)
+
+    Nsh must expose an event `afterPrompt`, triggered after the new prompt has been drawn. This handler can be used to
+    paint the panels with their contents. This way there is no function passed to the constructor of the Writer that can
+    be triggered unexpectedly: all writes on a panel are done either when this even fires, or on a key handler.
+
+
+FUCK WHAT ABOUT REDRAW??????????
+WE DO NEED TO PASS A REDRAW FUNCTION TO THE WRITER'S CONSTRUCTOR WHICH GETS INVOKED ON PROMPT AND WHEN THE LAYOUT GROWS

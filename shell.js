@@ -6,14 +6,21 @@ var Commands = require('./src/commands');
 var LineReader = require('./src/lineReader');
 var defaultCommands = require('./src/defaultCommands');
 
+var fs = require('fs');
+
 var DefaultParser = require('./src/parser/defaultLineParser');
 var CompletionParser = require('./src/parser/completionParser');
 var Executer = require('./src/parser/RunnableWrapperExecuterVisitor');
+
+var LayoutComposer = require('./src/panels/composer');
 
 var ErrorWrapper = require('./src/errorWrapper');
 var History = require('./src/history');
 var utils = require('./src/utils');
 require('colors');
+var readline = require('readline');
+
+var Writer = require('./src/panels/tree/writerPanel');
 
 process.on('SIGINT', function () {
     console.log('\nSIGINT'.blue.bold);
@@ -37,6 +44,13 @@ process.on('SIGTSTP', function () {
 var lineReader = new LineReader(process.stdout);
 var keyHandler = new KeyHandler(process.stdin);
 var paused = false;
+
+function setLayout (spec) {
+    // TODO validate spec according to high-level strict rules
+    layout = LayoutComposer.buildInit(spec, process.stdout);
+    lineReader.setWriter(layout.prompt);
+    permanent.NSH.layout = layout; // Not so permanent after all...
+}
 
 var permanent = {
     process: process,
@@ -66,7 +80,11 @@ var permanent = {
 
             }, '[alias]');
         },
-        home: __dirname
+        home: __dirname,
+        setLayout: setLayout,
+        on: function (event, cb) {
+            // TODO
+        }
     }
 };
 
@@ -86,6 +104,9 @@ function doneCB (result) {
     console.log(inspect(result));
     // TODO MAKE READ-ONLY PROPERTIES INSTEAD
     extend(ctx, permanent);
+    layout.reset();
+    layout.reserveSpace();
+    layout.rewrite();
     lineReader.refreshLine();
     process.stdin.resume();
     process.stdin.setRawMode(true);
@@ -105,8 +126,16 @@ lineReader
     })
     .updatePrompt()
     .on('accept', function (line) {
+        layout.writers.forEach(function (writer) {
+            if (writer !== layout.prompt) {
+                writer.cursorTo(1, 1);
+                writer.clearScreenDown();
+            }
+        });
+
         process.stdin.setRawMode(false);
         process.stdin.pause();
+        readline.clearScreenDown(process.stdout);
         paused = true;
         var runner, err;
         var ast = DefaultParser.parseCmdLine(line, commands);
@@ -132,11 +161,15 @@ lineReader
 var history = new History(lineReader);
 
 function complete () {
-    CompletionParser.parseCmdLine(lineReader, commands);
+    CompletionParser.parseCmdLine(lineReader, commands, layout.completions);
 }
 require('./src/defaultCmdConfig')(CompletionParser);
 require('./src/defaultKeys')(keyHandler, lineReader, history, complete);
 
+
+var layout;
+
+setLayout({name: 'prompt'});
 
 function runUserFile () {
     var NSH_FILE = '.nsh.js';
@@ -146,4 +179,13 @@ function runUserFile () {
 }
 runUserFile();
 
+layout.writers.forEach(function (writer) {
+    if (writer !== layout.prompt) {
+        writer.rewrite();
+    }
+});
+
 lineReader.refreshLine();
+lineReader.on('change', function () {
+    CompletionParser.parseCmdLine(lineReader, commands, layout.completions, false);
+});

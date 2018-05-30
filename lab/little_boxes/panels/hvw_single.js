@@ -24,7 +24,7 @@ keyHandler.bind('CTRL+C', function () {
 keyHandler.bindDefault(function (ch, key) {
     if (ch && ch.length === 1) {
         //writers[activeI].insert(ch); // TODO MUST BE SURE IT'S THE ACTIVE PANEL, FIND MORE ELEGANT WAY
-        rootPanel.insert(ch);
+        rootPanel.insert(ch.red);
     }
 });
 

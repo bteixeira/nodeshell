@@ -41,6 +41,9 @@ module.exports = function Writer (stdout) {
                     col -= 1;
                     content.splice(content.length - 1, 1);
                 }
+            } else if (ch === '\n' || ch === '\r') {
+                content.push(ch);
+                insertNewLine.call(this, skipChecks);
             } else {
                 stdout.write(ch);
                 if (!skipChecks) {
@@ -52,6 +55,9 @@ module.exports = function Writer (stdout) {
                     insertNewLine.call(this, skipChecks);
                 }
             }
+        },
+        moveCursor: function (dx, dy) {
+            readline.moveCursor(stdout, dx, dy);
         },
         rewrite: function () {
             var active = Writer.active;

@@ -5,7 +5,11 @@ var path = require('path');
 var fs = require('fs');
 var utils = require('../utils');
 
-exports.parseCmdLine = function (lineReader, commands) {
+exports.parseCmdLine = function (lineReader, commands, panel, insert) {
+    if (typeof insert === 'undefined') {
+        insert = true;
+    }
+
     var parser = new DescentParser(commands);
 
     var line = lineReader.getLine();
@@ -65,14 +69,25 @@ exports.parseCmdLine = function (lineReader, commands) {
     // if list of completions
     if (completions.length === 0) {
         // if empty, show message
-        console.log('\nNo completions\n');
-        lineReader.refreshLine();
+        if (panel) {
+            panel.clearScreen();
+            panel.write('\nNo completions\n');
+        } else {
+            console.log('\nNo completions\n');
+            lineReader.refreshLine();
+        }
     } else if (completions.length === 1) {
         // if only one entry, assume it
         //console.log('SUCCESS! COMPLETING WITH:', completions[0]);
-        var suffix = completions[0].substr(ret.prefix.length);
-        lineReader.moveToEnd(); // TODO COMPLETE WHERE THE CURSOR IS, DON'T ASSUME WE ARE COMPLETING THE WHOLE LINE
-        lineReader.insert(suffix + ' ');
+        if (insert) {
+            var suffix = completions[0].substr(ret.prefix.length);
+            lineReader.moveToEnd(); // TODO COMPLETE WHERE THE CURSOR IS, DON'T ASSUME WE ARE COMPLETING THE WHOLE LINE
+            lineReader.insert(suffix + ' ');
+        }
+        if (panel) {
+            panel.clearScreen();
+            panel.write(completions[0]);
+        }
     } else {
         // if more than one
         // start with common:=first
@@ -87,18 +102,24 @@ exports.parseCmdLine = function (lineReader, commands) {
 
         if (common !== ret.prefix) {
             //console.log('WE CAN PARTIALLY COMPLETE WITH:', common);
-            suffix = common.substr(ret.prefix.length);
-            lineReader.moveToEnd(); // TODO COMPLETE WHERE THE CURSOR IS, DON'T ASSUME WE ARE COMPLETING THE WHOLE LINE
-            lineReader.insert(suffix);
+            if (insert) {
+                suffix = common.substr(ret.prefix.length);
+                lineReader.moveToEnd(); // TODO COMPLETE WHERE THE CURSOR IS, DON'T ASSUME WE ARE COMPLETING THE WHOLE LINE
+                lineReader.insert(suffix);
+            }
         }
 
-        //console.log('COMPLETIONS:', completions);
-        console.log('');
-        completions.forEach(function (completion) {
-            console.log('\t' + completion);
-        });
-        console.log('(' + completions.length + ')\n');
-        lineReader.refreshLine();
+        if (panel) {
+            panel.clearScreen();
+            panel.write(completions.slice(0, 20).join('    '));
+        } else {
+            console.log('');
+            completions.forEach(function (completion) {
+                console.log('\t' + completion);
+            });
+            console.log('(' + completions.length + ')\n');
+            lineReader.refreshLine();
+        }
     }
 
 };

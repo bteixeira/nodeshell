@@ -52,7 +52,8 @@ module.exports = function(keyHandler, lineReader, history, complete) {
     });
     keyHandler.bind(['CTRL+D'], function () {
         if (lineReader.isEmpty()) {
-            console.log();
+            process.stdout.write('\n');
+            readline.clearScreenDown(process.stdout);
             process.exit();
         }
     });
