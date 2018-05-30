@@ -12,8 +12,6 @@ var Executer = require('./src/parser/RunnableWrapperExecuterVisitor');
 
 var ErrorWrapper = require('./src/errorWrapper');
 var History = require('./src/history');
-var Autocompleter = require('./src/autocompleter');
-var NodeLiteral = require('./src/ast/nodes/nodeLiteral');
 var utils = require('./src/utils');
 require('colors');
 
@@ -51,14 +49,23 @@ var permanent = {
     clearImmediate: clearImmediate,
     console: console,
     require: require,
-    NSH: {
+    nsh: {
         lineReader: lineReader,
         bindings: keyHandler,
         utils: utils,
         completion: CompletionParser,
-//        alias: function (handle, body) {
-            // TODO implement aliases again
-//        }
+        alias: function (handle, body) {
+            var ast = DefaultParser.parseCmdLine(body, commands);
+            if (ast.err) {
+                throw ast.err;
+            }
+            if (ast.type !== 'COMMAND') {
+                throw 'Alias body must be a valid command name';
+            }
+            commands.addCommand(handle, function () {
+
+            }, '[alias]');
+        },
         home: __dirname
     }
 };
@@ -122,20 +129,12 @@ lineReader
         }
     });
 
-/**/
-//var parser = new DefaultParser(
-//    commands
-//);
-/**/
-
 var history = new History(lineReader);
 
-var autocompleter = new Autocompleter(lineReader, ctx, commands);
 function complete () {
     CompletionParser.parseCmdLine(lineReader, commands);
 }
 require('./src/defaultCmdConfig')(CompletionParser);
-//require('./src/defaultKeys')(keyHandler, lineReader, history, autocompleter);
 require('./src/defaultKeys')(keyHandler, lineReader, history, complete);
 
 

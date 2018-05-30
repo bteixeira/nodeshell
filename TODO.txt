@@ -373,7 +373,7 @@ When expanding globs, bash does not include hidden files (starting with ".") unl
 or unless the dotglob option is set.
 Currently, nsh's expansion does indeed include all paths that match a glob, including hidden files. I understand that
 this is an issue, especially considering compatibility with shell scripts that may blindly do something like `rm *.js`
-assuming that .nsh.js would not be deleted, for example.
+assuming that `.somefile` would not be deleted, for example.
 
 However, if we did decide do not expand to hidden files, we would have to provide a way for the user to specify when to
 have each behaviour. Also, this would add complexity if we are to maintain portability, because in certain systems we
@@ -404,6 +404,23 @@ Changes needed to get autocomplete:
 -   All parser (grammar) functions must adopt the same behavior as the CLT; that is, they must clearly indicate expected
     tokens or grammar symbols in the error, they must check and keep track of errors from recursed calls, and they must
     propagate unrecoverable errors with all the possible allowed symbols
+
+------------------------------------------------------------
+
+Windowing system.
+
+What if, besides the prompt, the user sees this information:
+
+- A real time clock (probably only useful on a non-graphical environment)
+- A bottom row with *real time* indication of all kinds of stuff (git change status, battery life, disk usage, up and down traffic, caps lock, events in your calendar, build status)
+- A vertical list of the files in the current directory on the right side of the screen (don't allow it to take up more than a few lines, make it scrollable somehow)
+- The same thing as above but with the files changed on `git status`
+- The same thing as above, but it changes to a list of completions when you press TAB, and then back again when you finish completing
+- A real-time indication of whether the current line will be executed as a command, JS snippet, or neither (erroneous)
+- Just the output of some random background process, also on a column on the right side of the screen (I know, there's a million ways to do that...)
+- A scratchpad with temporary notes, that persists between commands, which you can change to and back from using a key combination (again, kinda redundant in most environments...)
+- A quick view of the history entries, showing which ones are before and after the current one, the changes you make to history
+-
 
 
 

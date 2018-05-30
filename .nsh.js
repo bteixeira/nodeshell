@@ -1,13 +1,13 @@
 var colors = require('colors');
 var path = require('path');
-var utils = require(NSH.home + '/src/utils');
+var utils = require(nsh.home + '/src/utils');
 
 (function () {
     var hostname = require('os').hostname();
     var gitBranchCmd = 'git symbolic-ref --short HEAD 2>/dev/null';
     var execSync = require('child_process').execSync;
 
-    NSH.lineReader.setPrompt(function () {
+    nsh.lineReader.setPrompt(function () {
         var branch;
         try {
             branch = colors.grey('|') + colors.blue(execSync(gitBranchCmd).toString().trim());

@@ -35,7 +35,7 @@ util.inherits(LineReader, EventEmitter);
 function countLength(str) {
     var ch;
     var length = 0;
-    var status = 0; // 0 = normal | 1 = escape char found in the previous loop | 2 = in multi-char escape sequence
+    var status = 0; // 0 = normal | 1 = escape char found in the previous loop | 2 = inside multi-char escape sequence
     for (var i = 0; i < str.length; i++) {
 
         ch = str.charAt(i).charCodeAt(0);
