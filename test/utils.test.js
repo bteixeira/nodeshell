@@ -1,5 +1,5 @@
 require('should');
-var utils = require('../src/utils');
+var utils = require('../dist/utils');
 
 describe('Utils', function () {
 

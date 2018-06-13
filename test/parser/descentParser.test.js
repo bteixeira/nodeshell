@@ -1,9 +1,9 @@
 var assert = require('assert');
 var should = require('should');
-var Parser = require('../../src/parser/descentParser');
-var Tape = require('../../src/tape');
+var Parser = require('../../dist/parser/descentParser');
+var Tape = require('../../dist/tape');
 var commandsStub = require('../../test/commandsStub');
-var CLT = require('../../src/tokenizer/commandLineTokenizer');
+var CLT = require('../../dist/tokenizer/commandLineTokenizer');
 
 describe('DefaultParser', function () {
 

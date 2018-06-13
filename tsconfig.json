@@ -1,0 +1,10 @@
+{
+	"compilerOptions": {
+		"outDir": "./dist",
+		"allowJs": true,
+		"moduleResolution": "node"
+	},
+	"include": [
+		"./src/**/*"
+	]
+}

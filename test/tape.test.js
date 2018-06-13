@@ -1,5 +1,5 @@
 var assert = require('assert');
-var Tape = require('../src/tape');
+var Tape = require('../dist/tape');
 var should = require('should');
 
 describe('Tape', function () {

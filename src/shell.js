@@ -1,26 +1,26 @@
 var vm = require('vm');
 var util = require('util');
 var path = require('path');
-var KeyHandler = require('./src/keyhandler');
-var Commands = require('./src/commands');
-var LineReader = require('./src/lineReader');
-var defaultCommands = require('./src/defaultCommands');
+var KeyHandler = require('./keyhandler');
+var Commands = require('./commands');
+var LineReader = require('./lineReader');
+var defaultCommands = require('./defaultCommands');
 
 var fs = require('fs');
 
-var DefaultParser = require('./src/parser/defaultLineParser');
-var CompletionParser = require('./src/parser/completionParser');
-var Executer = require('./src/parser/RunnableWrapperExecuterVisitor');
+var DefaultParser = require('./parser/defaultLineParser');
+var CompletionParser = require('./parser/completionParser');
+var Executer = require('./parser/RunnableWrapperExecuterVisitor');
 
-var LayoutComposer = require('./src/panels/composer');
+var LayoutComposer = require('./panels/composer');
 
-var ErrorWrapper = require('./src/errorWrapper');
-var History = require('./src/history');
-var utils = require('./src/utils');
+var ErrorWrapper = require('./errorWrapper');
+var History = require('./history');
+var utils = require('./utils');
 require('colors');
 var readline = require('readline');
 
-var Writer = require('./src/panels/tree/writerPanel');
+var Writer = require('./panels/tree/writerPanel');
 
 process.on('SIGINT', function () {
     console.log('\nSIGINT'.blue.bold);
@@ -49,7 +49,7 @@ function setLayout (spec) {
     // TODO validate spec according to high-level strict rules
     layout = LayoutComposer.buildInit(spec, process.stdout);
     lineReader.setWriter(layout.prompt);
-    permanent.NSH.layout = layout; // Not so permanent after all...
+    permanent.nsh.layout = layout; // Not so permanent after all...
 }
 
 var permanent = {
@@ -163,8 +163,8 @@ var history = new History(lineReader);
 function complete () {
     CompletionParser.parseCmdLine(lineReader, commands, layout.completions);
 }
-require('./src/defaultCmdConfig')(CompletionParser);
-require('./src/defaultKeys')(keyHandler, lineReader, history, complete);
+require('./defaultCmdConfig')(CompletionParser);
+require('./defaultKeys')(keyHandler, lineReader, history, complete);
 
 
 var layout;

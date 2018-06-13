@@ -7,7 +7,8 @@
         "test": "test"
     },
     "scripts": {
-        "test": "node scripts/test.js"
+        "test": "node scripts/test.js",
+        "start": "node dist/shell"
     },
     "repository": {
         "type": "git",
@@ -24,6 +25,7 @@
     },
     "homepage": "https://github.com/bteixeira/nodeshell",
     "dependencies": {
+        "@types/node": "^10.3.2",
         "colors": "0.6.x"
     },
     "devDependencies": {

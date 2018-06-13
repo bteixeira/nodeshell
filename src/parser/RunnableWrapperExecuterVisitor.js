@@ -5,9 +5,9 @@ var spawn = cp.spawn;
 var fs = require('fs');
 var util = require('util');
 
-var utils = require('../../src/utils');
-var Visitor = require('../../src/ast/visitors/visitor');
-var ErrorWrapper = require('../../src/errorWrapper');
+var utils = require('../utils');
+var Visitor = require('../ast/visitors/visitor');
+var ErrorWrapper = require('../errorWrapper');
 
 var PipeRunnable = require('./runners/PipeRunnable');
 var CPW = require('./runners/cpWrapper');

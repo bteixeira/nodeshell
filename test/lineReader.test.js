@@ -1,7 +1,7 @@
 require('should');
 
 var util = require('util');
-var LineReader = require('../src/lineReader');
+var LineReader = require('../dist/lineReader');
 var streams = require('stream');
 
 var DummyStream = function () {
