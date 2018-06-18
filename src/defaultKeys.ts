@@ -9,48 +9,48 @@ module.exports = function (keyHandler: KeyHandler, lineReader, history, complete
 		}
 	});
 
-	keyHandler.bind(['LEFT', 'CTRL+B'], function () {
+	keyHandler.bind(['LEFT', 'CTRL+B'], () => {
 		lineReader.moveLeft();
 	});
-	keyHandler.bind(['RIGHT', 'CTRL+F'], function () {
+	keyHandler.bind(['RIGHT', 'CTRL+F'], () => {
 		lineReader.moveRight();
 	});
-	keyHandler.bind(['HOME', 'CTRL+A'], function () {
+	keyHandler.bind(['HOME', 'CTRL+A'], () => {
 		lineReader.moveToStart();
 	});
-	keyHandler.bind(['END', 'CTRL+E'], function () {
+	keyHandler.bind(['END', 'CTRL+E'], () => {
 		lineReader.moveToEnd();
 	});
-	keyHandler.bind(['CTRL+LEFT', 'ALT+B'], function () {
+	keyHandler.bind(['CTRL+LEFT', 'ALT+B'], () => {
 		lineReader.moveWordLeft();
 	});
-	keyHandler.bind(['CTRL+RIGHT', 'ALT+F'], function () {
+	keyHandler.bind(['CTRL+RIGHT', 'ALT+F'], () => {
 		lineReader.moveWordRight();
 	});
 
-	keyHandler.bind(['BACKSPACE', 'CTRL+H'], function () {
+	keyHandler.bind(['BACKSPACE', 'CTRL+H'], () => {
 		lineReader.deleteLeft();
 	});
-	keyHandler.bind('DELETE', function () {
+	keyHandler.bind(['DELETE'], () => {
 		lineReader.deleteRight();
 	});
-	keyHandler.bind(['CTRL+W', 'CTRL+BACKSPACE', 'ALT+BACKSPACE'], function () {
+	keyHandler.bind(['CTRL+W', 'CTRL+BACKSPACE', 'ALT+BACKSPACE'], () => {
 		lineReader.deleteWordLeft();
 	});
-	keyHandler.bind(['CTRL+DEL', 'ALT+D', 'ALT+DELETE'], function () {
+	keyHandler.bind(['CTRL+DEL', 'ALT+D', 'ALT+DELETE'], () => {
 		lineReader.deleteWordRight();
 	});
-	keyHandler.bind(['CTRL+SHIFT+DEL', 'CTRL+K'], function () {
+	keyHandler.bind(['CTRL+SHIFT+DEL', 'CTRL+K'], () => {
 		lineReader.deleteLineRight();
 	});
-	keyHandler.bind('CTRL+U', function () {
+	keyHandler.bind(['CTRL+U'], () => {
 		lineReader.deleteLine();
 	});
 
-	keyHandler.bind(['CTRL+C'], function () {
+	keyHandler.bind(['CTRL+C'], () => {
 		process.kill(process.pid, 'SIGINT'); // Trigger SIGINT and let listeners do something about it
 	});
-	keyHandler.bind(['CTRL+D'], function () {
+	keyHandler.bind(['CTRL+D'], () => {
 		if (lineReader.isEmpty()) {
 			process.stdout.write('\n');
 			readline.clearScreenDown(process.stdout);
@@ -58,29 +58,29 @@ module.exports = function (keyHandler: KeyHandler, lineReader, history, complete
 		}
 	});
 
-	keyHandler.bind(['UP', 'CTRL+P'], function () {
+	keyHandler.bind(['UP', 'CTRL+P'], () => {
 		history.prev();
 	});
-	keyHandler.bind(['DOWN', 'CTRL+N'], function () {
+	keyHandler.bind(['DOWN', 'CTRL+N'], () => {
 		history.next();
 	});
 
-	keyHandler.bind('TAB', function () {
+	keyHandler.bind(['TAB'], () => {
 		complete();
 	});
 
-	keyHandler.bind('CTRL+L', function () {
+	keyHandler.bind(['CTRL+L'], () => {
 		readline.cursorTo(lineReader.output, 0, 0);
 		readline.clearScreenDown(lineReader.output);
 		lineReader.refreshLine();
 	});
 
-	keyHandler.bind('RETURN', function () {
+	keyHandler.bind(['RETURN'], () => {
 		history.push();
 		history.rewind();
 		lineReader.accept();
 	});
 
-	keyHandler.bind('CTRL+Z', function () {
+	keyHandler.bind(['CTRL+Z'], () => {
 	});
 };

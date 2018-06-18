@@ -31,12 +31,9 @@ class KeyHandler {
 
 	}
 
-	bind(keys, handler) {
-		if (!utils.isArray(keys)) {
-			keys = [keys];
-		}
-		keys.forEach(key => {
-			key = normalizeKey(key);
+	bind(keys: string[], handler) {
+		keys.forEach(keyCode => {
+			const key: KeySpec = normalizeKey(keyCode);
 			const idx = keyToIndex(key);
 			this.bindings[idx][key.name] = handler;
 		});
@@ -83,30 +80,34 @@ const CONVERSIONS = {
     'ins': 'insert',
     'del': 'delete',
     'alt': 'meta',
-    'space': ' '
+	'space': ' '
 };
 
-function normalizeKey (key) {
-    if (utils.isString(key)) {
-        const parts = key.split('+');
-        key = {ctrl: false, alt: false, shift: false};
-        parts.forEach(function (part) {
-            part = part.toLowerCase();
-            if (part in CONVERSIONS) {
-                part = CONVERSIONS[part];
-            }
-            if (MODIFIERS.indexOf(part) !== -1) {
-                key[part] = true;
-            } else if (KEYS.indexOf(part) !== -1 || part.length === 1) {
-                key.name = part;
-            }
-            else {
-                throw new Error(`Illegal key definition (${key})`);
-            }
-        });
-        return key;
-    }
-    return key;
+class KeySpec {
+	ctrl: boolean;
+	alt: boolean;
+	shift: boolean;
+	name?: string;
+}
+
+function normalizeKey(keyCode: string) {
+	const parts = keyCode.split('+');
+	const key: KeySpec = {ctrl: false, alt: false, shift: false};
+	parts.forEach(function (part) {
+		part = part.toLowerCase();
+		if (part in CONVERSIONS) {
+			part = CONVERSIONS[part];
+		}
+		if (MODIFIERS.indexOf(part) !== -1) {
+			key[part] = true;
+		} else if (KEYS.indexOf(part) !== -1 || part.length === 1) {
+			key.name = part;
+		}
+		else {
+			throw new Error(`Illegal key definition (${key})`);
+		}
+	});
+	return key;
 }
 
 export default KeyHandler;
