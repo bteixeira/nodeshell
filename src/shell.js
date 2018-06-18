@@ -15,7 +15,7 @@ var Executer = require('./parser/RunnableWrapperExecuterVisitor');
 var LayoutComposer = require('./panels/composer');
 
 var ErrorWrapper = require('./errorWrapper');
-var History = require('./history');
+var History = require('./history').default;
 var utils = require('./utils');
 require('colors');
 var readline = require('readline');

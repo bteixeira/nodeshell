@@ -1,9 +1,10 @@
 import readline = require('readline');
 import KeyHandler from './keyhandler';
+import History from './history';
 
-module.exports = function (keyHandler: KeyHandler, lineReader, history, complete) {
+module.exports = function (keyHandler: KeyHandler, lineReader, history: History, complete) {
 
-	keyHandler.bindDefault(function (ch: string, key) {
+	keyHandler.bindDefault((ch: string, key) => {
 		if (ch && ch.length === 1) {
 			lineReader.insert(ch);
 		}
