@@ -1,7 +1,5 @@
 import readline = require('readline');
 
-import utils = require('./utils');
-
 class KeyHandler {
 
 	private bindings: any[];
