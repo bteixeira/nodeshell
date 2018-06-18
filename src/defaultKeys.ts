@@ -1,7 +1,7 @@
 import readline = require('readline');
-import {EventEmitter} from 'events';
+import KeyHandler from './keyhandler';
 
-module.exports = function (keyHandler, lineReader, history, complete) {
+module.exports = function (keyHandler: KeyHandler, lineReader, history, complete) {
 
 	keyHandler.bindDefault(function (ch: string, key) {
 		if (ch && ch.length === 1) {

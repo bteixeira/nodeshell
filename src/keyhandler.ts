@@ -4,41 +4,41 @@ import utils = require('./utils');
 
 class KeyHandler {
 
-	private _bindings: any[];
+	private bindings: any[];
 	input: any;
 	defaultHandler: any;
 
 	constructor(input) {
 
-		var me = this;
 		this.input = input;
 		readline.emitKeypressEvents(input);
 
 		if (input.isTTY) {
 			input.setRawMode(true);
 		}
-		input.on('keypress', function (ch, key) {
-			me.handleKey(ch, key);
+		input.on('keypress', (ch, key) => {
+			this.handleKey(ch, key);
 		});
 
 		/* Bindings data structure is an array of 8 elements, each representing a binary combination of the modifier
-		 keys CTRL, ALT and SHIFT */
-		this._bindings = [];
+		 keys CTRL, ALT and SHIFT
+		 TODO CHECK IF THIS DOC IS ACCURATE
+		 */
+		this.bindings = [];
 		for (var i = 0; i < 8; i++) {
-			this._bindings.push({});
+			this.bindings.push({});
 		}
 
 	}
 
 	bind(keys, handler) {
-		var me = this;
 		if (!utils.isArray(keys)) {
 			keys = [keys];
 		}
-		keys.forEach(function (key) {
+		keys.forEach(key => {
 			key = normalizeKey(key);
-			var idx = keyToIndex(key);
-			me._bindings[idx][key.name] = handler;
+			const idx = keyToIndex(key);
+			this.bindings[idx][key.name] = handler;
 		});
 	}
 
@@ -60,15 +60,14 @@ class KeyHandler {
 				key[mod] = false;
 			}
 		});
-		var idx = keyToIndex(key);
-		var handler = this._bindings[idx][key.name];
+		const idx = keyToIndex(key);
+		var handler = this.bindings[idx][key.name];
 		if (!handler) {
 			handler = this.defaultHandler;
 		}
 		if (handler) {
 			handler.call(this, ch, key);
 		}
-
 	}
 }
 
@@ -89,7 +88,7 @@ const CONVERSIONS = {
 
 function normalizeKey (key) {
     if (utils.isString(key)) {
-        var parts = key.split('+');
+        const parts = key.split('+');
         key = {ctrl: false, alt: false, shift: false};
         parts.forEach(function (part) {
             part = part.toLowerCase();
@@ -102,7 +101,7 @@ function normalizeKey (key) {
                 key.name = part;
             }
             else {
-                throw 'Illegal key definition (' + key + ')';
+                throw new Error(`Illegal key definition (${key})`);
             }
         });
         return key;
@@ -110,7 +109,4 @@ function normalizeKey (key) {
     return key;
 }
 
-module.exports = KeyHandler;
-
-
-
+export default KeyHandler;
