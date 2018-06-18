@@ -3,7 +3,7 @@ import {EventEmitter} from 'events';
 
 module.exports = function (keyHandler, lineReader, history, complete) {
 
-	keyHandler.bindDefault(function (ch, key) {
+	keyHandler.bindDefault(function (ch: string, key) {
 		if (ch && ch.length === 1) {
 			lineReader.insert(ch);
 		}
