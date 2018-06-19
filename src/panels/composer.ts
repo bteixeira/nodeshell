@@ -1,4 +1,4 @@
-var CenterFooterLayout = require('./tree/centerFooterLayout');
+import CenterFooterLayout from './tree/centerFooterLayout';
 var ColumnsLayout = require('./tree/columnsLayout');
 var RowsLayout = require('./tree/rowsLayout');
 var WriterPanel = require('./tree/writerPanel');
@@ -10,14 +10,22 @@ interface LayoutSpec {
     width: number | 'auto';
 }
 
-interface Result {
-	prompt;
-	writers;
-}
-
 export interface Panel {
-
+	getChildOffsetV: (Panel) => number;
+	getChildOffsetH: (Panel) => number;
+	getChildOffset: (Panel) => number[];
+	getChildWidth: (Panel) => number;
+	getSpaceBelowChild: (Panel) => number;
+	isFooter: (Panel) => boolean;
+	reserveSpace: () => void;
+	prompt?;
+	writers?;
 }
+
+// interface Result extends Panel {
+// 	prompt;
+// 	writers;
+// }
 
 export default {
     buildInit(spec: LayoutSpec, stdout) {
@@ -29,13 +37,13 @@ export default {
 
         var names = {};
         var writers = [];
-        var result: Result;
+        var result: Panel;
 
         if (!spec || !Object.keys(spec).length) {
             // Single Writer layout ...
             var singleWriter = new WriterPanel(stdout);
             //result = SingleWriterLayout(stdout);
-            result = CenterFooterLayout(singleWriter, null, stdout);
+            result = new CenterFooterLayout(singleWriter, null, stdout);
             result.prompt = singleWriter;
         //}
 
@@ -55,7 +63,7 @@ export default {
         } else {
             // Center only layout ...
             var built = this.build(spec, names, writers, stdout);
-            result = CenterFooterLayout(built, null, stdout);
+            result = new CenterFooterLayout(built, null, stdout);
         }
 
         for (var n in names) {
