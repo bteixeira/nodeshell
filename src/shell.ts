@@ -12,7 +12,7 @@ import * as DefaultParser from './parser/defaultLineParser';
 import * as CompletionParser from './parser/completionParser';
 var Executer = require('./parser/RunnableWrapperExecuterVisitor');
 
-var LayoutComposer = require('./panels/composer');
+import LayoutComposer from './panels/composer';
 
 var ErrorWrapper = require('./errorWrapper');
 import History from './history';
