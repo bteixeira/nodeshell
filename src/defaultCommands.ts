@@ -5,7 +5,7 @@ var ErrorWrapper = require('./errorWrapper');
 var utils = require('./utils');
 var FunRunner = require('./parser/runners/FunRunner');
 
-module.exports = function (context) {
+export default function (context) {
 
     var commands = new Commands();
 

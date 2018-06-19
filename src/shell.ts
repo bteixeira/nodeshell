@@ -1,15 +1,15 @@
-var vm = require('vm');
-var util = require('util');
-var path = require('path');
-var KeyHandler = require('./keyhandler').default;
+import * as vm from 'vm';
+import * as util from 'util';
+import * as path from 'path';
+import * as fs from 'fs';
+
+import KeyHandler from './keyhandler';
 import {Commands} from './commands';
-var LineReader = require('./lineReader').default;
-var defaultCommands = require('./defaultCommands');
+import LineReader from './lineReader';
+import defaultCommands from './defaultCommands';
 
-var fs = require('fs');
-
-var DefaultParser = require('./parser/defaultLineParser');
-var CompletionParser = require('./parser/completionParser');
+import * as DefaultParser from './parser/defaultLineParser';
+import * as CompletionParser from './parser/completionParser';
 var Executer = require('./parser/RunnableWrapperExecuterVisitor');
 
 var LayoutComposer = require('./panels/composer');
@@ -18,11 +18,13 @@ var ErrorWrapper = require('./errorWrapper');
 import History from './history';
 var utils = require('./utils');
 import 'colors';
-var readline = require('readline');
+import * as readline from 'readline';
 
 var Writer = require('./panels/tree/writerPanel');
 
-process.on('SIGINT', function () {
+var paused: boolean = false;
+
+process.on('SIGINT', () => {
     console.log('\nSIGINT'.blue.bold);
     if (!paused) {
         console.log();
@@ -41,9 +43,8 @@ process.on('SIGCHLD', function () {
 process.on('SIGTSTP', function () {
 });
 
-var lineReader = new LineReader(process.stdout);
-var keyHandler = new KeyHandler(process.stdin);
-var paused = false;
+const lineReader: LineReader = new LineReader(process.stdout);
+const keyHandler: KeyHandler = new KeyHandler(process.stdin);
 
 function setLayout (spec) {
     // TODO validate spec according to high-level strict rules
@@ -52,7 +53,7 @@ function setLayout (spec) {
     permanent.nsh.layout = layout; // Not so permanent after all...
 }
 
-var permanent = {
+const permanent = {
     process: process,
     Buffer: Buffer,
     setTimeout: setTimeout,

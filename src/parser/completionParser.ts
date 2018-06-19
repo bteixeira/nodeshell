@@ -5,7 +5,7 @@ var path = require('path');
 var fs = require('fs');
 var utils = require('../utils');
 
-exports.parseCmdLine = function (lineReader, commands, panel, insert) {
+export function parseCmdLine (lineReader, commands, panel, insert?) {
     if (typeof insert === 'undefined') {
         insert = true;
     }
