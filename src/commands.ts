@@ -6,7 +6,7 @@ var CPWrapper = require('./parser/runners/cpWrapper');
 var spawn = require('child_process').spawn;
 
 export class Commands {
-	private commands: any;
+	public commands: any;
 	private parent: Commands;
 
 	constructor(options?) {

@@ -1,47 +1,53 @@
-var vm = require('vm');
-var path = require('path');
-var fs = require('fs');
+import * as vm from 'vm';
+import * as path from 'path';
+import * as fs from 'fs';
 
-var utils = require('./utils');
+import LineReader from './lineReader';
+import {Commands} from './commands';
+import * as utils from './utils';
+
+class Completions {
+	public completions: string[];
+	public length: number;
+}
 
 export class Autocompleter {
-	private line;
-	private context;
-	private commands;
+	private lineReader: LineReader;
+	private context: Object;
+	private commands: Commands;
 
-	constructor(line, context, commands) {
-		this.line = line;
+	constructor(line: LineReader, context: Object, commands: Commands) {
+		this.lineReader = line;
 		this.context = context;
 		this.commands = commands;
 	}
 
 	// TODO FOR THIS TO BE MODULAR IT HAS TO BE ABLE TO DEFINE SETS OF COMPLETIONS. ALL THIS HAS TO BE MUCH MORE GENERIC.
-	complete() {
-		var comps = this.getCompletions(this.line.getLine(), this.line.cursor);
+	complete(): void {
+		const comps: Completions = this.getCompletions(this.lineReader.getLine(), this.lineReader.cursor);
 
 		if (!comps.completions.length) {
 			return
 		}
 
 		if (comps.completions.length === 1 && comps.length > 0) {
-			this.line.insert(comps.completions[0].substring(comps.length));
+			this.lineReader.insert(comps.completions[0].substring(comps.length));
 		} else {
 			console.log('\n' + comps.completions.join('\t') + '\n');
-			this.line.refreshLine();
+			this.lineReader.refreshLine();
 		}
 	};
 
 	// TODO Current approach will not complete paths with . or .. which is very lacking
-	getCompletions(input, cursor) {
-
-		var idxDot = input.lastIndexOf('.', cursor);
-		var idxSpc = input.lastIndexOf(' ', cursor);// TODO CAN ACTUALLY BE ANY WHITESPACE, THIS WON'T FLY
+	getCompletions(input: string, cursor: number): Completions {
+		const idxDot = input.lastIndexOf('.', cursor);
+		const idxSpc = input.lastIndexOf(' ', cursor);// TODO CAN ACTUALLY BE ANY WHITESPACE, THIS WON'T FLY
 
 		if (idxDot > idxSpc) { // completing property // TODO NOT NECESSARILY, DOT MAY BE PART OF FILE NAME OR DIRECTORY STRUCTURE BUT LET'S IGNORE THAT UNTIL WE HAVE THE TOKENIZER IN PLACE
-			var re = /([a-zA-Z\$_]+[\.a-zA-Z0-9\$_\[\]]*)\.([a-zA-Z0-9_\$]*)$/;
+			const re = /([a-zA-Z\$_]+[\.a-zA-Z0-9\$_\[\]]*)\.([a-zA-Z0-9_\$]*)$/;
 			try {
 				/* Extract the value we are trying to complete */
-				var ex = re.exec(input.substring(0, cursor));
+				const ex = re.exec(input.substring(0, cursor));
 				try {
 					var obj = vm.runInContext(ex[1], this.context);
 				} catch (e) {
@@ -49,7 +55,7 @@ export class Autocompleter {
 					return {completions: [e.toString() + ' completing ' + ex[1] + ' prefix ' + ex[2]], length: -1};
 				}
 				var prefix = ex[2];
-				var comps = this.getProperties(obj, prefix);
+				var comps = Autocompleter.getProperties(obj, prefix);
 				if (!comps.length) {
 					return {completions: ['No completions for ' + ex[1] + ' starting with ' + prefix], length: -1};
 				}
@@ -80,7 +86,7 @@ export class Autocompleter {
 		}
 	};
 
-	getFiles(prefix) {
+	getFiles(prefix: string): string[] {
 		// TODO resolve prefix as a path relative to process.getCwd()
 		var idx = prefix.lastIndexOf(path.sep);
 		var dir = prefix.substring(0, idx);
@@ -105,22 +111,21 @@ export class Autocompleter {
 		});
 	};
 
-	getCommands(prefix) {
-		return this.getProperties(this.commands.commands, prefix);
+	getCommands(prefix: string): string[] {
+		return Autocompleter.getProperties(this.commands.commands, prefix);
 	};
 
-	getVars(prefix) {
-		return this.getProperties(this.context, prefix);
+	getVars(prefix: string): string[] {
+		return Autocompleter.getProperties(this.context, prefix);
 	};
 
-	getProperties(obj, prefix) {
-		var props = [];
-		for (var p in obj) {
-			if (p.lastIndexOf(prefix, 0) === 0) {
+	private static getProperties(obj: Object, prefix: string): string[] {
+		const props = [];
+		Object.keys(obj).forEach(p => {
+			if (p.lastIndexOf(prefix, 0) === 0) { // TODO WHY DO WE NEED TO PASS ZERO?
 				props.push(p);
 			}
-		}
-
+		});
 		return props;
 	};
 }

@@ -18,7 +18,7 @@ import {EventEmitter} from 'events';
  * @param writer
  * @constructor
  */
-class LineReader extends EventEmitter {
+export default class LineReader extends EventEmitter {
     writer: any;
     prompt: () => string;
     _prompt: string;
@@ -432,5 +432,3 @@ class LineReader extends EventEmitter {
 		return length;
 	}
 }
-
-export default LineReader;
