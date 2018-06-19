@@ -1,7 +1,7 @@
 require('should');
 
 var util = require('util');
-var LineReader = require('../dist/lineReader');
+var LineReader = require('../dist/lineReader').default;
 var streams = require('stream');
 
 var DummyStream = function () {
@@ -33,7 +33,7 @@ describe('LineReader', function () {
         it('should return the correct cursor position', function () {
             var prompt = '$> ';
             var text = 'texttexttext';
-            lineReader.setPrompt(prompt).updatePrompt();
+            lineReader.setPrompt(() => prompt).updatePrompt();
             lineReader.insert(text);
             var pos = lineReader.getCursorPos();
             pos.cols.should.be.exactly(prompt.length + text.length);
@@ -42,7 +42,7 @@ describe('LineReader', function () {
 
         it('should return zeros when the cursor is home', function () {
             var prompt = '';
-            lineReader.setPrompt(prompt).updatePrompt();
+            lineReader.setPrompt(() => prompt).updatePrompt();
             var pos = lineReader.getCursorPos();
             pos.cols.should.be.exactly(0);
             pos.rows.should.be.exactly(0);
@@ -51,7 +51,7 @@ describe('LineReader', function () {
         it('should return the correct cursor position even for multi-line prompts', function () {
             var prompt = '[ what a nice day ]\n$> ';
             var text = 'texttexttext';
-            lineReader.setPrompt(prompt).updatePrompt();
+            lineReader.setPrompt(() => prompt).updatePrompt();
             lineReader.insert(text);
             var pos = lineReader.getCursorPos();
             pos.cols.should.be.exactly(prompt.split(/[\n\r]/).slice(-1)[0].length + text.length);

@@ -1,5 +1,5 @@
 var assert = require('assert');
-var Tape = require('../dist/tape');
+var Tape = require('../dist/tape').Tape;
 var should = require('should');
 
 describe('Tape', function () {
@@ -155,7 +155,7 @@ describe('Tape', function () {
             tape.next();
         }
         var item = tape.next();
-        item.should.be.exactly(tape.EOF);
+        item.should.be.exactly(Tape.EOF);
     });
 
     it('returns the current mark when popping it', function () {
