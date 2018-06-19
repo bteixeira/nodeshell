@@ -1,11 +1,13 @@
-class History {
-	index: number;
-	stack: any[];
-	lineReader: any;
+import LineReader from './lineReader';
 
-	constructor(lineReader) {
+class History {
+	private index: number;
+	private lineStack: string[];
+	private lineReader: LineReader;
+
+	constructor(lineReader: LineReader) {
 		this.index = -1;
-		this.stack = [];
+		this.lineStack = [];
 		this.lineReader = lineReader;
 	}
 
@@ -14,10 +16,10 @@ class History {
 			this.push();
 			this.index = 0;
 		}
-		this.index = Math.min(this.stack.length - 1, this.index + 1);
-		const item = this.stack[this.index];
-		if (item) {
-			this.lineReader.setLine(item).refreshLine();
+		this.index = Math.min(this.lineStack.length - 1, this.index + 1);
+		const line: string = this.lineStack[this.index];
+		if (line) {
+			this.lineReader.setLine(line).refreshLine();
 		}
 	}
 
@@ -27,14 +29,14 @@ class History {
 			this.lineReader.deleteLine();
 		} else {
 			this.index = Math.max(-1, this.index - 1);
-			this.lineReader.setLine(this.stack[this.index] || '').refreshLine();
+			this.lineReader.setLine(this.lineStack[this.index] || '').refreshLine();
 		}
 	}
 
 	push(): void {
-		const line = this.lineReader.getLine().trim();
+		const line: string = this.lineReader.getLine().trim();
 		if (line) {
-			this.stack.unshift(line);
+			this.lineStack.unshift(line);
 		}
 	}
 

@@ -20,7 +20,7 @@ import {EventEmitter} from 'events';
  */
 class LineReader extends EventEmitter {
     writer: any;
-    prompt: any;
+    prompt: () => string;
     _prompt: string;
     _prompting: any;
     _promptLength: number;
@@ -32,7 +32,7 @@ class LineReader extends EventEmitter {
 	    super();
 		this.writer = writer;
 
-		this.setLine('').setPrompt('>>> ').updatePrompt();
+		this.setLine('').setPrompt(() => '>>> ').updatePrompt();
 		this._prompting = false;
 	}
 
@@ -40,7 +40,7 @@ class LineReader extends EventEmitter {
 	 * Sets the prompt that will be displayed. Does not refresh the line.
 	 * @param prompt
 	 */
-	setPrompt(prompt) {
+	setPrompt(prompt: () => string) {
 		this.prompt = prompt;
 		return this;
 	};
@@ -320,7 +320,7 @@ class LineReader extends EventEmitter {
 	 */
 	updatePrompt() {
 
-		this._prompt = getPrompt(this.prompt);
+		this._prompt = this.prompt();
 		var lines = this._prompt.split(/[\r\n]/);
 		var lastLine = lines[lines.length - 1];
 		this._promptLength = LineReader.countLength(lastLine);
@@ -346,7 +346,7 @@ class LineReader extends EventEmitter {
 		var lineRows = 0;
 
 		lines.forEach(function (ln) {
-			var lnLength = LineReader.countLength(ln.length);
+			var lnLength = LineReader.countLength(ln);
 			lineCols = lnLength % columns;
 			lineRows += (lnLength - lineCols) / columns + 1;
 		});
@@ -401,7 +401,7 @@ class LineReader extends EventEmitter {
 	 * http://en.wikipedia.org/wiki/ANSI_escape_code#Sequence_elements
 	 * @param str
 	 */
-	static countLength(str) {
+	static countLength(str: string) {
 		var ch;
 		var length = 0;
 		var status = 0; // 0 = normal | 1 = escape char found in the previous loop | 2 = inside multi-char escape sequence
@@ -433,12 +433,4 @@ class LineReader extends EventEmitter {
 	}
 }
 
-function getPrompt (p) {
-    if (utils.isFunction(p)) {
-        return p();
-    } else {
-        return String(p);
-    }
-}
-
-module.exports = LineReader;
+export default LineReader;

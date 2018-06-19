@@ -3,7 +3,7 @@ var util = require('util');
 var path = require('path');
 var KeyHandler = require('./keyhandler').default;
 var Commands = require('./commands');
-var LineReader = require('./lineReader');
+var LineReader = require('./lineReader').default;
 var defaultCommands = require('./defaultCommands');
 
 var fs = require('fs');

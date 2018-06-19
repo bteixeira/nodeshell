@@ -1,8 +1,9 @@
 import readline = require('readline');
 import KeyHandler from './keyhandler';
 import History from './history';
+import LineReader from './lineReader';
 
-module.exports = function (keyHandler: KeyHandler, lineReader, history: History, complete) {
+module.exports = function (keyHandler: KeyHandler, lineReader: LineReader, history: History, complete: () => void) {
 
 	keyHandler.bindDefault((ch: string, key) => {
 		if (ch && ch.length === 1) {
@@ -71,8 +72,8 @@ module.exports = function (keyHandler: KeyHandler, lineReader, history: History,
 	});
 
 	keyHandler.bind(['CTRL+L'], () => {
-		readline.cursorTo(lineReader.output, 0, 0);
-		readline.clearScreenDown(lineReader.output);
+		readline.cursorTo(process.stdout, 0, 0);
+		readline.clearScreenDown(process.stdout);
 		lineReader.refreshLine();
 	});
 
