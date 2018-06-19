@@ -1,5 +1,5 @@
 var DescentParser = require('./descentParser');
-var Tape = require('../tape');
+import {Tape} from '../tape';
 var clt = require('../tokenizer/commandLineTokenizer');
 var ast = require('../ast/nodes/descentParserNodes');
 

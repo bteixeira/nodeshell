@@ -21,7 +21,7 @@ var $path = function () {
 };
 
 
-module.exports = function (completer) {
+export default function (completer) {
 
     var cfg = completer.cmdConfig;
 
@@ -294,4 +294,4 @@ module.exports = function (completer) {
             'version'
         ]
     };
-};
+}

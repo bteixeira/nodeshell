@@ -2,7 +2,7 @@ var vm = require('vm');
 var util = require('util');
 var path = require('path');
 var KeyHandler = require('./keyhandler').default;
-var Commands = require('./commands');
+import {Commands} from './commands';
 var LineReader = require('./lineReader').default;
 var defaultCommands = require('./defaultCommands');
 
@@ -15,9 +15,9 @@ var Executer = require('./parser/RunnableWrapperExecuterVisitor');
 var LayoutComposer = require('./panels/composer');
 
 var ErrorWrapper = require('./errorWrapper');
-var History = require('./history').default;
+import History from './history';
 var utils = require('./utils');
-require('colors');
+import 'colors';
 var readline = require('readline');
 
 var Writer = require('./panels/tree/writerPanel');
@@ -84,8 +84,9 @@ var permanent = {
         setLayout: setLayout,
         on: function (event, cb) {
             // TODO
-        }
-    }
+        },
+		layout: null,
+    },
 };
 
 var extend = utils.extend;
@@ -163,7 +164,8 @@ var history = new History(lineReader);
 function complete () {
     CompletionParser.parseCmdLine(lineReader, commands, layout.completions);
 }
-require('./defaultCmdConfig')(CompletionParser);
+import defaultCmdConfig from './defaultCmdConfig';
+defaultCmdConfig(CompletionParser);
 require('./defaultKeys')(keyHandler, lineReader, history, complete);
 
 
