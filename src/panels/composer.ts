@@ -1,6 +1,6 @@
 import CenterFooterLayout from './tree/centerFooterLayout';
 import ColumnsLayout from './tree/columnsLayout';
-var RowsLayout = require('./tree/rowsLayout');
+import RowsLayout from './tree/rowsLayout';
 var WriterPanel = require('./tree/writerPanel');
 
 interface LayoutSpec {
