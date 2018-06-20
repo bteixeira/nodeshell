@@ -1,7 +1,7 @@
 require('should');
 
-var Executer = require('../../../src/ast/visitors/visitorExecuter');
-var NodeLiteral = require('../../../src/ast/nodes/nodeLiteral');
+var Executer = require('../../../dist/ast/visitors/visitorExecuter');
+var NodeLiteral = require('../../../dist/ast/nodes/nodeLiteral');
 var path = require('path');
 
 describe('VisitorExecuter', function () {

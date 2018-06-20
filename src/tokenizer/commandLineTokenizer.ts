@@ -1,6 +1,6 @@
 var util = require('util');
 
-var Tape = require('../tape');
+import {Tape} from '../tape';
 
 var jSMatcher = require('./matchers/jsMatcher');
 var redirMatcher = require('./matchers/redirMatcher');

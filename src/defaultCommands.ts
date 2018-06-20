@@ -1,11 +1,11 @@
 var util = require('util');
 
-var Commands = require('./commands');
+import {Commands} from './commands';
 var ErrorWrapper = require('./errorWrapper');
 var utils = require('./utils');
 var FunRunner = require('./parser/runners/FunRunner');
 
-module.exports = function (context) {
+export default function (context) {
 
     var commands = new Commands();
 
@@ -28,7 +28,7 @@ module.exports = function (context) {
             });
         }
     };
-    for (p in  builtins) {
+    for (var p in  builtins) {
         if (builtins.hasOwnProperty(p)) {
             commands.addCommand(p, builtins[p]);
         }

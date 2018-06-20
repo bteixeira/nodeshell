@@ -27,7 +27,8 @@ How to get it and run it
 ```
 git clone https://github.com/bteixeira/nodeshell.git && cd nodeshell
 npm install
-node shell
+tsc
+npm start
 ```
 
 That should take you to a command line.  

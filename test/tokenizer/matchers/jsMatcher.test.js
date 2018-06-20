@@ -1,5 +1,5 @@
-var jsMatcher = require('../../../src/tokenizer/matchers/jsMatcher');
-var Tape = require('../../../src/tape');
+var jsMatcher = require('../../../dist/tokenizer/matchers/jsMatcher');
+var Tape = require('../../../dist/tape').Tape;
 
 describe('Matcher for Javascript snippets', function () {
 

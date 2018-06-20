@@ -1,10 +1,34 @@
-var CenterFooterLayout = require('./tree/centerFooterLayout');
+import CenterFooterLayout from './tree/centerFooterLayout';
 var ColumnsLayout = require('./tree/columnsLayout');
 var RowsLayout = require('./tree/rowsLayout');
-var Writer = require('./tree/writerPanel');
+var WriterPanel = require('./tree/writerPanel');
 
-module.exports = {
-    buildInit: function (spec, stdout) {
+interface LayoutSpec {
+    cols: LayoutSpec[];
+    rows: LayoutSpec[];
+    name: string;
+    width: number | 'auto';
+}
+
+export interface Panel {
+	getChildOffsetV: (Panel) => number;
+	getChildOffsetH: (Panel) => number;
+	getChildOffset: (Panel) => number[];
+	getChildWidth: (Panel) => number;
+	getSpaceBelowChild: (Panel) => number;
+	isFooter: (Panel) => boolean;
+	reserveSpace: () => void;
+	prompt?;
+	writers?;
+}
+
+// interface Result extends Panel {
+// 	prompt;
+// 	writers;
+// }
+
+export default {
+    buildInit(spec: LayoutSpec, stdout) {
 
         if (arguments.length === 1) {
             stdout = spec;
@@ -13,13 +37,13 @@ module.exports = {
 
         var names = {};
         var writers = [];
-        var result;
+        var result: Panel;
 
         if (!spec || !Object.keys(spec).length) {
             // Single Writer layout ...
-            var singleWriter = new Writer(stdout);
+            var singleWriter = new WriterPanel(stdout);
             //result = SingleWriterLayout(stdout);
-            result = CenterFooterLayout(singleWriter, null, stdout);
+            result = new CenterFooterLayout(singleWriter, null, stdout);
             result.prompt = singleWriter;
         //}
 
@@ -39,7 +63,7 @@ module.exports = {
         } else {
             // Center only layout ...
             var built = this.build(spec, names, writers, stdout);
-            result = CenterFooterLayout(built, null, stdout);
+            result = new CenterFooterLayout(built, null, stdout);
         }
 
         for (var n in names) {
@@ -54,14 +78,13 @@ module.exports = {
         return result;
     },
 
-    build: function (spec, names, writers, stdout) {
+    build: function (spec: LayoutSpec, names, writers, stdout) {
         // TODO MAYBE WE SHOULD CHECK THAT THERE IS NO COLUMNS-COLUMNS OR ROWS-ROWS NESTING
-        var me = this;
-        var result;
+        var result: LayoutSpec;
         if (spec.rows) {
             var rows = [];
-            spec.rows.forEach(function (row) {
-                var child = me.build(row, names, writers, stdout);
+            spec.rows.forEach(row => {
+                var child = this.build(row, names, writers, stdout);
                 rows.push(child);
                 if (row.name) {
                     // TODO SHOULD WE CHECK FOR UNIQUE NAMES?
@@ -74,12 +97,12 @@ module.exports = {
             // TODO MUST CHECK THAT SUM OF WIDTHS IS NOT LARGER THAN AVAILABLE FOR THIS PANEL
             var cols = [];
             var layout = [];
-            spec.cols.forEach(function (col) {
+            spec.cols.forEach(col => {
                 if (col.width !== 'auto' && typeof col.width !== 'number') {
                     throw 'Column definition needs width specification (either number or "auto")';
                 }
                 layout.push(col.width);
-                var child = me.build(col, names, writers, stdout);
+                var child = this.build(col, names, writers, stdout);
                 cols.push(child);
                 if (col.name) {
                     // TODO SHOULD WE CHECK FOR UNIQUE NAMES?
@@ -88,7 +111,7 @@ module.exports = {
             });
             result = new ColumnsLayout(cols, layout, stdout);
         } else {
-            var writer = new Writer(stdout);
+            var writer = new WriterPanel(stdout);
             writers.push(writer);
             result = writer;
         }

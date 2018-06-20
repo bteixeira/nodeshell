@@ -4,13 +4,13 @@ var path = require('path');
 var util = require('util');
 var ErrorWrapper = require('./errorWrapper');
 
-exports.sourceSync = function (filename, context) {
+export function sourceSync (filename, context) {
     if (!fs.existsSync(filename)) {
         return new ErrorWrapper('No such file: ' + filename);
     }
     var contents = fs.readFileSync(filename);
     return vm.runInContext(contents, context);
-};
+}
 
 exports.isString = function isString (candidate) {
     return typeof candidate === 'string' || candidate instanceof String;
@@ -55,7 +55,7 @@ exports.getUserHome = function getUserHome () {
     return process.env[prop];
 };
 
-exports.expandHomeDir = function (dir) {
+export function expandHomeDir (dir) {
     if (this.isString(dir)) {
         if (dir === '~') {
             return this.getUserHome();
@@ -64,7 +64,7 @@ exports.expandHomeDir = function (dir) {
         }
     }
     return dir;
-};
+}
 
 exports.extend = util._extend;
 

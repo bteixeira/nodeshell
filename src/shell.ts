@@ -1,28 +1,30 @@
-var vm = require('vm');
-var util = require('util');
-var path = require('path');
-var KeyHandler = require('./src/keyhandler');
-var Commands = require('./src/commands');
-var LineReader = require('./src/lineReader');
-var defaultCommands = require('./src/defaultCommands');
+import * as vm from 'vm';
+import * as util from 'util';
+import * as path from 'path';
+import * as fs from 'fs';
 
-var fs = require('fs');
+import KeyHandler from './keyhandler';
+import {Commands} from './commands';
+import LineReader from './lineReader';
+import defaultCommands from './defaultCommands';
 
-var DefaultParser = require('./src/parser/defaultLineParser');
-var CompletionParser = require('./src/parser/completionParser');
-var Executer = require('./src/parser/RunnableWrapperExecuterVisitor');
+import * as DefaultParser from './parser/defaultLineParser';
+import * as CompletionParser from './parser/completionParser';
+var Executer = require('./parser/RunnableWrapperExecuterVisitor');
 
-var LayoutComposer = require('./src/panels/composer');
+import LayoutComposer from './panels/composer';
 
-var ErrorWrapper = require('./src/errorWrapper');
-var History = require('./src/history');
-var utils = require('./src/utils');
-require('colors');
-var readline = require('readline');
+var ErrorWrapper = require('./errorWrapper');
+import History from './history';
+var utils = require('./utils');
+import 'colors';
+import * as readline from 'readline';
 
-var Writer = require('./src/panels/tree/writerPanel');
+var Writer = require('./panels/tree/writerPanel');
 
-process.on('SIGINT', function () {
+var paused: boolean = false;
+
+process.on('SIGINT', () => {
     console.log('\nSIGINT'.blue.bold);
     if (!paused) {
         console.log();
@@ -41,18 +43,17 @@ process.on('SIGCHLD', function () {
 process.on('SIGTSTP', function () {
 });
 
-var lineReader = new LineReader(process.stdout);
-var keyHandler = new KeyHandler(process.stdin);
-var paused = false;
+const lineReader: LineReader = new LineReader(process.stdout);
+const keyHandler: KeyHandler = new KeyHandler(process.stdin);
 
 function setLayout (spec) {
     // TODO validate spec according to high-level strict rules
     layout = LayoutComposer.buildInit(spec, process.stdout);
     lineReader.setWriter(layout.prompt);
-    permanent.NSH.layout = layout; // Not so permanent after all...
+    permanent.nsh.layout = layout; // Not so permanent after all...
 }
 
-var permanent = {
+const permanent = {
     process: process,
     Buffer: Buffer,
     setTimeout: setTimeout,
@@ -84,8 +85,9 @@ var permanent = {
         setLayout: setLayout,
         on: function (event, cb) {
             // TODO
-        }
-    }
+        },
+		layout: null,
+    },
 };
 
 var extend = utils.extend;
@@ -163,8 +165,9 @@ var history = new History(lineReader);
 function complete () {
     CompletionParser.parseCmdLine(lineReader, commands, layout.completions);
 }
-require('./src/defaultCmdConfig')(CompletionParser);
-require('./src/defaultKeys')(keyHandler, lineReader, history, complete);
+import defaultCmdConfig from './defaultCmdConfig';
+defaultCmdConfig(CompletionParser);
+require('./defaultKeys')(keyHandler, lineReader, history, complete);
 
 
 var layout;

@@ -1,6 +1,6 @@
 var colors = require('colors');
 var path = require('path');
-var utils = require(nsh.home + '/src/utils');
+var utils = require(nsh.home + '/utils');
 var fs = require('fs');
 
 (function () {
@@ -48,7 +48,7 @@ var fs = require('fs');
 //console.log('Now running NSH');
 
 
-NSH.setLayout({
+nsh.setLayout({
     cols: [
         {
             width: 'auto',
@@ -69,10 +69,10 @@ NSH.setLayout({
     ]
 });
 
-NSH.layout.separator.setRedraw(function () {
+nsh.layout.separator.setRedraw(function () {
     this.write(colors.blue(' \u2502  \u2502  \u2502  \u2502  \u2502'));
 });
-NSH.layout.sidebar.setRedraw(function () {
+nsh.layout.sidebar.setRedraw(function () {
     var me = this;
     fs.readdir('.', function (err, files) {
         if (err) {
@@ -87,7 +87,7 @@ NSH.layout.sidebar.setRedraw(function () {
         }
     });
 });
-NSH.layout.completions.setRedraw(function () {
+nsh.layout.completions.setRedraw(function () {
     // this.write('Completions go here...');
 });
 
@@ -97,15 +97,15 @@ NSH.layout.completions.setRedraw(function () {
 
 /**/
 // TODO THIS IS KINDA HOW IT SHOULD BE
-NSH.on('before-execute before-exit', function () {
+nsh.on('before-execute before-exit', function () {
     NSH.layout.separator.clear();
     NSH.layout.sidebar.clear();
     NSH.layout.completions.clear();
 });
-NSH.on('before-prompt', function () {
+nsh.on('before-prompt', function () {
     NSH.layout.separator.write(colors.blue(' \u2502  \u2502  \u2502  \u2502  \u2502'));
 });
-NSH.lineReader.on('update', function () {
+nsh.lineReader.on('update', function () {
     // TODO THIS SHOULD TRY TO COMPLETE THE LAST TOKEN WITH A FILENAME, MAYBE THIS SHOULDN'T BE CALLED ON THE lineReader BUT ON THE PARSER OR SOMETHING
     var me = this;
     fs.readdir('.', function (err, files) {

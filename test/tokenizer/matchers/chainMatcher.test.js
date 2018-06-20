@@ -1,5 +1,5 @@
-var chainMatcher = require('../../../src/tokenizer/matchers/chainMatcher');
-var Tape = require('../../../src/tape');
+var chainMatcher = require('../../../dist/tokenizer/matchers/chainMatcher');
+var Tape = require('../../../dist/tape').Tape;
 
 describe('Matcher for command chains', function () {
 

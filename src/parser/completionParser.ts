@@ -1,11 +1,11 @@
 var DescentParser = require('./descentParser');
-var Tape = require('../tape');
+import {Tape} from '../tape';
 var clt = require('../tokenizer/commandLineTokenizer');
 var path = require('path');
 var fs = require('fs');
 var utils = require('../utils');
 
-exports.parseCmdLine = function (lineReader, commands, panel, insert) {
+export function parseCmdLine (lineReader, commands, panel, insert?) {
     if (typeof insert === 'undefined') {
         insert = true;
     }
@@ -152,7 +152,7 @@ function getCompletionsFromObject(cmdName, args, prefix, object, nest) {
     return result;
 }
 
-function getCompletionsFromValue(cmdName, args, prefix, val, nest) {
+function getCompletionsFromValue(cmdName, args, prefix, val, nest?) {
     if (utils.isArray(val)) {
         return getCompletionsFromArray(cmdName, args, prefix, val);
     } else if (utils.isFunction(val)) {

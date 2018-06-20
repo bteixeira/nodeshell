@@ -1,5 +1,5 @@
-var redirMatcher = require('../../../src/tokenizer/matchers/redirMatcher');
-var Tape = require('../../../src/tape');
+var redirMatcher = require('../../../dist/tokenizer/matchers/redirMatcher');
+var Tape = require('../../../dist/tape').Tape;
 var assert = require('assert');
 
 describe('Matcher for redirections', function () {
