@@ -1,5 +1,5 @@
 import CenterFooterLayout from './tree/centerFooterLayout';
-var ColumnsLayout = require('./tree/columnsLayout');
+import ColumnsLayout from './tree/columnsLayout';
 var RowsLayout = require('./tree/rowsLayout');
 var WriterPanel = require('./tree/writerPanel');
 
@@ -13,13 +13,17 @@ interface LayoutSpec {
 export interface Panel {
 	getChildOffsetV: (Panel) => number;
 	getChildOffsetH: (Panel) => number;
-	getChildOffset: (Panel) => number[];
+	getChildOffset: (Panel) => number[]; // LENGTH === 2
 	getChildWidth: (Panel) => number;
 	getSpaceBelowChild: (Panel) => number;
 	isFooter: (Panel) => boolean;
 	reserveSpace: () => void;
+	redrawBelowChild: (Panel) => void;
+	rewrite: () => void;
+	reset: () => void;
 	prompt?;
 	writers?;
+	name?: string;
 }
 
 // interface Result extends Panel {
@@ -80,7 +84,7 @@ export default {
 
     build: function (spec: LayoutSpec, names, writers, stdout) {
         // TODO MAYBE WE SHOULD CHECK THAT THERE IS NO COLUMNS-COLUMNS OR ROWS-ROWS NESTING
-        var result: LayoutSpec;
+        var result: Panel;
         if (spec.rows) {
             var rows = [];
             spec.rows.forEach(row => {
