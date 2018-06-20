@@ -1,5 +1,5 @@
 var rl = require('readline');
-var Writer = require('./writerPanel');
+import WriterPanel from './writerPanel';
 import {Panel} from '../composer';
 
 /**
@@ -111,7 +111,7 @@ export default class ColumnsLayout implements Panel {
 		this.children.forEach(ch => {
 			if (ch !== child && ch.getHeight() < height) {
 				var offsetThis = me.getChildOffset(ch);
-				var offsetThat = Writer.active.getOffset();
+				var offsetThat = WriterPanel.active.getOffset();
 				var delta = [
 					offsetThis[0] - offsetThat[0],
 					offsetThis[1] - offsetThat[1]

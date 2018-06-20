@@ -1,7 +1,7 @@
 import CenterFooterLayout from './tree/centerFooterLayout';
 import ColumnsLayout from './tree/columnsLayout';
 import RowsLayout from './tree/rowsLayout';
-var WriterPanel = require('./tree/writerPanel');
+import WriterPanel from './tree/writerPanel';
 
 interface LayoutSpec {
     cols: LayoutSpec[];
