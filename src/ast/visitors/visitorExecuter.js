@@ -2,7 +2,7 @@ var vm = require('vm');
 var path = require('path');
 
 var utils = require('../../utils');
-var Visitor = require('./visitor');
+var Visitor = require('./visitor').default;
 var ErrorWrapper = require('../../errorWrapper').default;
 
 var VisitorExecuter = function (commandSet, context) {

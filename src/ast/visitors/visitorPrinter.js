@@ -1,4 +1,4 @@
-var Visitor = require('./visitor');
+var Visitor = require('./visitor').default;
 
 var VisitorPrinter = function () {
     this.indent = 0;

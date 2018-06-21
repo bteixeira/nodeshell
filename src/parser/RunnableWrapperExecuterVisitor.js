@@ -6,7 +6,7 @@ var fs = require('fs');
 var util = require('util');
 
 var utils = require('../utils');
-var Visitor = require('../ast/visitors/visitor');
+var Visitor = require('../ast/visitors/visitor').default;
 var ErrorWrapper = require('../errorWrapper').default;
 
 var PipeRunnable = require('./runners/PipeRunnable');
