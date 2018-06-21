@@ -8,7 +8,7 @@ import {Commands} from './commands';
 import LineReader from './lineReader';
 import defaultCommands from './defaultCommands';
 
-import * as DefaultParser from './parser/defaultLineParser';
+import * as defaultLineParser from './parser/defaultLineParser';
 import * as CompletionParser from './parser/completionParser';
 var Executer = require('./parser/RunnableWrapperExecuterVisitor');
 
@@ -70,7 +70,7 @@ const permanent = {
         utils: utils,
         completion: CompletionParser,
         alias: function (handle, body) {
-            var ast = DefaultParser.parseCmdLine(body, commands);
+            var ast = defaultLineParser.parseCmdLine(body, commands);
             if (ast.err) {
                 throw ast.err;
             }
@@ -124,10 +124,11 @@ var executer = new Executer(commands, ctx);
 
 lineReader
     .setPrompt(function () {
+        // Sets the default prompt TODO MOVE THIS INSIDE THE LINEREADER
         return process.cwd() + ' \u2B21  '.green; // or \u2B22
     })
     .updatePrompt()
-    .on('accept', function (line) {
+    .on('accept', function (line: string) {
         layout.writers.forEach(function (writer) {
             if (writer !== layout.prompt) {
                 writer.cursorTo(1, 1);
@@ -140,10 +141,10 @@ lineReader
         readline.clearScreenDown(process.stdout);
         paused = true;
         var runner, err;
-        var ast = DefaultParser.parseCmdLine(line, commands);
+        var ast = defaultLineParser.parseCmdLine(line, commands);
         if (ast.err && ast.firstCommand) {
             err = ast;
-            ast = DefaultParser.parseJS(line);
+            ast = defaultLineParser.parseJS(line);
             runner = executer.visit(ast);
             runner.run(function (result) {
                 if (result instanceof ErrorWrapper) {

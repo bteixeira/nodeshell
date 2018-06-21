@@ -1,6 +1,6 @@
 var DescentParser = require('./descentParser');
 import {Tape} from '../tape';
-var clt = require('../tokenizer/commandLineTokenizer');
+import commandLineTokenizer from '../tokenizer/commandLineTokenizer';
 var path = require('path');
 var fs = require('fs');
 var utils = require('../utils');
@@ -17,7 +17,7 @@ export function parseCmdLine (lineReader, commands, panel, insert?) {
     line = line.split('');
     line.splice(idx, 0, {type: 'COMPLETION'});
 
-    var tokens = clt(line);
+    var tokens = commandLineTokenizer(line);
 
     parser.tape = new Tape(tokens);
     parser.firstCommand = true;

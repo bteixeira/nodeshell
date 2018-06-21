@@ -2,7 +2,8 @@
 	"compilerOptions": {
 		"outDir": "./dist",
 		"allowJs": true,
-		"moduleResolution": "node"
+		"moduleResolution": "node",
+		"sourceMap": true
 	},
 	"include": [
 		"./src/**/*"

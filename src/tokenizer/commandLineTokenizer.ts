@@ -1,5 +1,3 @@
-var util = require('util');
-
 import {Tape} from '../tape';
 
 var jSMatcher = require('./matchers/jsMatcher');
@@ -7,10 +5,9 @@ var redirMatcher = require('./matchers/redirMatcher');
 var dQStringMatcher = require('./matchers/dqStringMatcher');
 var chainMatcher = require('./matchers/chainMatcher');
 var globMatcher = require('./matchers/globMatcher');
-//var GlobMatcher = require('./matchers/globMatcher');
 
-module.exports = function (line) {
-    var tape = new Tape(line);
+export default function (line) {
+    const tape = new Tape(line);
 
     var c, tokens = [];
     var token;
