@@ -14,7 +14,7 @@ var Executer = require('./parser/RunnableWrapperExecuterVisitor');
 
 import LayoutComposer from './panels/composer';
 
-var ErrorWrapper = require('./errorWrapper');
+import ErrorWrapper from './errorWrapper';
 import History from './history';
 var utils = require('./utils');
 import 'colors';

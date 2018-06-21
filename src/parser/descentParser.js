@@ -1,5 +1,5 @@
 var util = require('util');
-var ErrorWrapper = require('../errorWrapper');
+var ErrorWrapper = require('../errorWrapper').default;
 var Tape = require('../tape');
 var dQStringMatcher = require('../tokenizer/matchers/dqStringMatcher');
 var jsMatcher = require('../tokenizer/matchers/jsMatcher');

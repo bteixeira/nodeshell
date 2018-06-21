@@ -1,7 +1,7 @@
 var util = require('util');
 
 import {Commands} from './commands';
-var ErrorWrapper = require('./errorWrapper');
+import ErrorWrapper from './errorWrapper';
 var utils = require('./utils');
 var FunRunner = require('./parser/runners/FunRunner');
 

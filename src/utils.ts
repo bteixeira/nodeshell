@@ -2,7 +2,7 @@ var fs = require('fs');
 var vm = require('vm');
 var path = require('path');
 var util = require('util');
-var ErrorWrapper = require('./errorWrapper');
+import ErrorWrapper from './errorWrapper';
 
 export function sourceSync (filename, context) {
     if (!fs.existsSync(filename)) {

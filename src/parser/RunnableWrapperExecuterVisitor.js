@@ -7,7 +7,7 @@ var util = require('util');
 
 var utils = require('../utils');
 var Visitor = require('../ast/visitors/visitor');
-var ErrorWrapper = require('../errorWrapper');
+var ErrorWrapper = require('../errorWrapper').default;
 
 var PipeRunnable = require('./runners/PipeRunnable');
 var CPW = require('./runners/cpWrapper');

@@ -3,7 +3,7 @@ var path = require('path');
 
 var utils = require('../../utils');
 var Visitor = require('./visitor');
-var ErrorWrapper = require('../../errorWrapper');
+var ErrorWrapper = require('../../errorWrapper').default;
 
 var VisitorExecuter = function (commandSet, context) {
     this.commandSet = commandSet;
