@@ -1,7 +1,7 @@
-var dQStringMatcher = require('./dqStringMatcher');
-var utils = require('../../utils');
+import * as dQStringMatcher from './dqStringMatcher';
+import utils = require('../../utils');
 
-exports.run = function (tape) {
+export function run (tape) {
     if (tape.peek() !== '(') {
         return {
             type: t.JS_ERROR,
@@ -77,6 +77,6 @@ exports.run = function (tape) {
         text: text,
         pos: pos
     };
-};
+}
 
 var t = exports.tokens = utils.createEnum('JS_ERROR', 'JSTOKEN');

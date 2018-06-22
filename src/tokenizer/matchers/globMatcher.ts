@@ -1,8 +1,7 @@
-var util = require('util');
-var path = require('path');
-var utils = require('../../utils');
+import * as path from 'path';
+import utils = require('../../utils');
 
-var ESCAPABLES = {
+const ESCAPABLES = {
     '0': '\0',
     'n': '\n',
     'r': '\r',
@@ -12,9 +11,9 @@ var ESCAPABLES = {
     'f': '\f'
 };
 
-var BREAKERS = utils.strToObj('&|<>("');
+const BREAKERS = utils.strToObj('&|<>("');
 
-var SPECIALS = utils.createEnum('*', '?');
+const SPECIALS = utils.createEnum('*', '?');
 
 var subTypes = utils.createEnum('TEXT', 'STAR', 'QUESTION', 'SEPARATOR');
 
@@ -80,7 +79,7 @@ function matchEscape (tape) {
     };
 }
 
-exports.run = function (tape) {
+export function run (tape) {
 
     tape.pushMark();
     tape.setMark();
@@ -133,6 +132,6 @@ exports.run = function (tape) {
         text: text,
         subTokens: subTokens
     }
-};
+}
 
 var t = exports.tokens = utils.createEnum('GLOB', 'NO_GLOB', 'UNTERMINATED_ESCAPE');

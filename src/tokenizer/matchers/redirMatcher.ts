@@ -1,5 +1,4 @@
-var util = require('util');
-var utils = require('../../utils');
+import utils = require('../../utils');
 
 /**
  * Allowed sequences:
@@ -11,7 +10,7 @@ var utils = require('../../utils');
  *      [0-9]*<&
  */
 
-exports.run = function (tape) {
+export function run (tape) {
     tape.pushMark();
     tape.setMark();
 
@@ -60,6 +59,8 @@ exports.run = function (tape) {
         pos: pos,
         fd: fd
     };
-};
+}
 
-var t = exports.tokens = utils.createEnum('NOTREDIR', 'GT', 'GTGT', 'GTAMP', 'LT', 'LTGT', 'LTAMP');
+var t = utils.createEnum('NOTREDIR', 'GT', 'GTGT', 'GTAMP', 'LT', 'LTGT', 'LTAMP');
+
+export {t as tokens}

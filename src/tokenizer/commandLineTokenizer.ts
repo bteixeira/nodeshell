@@ -1,10 +1,10 @@
 import {Tape} from '../tape';
 
-var jSMatcher = require('./matchers/jsMatcher');
-var redirMatcher = require('./matchers/redirMatcher');
-var dQStringMatcher = require('./matchers/dqStringMatcher');
-var chainMatcher = require('./matchers/chainMatcher');
-var globMatcher = require('./matchers/globMatcher');
+import * as jsMatcher from './matchers/jsMatcher';
+import * as redirMatcher from './matchers/redirMatcher';
+import * as dQStringMatcher from './matchers/dqStringMatcher';
+import * as chainMatcher from './matchers/chainMatcher';
+import * as globMatcher from './matchers/globMatcher';
 
 export default function (line) {
     const tape = new Tape(line);
@@ -22,7 +22,7 @@ export default function (line) {
 
             //continue;
         } else if (c === '(') {
-            token = jSMatcher.run(tape);
+            token = jsMatcher.run(tape);
             //tokens.push(token);
             //continue;
         } else if (c === '|' || c === '&') {

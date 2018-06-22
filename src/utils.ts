@@ -82,7 +82,7 @@ exports.cat = function () {
     return result;
 };
 
-exports.createEnum = function () {
+export function createEnum (...argv: string[]): {[index: string]: any} {
     var args = exports.cat(arguments);
     var enum_ = {};
     args.forEach(function (arg) {
@@ -94,12 +94,12 @@ exports.createEnum = function () {
         }
     });
     return enum_;
-};
+}
 
-exports.strToObj = function (str) {
+export function strToObj (str) {
     var props = str.split('');
     return props.reduce(function (obj, prop) { /* show off */
         obj[prop] = prop;
         return obj;
     }, {});
-};
+}

@@ -1,7 +1,6 @@
-var util = require('util');
-var utils = require('../../utils');
+import utils = require('../../utils');
 
-exports.run = function (tape) {
+export function run (tape) {
     if (tape.peek() !== '"') {
         return {
             type: t.NO_DQSTRING,
@@ -47,6 +46,6 @@ exports.run = function (tape) {
         pos: pos
     };
 
-};
+}
 
-var t = exports.tokens = utils.createEnum('DQSTRING', 'NO_DQSTRING', 'UNTERMINATED_DQSTRING', 'UNTERMINATED_ESCAPING_DQSTRING');
+const t = exports.tokens = utils.createEnum('DQSTRING', 'NO_DQSTRING', 'UNTERMINATED_DQSTRING', 'UNTERMINATED_ESCAPING_DQSTRING');

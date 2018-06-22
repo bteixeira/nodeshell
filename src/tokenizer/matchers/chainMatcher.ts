@@ -1,9 +1,8 @@
 // Matches command chainers ('|', '&', '||' or '&&')
 
-var util = require('util');
-var utils = require('../../utils');
+import utils = require('../../utils');
 
-exports.run = function (tape) {
+export function run (tape) {
 
     tape.pushMark();
     tape.setMark();
@@ -43,6 +42,6 @@ exports.run = function (tape) {
         pos: pos
     };
 
-};
+}
 
-var t = exports.tokens = utils.createEnum('AMP', 'PIPE', 'DAMP', 'DPIPE', 'NOT_CHAIN');
+const t = exports.tokens = utils.createEnum('AMP', 'PIPE', 'DAMP', 'DPIPE', 'NOT_CHAIN');
