@@ -1,5 +1,5 @@
 import * as path from 'path';
-import utils = require('../../utils');
+import * as utils from '../../utils';
 
 const ESCAPABLES = {
     '0': '\0',

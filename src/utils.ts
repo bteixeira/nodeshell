@@ -1,7 +1,7 @@
 var fs = require('fs');
 var vm = require('vm');
 var path = require('path');
-var util = require('util');
+const extend = require('extend');
 import ErrorWrapper from './errorWrapper';
 
 export function sourceSync (filename, context) {
@@ -50,10 +50,10 @@ exports.isNumber = function (candidate) {
     return !isNaN(candidate);
 };
 
-exports.getUserHome = function getUserHome () {
-    var prop = (process.platform === 'win32') ? 'USERPROFILE' : 'HOME';
+export function getUserHome () {
+    const prop = (process.platform === 'win32') ? 'USERPROFILE' : 'HOME';
     return process.env[prop];
-};
+}
 
 export function expandHomeDir (dir) {
     if (this.isString(dir)) {
@@ -66,7 +66,7 @@ export function expandHomeDir (dir) {
     return dir;
 }
 
-exports.extend = util._extend;
+export {extend as extend}
 
 /**
  * Array concatenating function which can handle a function arguments object. Concatenates passed arrays. Always returns

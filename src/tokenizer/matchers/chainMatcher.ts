@@ -1,6 +1,6 @@
 // Matches command chainers ('|', '&', '||' or '&&')
 
-import utils = require('../../utils');
+import * as utils from '../../utils';
 
 export function run (tape) {
 

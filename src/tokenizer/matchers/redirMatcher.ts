@@ -1,4 +1,4 @@
-import utils = require('../../utils');
+import * as utils from '../../utils';
 
 /**
  * Allowed sequences:

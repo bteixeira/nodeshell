@@ -1,12 +1,11 @@
 import * as vm from 'vm';
 import * as util from 'util';
 import * as path from 'path';
-import * as fs from 'fs';
 
 import KeyHandler from './keyhandler';
 import {Commands} from './commands';
 import LineReader from './lineReader';
-import defaultCommands from './defaultCommands';
+import createDefaultCommands from './createDefaultCommands';
 
 import * as defaultLineParser from './parser/defaultLineParser';
 import * as CompletionParser from './parser/completionParser';
@@ -16,11 +15,9 @@ import LayoutComposer from './panels/composer';
 
 import ErrorWrapper from './errorWrapper';
 import History from './history';
-var utils = require('./utils');
+import * as utils from './utils';
 import 'colors';
 import * as readline from 'readline';
-
-var Writer = require('./panels/tree/writerPanel');
 
 var paused: boolean = false;
 
@@ -115,7 +112,7 @@ function doneCB (result) {
     paused = false;
 }
 
-var commands = defaultCommands(ctx);
+var commands: Commands = createDefaultCommands(ctx);
 commands = new Commands({
     parent: commands,
     skipPath: true

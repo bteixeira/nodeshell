@@ -1,4 +1,4 @@
-import readline = require('readline');
+import * as readline from 'readline';
 
 class KeyHandler {
 

@@ -1,4 +1,4 @@
-import readline = require('readline');
+import * as readline from 'readline';
 import KeyHandler from './keyhandler';
 import History from './history';
 import LineReader from './lineReader';
