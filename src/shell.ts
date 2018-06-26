@@ -9,7 +9,7 @@ import createDefaultCommands from './createDefaultCommands';
 
 import * as defaultLineParser from './parser/defaultLineParser';
 import * as CompletionParser from './parser/completionParser';
-var Executer = require('./parser/RunnableWrapperExecuterVisitor');
+import Executer from './parser/RunnableWrapperExecuterVisitor';
 
 import LayoutComposer from './panels/composer';
 

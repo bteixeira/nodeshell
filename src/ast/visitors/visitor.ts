@@ -1,7 +1,4 @@
 export default class Visitor {
-	constructor() {
-	}
-
 	visit(token) {
 		const methodName = `visit${token.type}`;
 		const method = this[methodName];
