@@ -1,6 +1,7 @@
-var rl = require('readline');
+const rl = require('readline');
 import WriterPanel from './writerPanel';
 import {Panel} from '../composer';
+import {WriteStream} from 'tty';
 
 /**
  *
@@ -15,23 +16,28 @@ import {Panel} from '../composer';
 export default class ColumnsLayout implements Panel {
 	private parent: Panel;
 
-	constructor(private children, private layout, private stdout) {
+	constructor(
+		private children,
+		private layout,
+		private stdout: WriteStream
+	) {
 		children.forEach(child => {
 			child.setParent(this);
 		});
 	}
 
-	getChildOffsetV(child) {
+	getChildOffsetV(child: Panel): number {
 		return this.parent.getChildOffsetV(this);
 	}
 
-	getChildOffsetH(child) {
+	getChildOffsetH(child: Panel): number {
 		var lt;
-		var sum = 0; // the sum of all widths of all children except the `auto`
-		var sumBefore; // the sum of the widths to the left of the child we're calculating
-		var autoFound = false; // whether the 'auto' child was found yet
-		var childFound = false; // whether the child we're calculating has been found yet
-		for (var i = 0; i < this.children.length; i++) {
+		var sum: number = 0; // the sum of all widths of all children except the `auto`
+		var sumBefore: number; // the sum of the widths to the left of the child we're calculating
+		var autoFound: boolean = false; // whether the 'auto' child was found yet
+		var childFound: boolean = false; // whether the child we're calculating has been found yet
+		var i: number;
+		for (i = 0; i < this.children.length; i++) {
 			// this.children.forEach(child => {
 			lt = this.layout[i];
 			if (child === this.children[i]) {
@@ -58,7 +64,7 @@ export default class ColumnsLayout implements Panel {
 		return this.parent.getChildOffsetH(this) + sumBefore;
 	}
 
-	getChildOffset(child) {
+	getChildOffset(child): [number, number] {
 		return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
 	}
 

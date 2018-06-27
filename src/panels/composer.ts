@@ -13,7 +13,7 @@ interface LayoutSpec {
 export interface Panel {
 	getChildOffsetV: (Panel) => number;
 	getChildOffsetH: (Panel) => number;
-	getChildOffset: (Panel) => number[]; // LENGTH === 2
+	getChildOffset: (Panel) => [number, number]; // LENGTH === 2
 	getChildWidth: (Panel) => number;
 	getSpaceBelowChild: (Panel) => number;
 	isFooter: (Panel) => boolean;
@@ -21,32 +21,27 @@ export interface Panel {
 	redrawBelowChild: (Panel) => void;
 	rewrite: () => void;
 	reset: () => void;
-	prompt?;
+	prompt?: WriterPanel;
 	writers?;
 	name?: string;
+	setParent: (Panel) => void;
+	getHeight: () => number;
 }
 
-// interface Result extends Panel {
-// 	prompt;
-// 	writers;
-// }
+type PanelSet = {
+	[name: string]: Panel;
+}
 
 export default {
-    buildInit(spec: LayoutSpec, stdout) {
+    buildInit(spec: LayoutSpec, stdout): Panel {
 
-        if (arguments.length === 1) {
-            stdout = spec;
-            spec = null;
-        }
-
-        var names = {};
-        var writers = [];
+        var names: PanelSet = {};
+        var writers: WriterPanel[] = [];
         var result: Panel;
 
         if (!spec || !Object.keys(spec).length) {
             // Single Writer layout ...
             var singleWriter = new WriterPanel(stdout);
-            //result = SingleWriterLayout(stdout);
             result = new CenterFooterLayout(singleWriter, null, stdout);
             result.prompt = singleWriter;
         //}
@@ -82,13 +77,13 @@ export default {
         return result;
     },
 
-    build: function (spec: LayoutSpec, names, writers, stdout) {
+    build: function (spec: LayoutSpec, names: PanelSet, writers: WriterPanel[], stdout): Panel {
         // TODO MAYBE WE SHOULD CHECK THAT THERE IS NO COLUMNS-COLUMNS OR ROWS-ROWS NESTING
         var result: Panel;
         if (spec.rows) {
-            var rows = [];
+            var rows: Panel[] = [];
             spec.rows.forEach(row => {
-                var child = this.build(row, names, writers, stdout);
+                var child: Panel = this.build(row, names, writers, stdout);
                 rows.push(child);
                 if (row.name) {
                     // TODO SHOULD WE CHECK FOR UNIQUE NAMES?
@@ -99,7 +94,7 @@ export default {
         } else if (spec.cols) {
             // TODO MUST CHECK THAT ONE WIDTH IS 'auto' AND THE REST ARE NUMBERS
             // TODO MUST CHECK THAT SUM OF WIDTHS IS NOT LARGER THAN AVAILABLE FOR THIS PANEL
-            var cols = [];
+            var cols: Panel[] = [];
             var layout = [];
             spec.cols.forEach(col => {
                 if (col.width !== 'auto' && typeof col.width !== 'number') {

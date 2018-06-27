@@ -607,9 +607,9 @@ export default class WriterPanel implements Panel {
 		return -1;
 	}
 
-	getChildOffset(child) {
+	getChildOffset(child): [number, number] {
 		throw new Error('NOT IMPLEMENTED');
-		return [];
+		return [-1, -1];
 	}
 
 	getChildWidth(child) {

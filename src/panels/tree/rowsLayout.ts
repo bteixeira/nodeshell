@@ -22,7 +22,7 @@ export default class RowsLayout implements Panel {
 		return this.parent.getChildOffsetH(this);
 	}
 
-	getChildOffset(child) {
+	getChildOffset(child): [number, number] {
 		return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
 	}
 
