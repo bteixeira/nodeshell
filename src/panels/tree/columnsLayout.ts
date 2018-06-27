@@ -1,6 +1,6 @@
 const rl = require('readline');
 import WriterPanel from './writerPanel';
-import {Panel} from '../composer';
+import Panel from './panel';
 import {WriteStream} from 'tty';
 
 /**

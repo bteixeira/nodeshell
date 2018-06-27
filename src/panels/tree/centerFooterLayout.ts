@@ -1,5 +1,5 @@
 import * as readline from 'readline';
-import {Panel} from '../composer';
+import Panel from './panel';
 import {WriteStream} from 'tty';
 
 export default class CenterFooterLayout implements Panel {
@@ -26,6 +26,8 @@ export default class CenterFooterLayout implements Panel {
 	getChildWidth(child: Panel): number {
 		return this.stdout.columns;
 	}
+
+	// TODO IT'S RETURNING ONLY SPACE AVAILABLE IN THIS PANEL, ie IT'S ASSUMING THAT THIS PANEL IS THE ROOT
 	getSpaceBelowChild(child: Panel): number {
 		if (child === this.center && this.footer) {
 			return this.footer.getHeight();

@@ -1,4 +1,4 @@
-import {Panel} from '../composer';
+import Panel from './panel';
 
 var lastActive;
 var oldFooterHeight = 0;
@@ -309,54 +309,7 @@ export default class WriterPanel implements Panel {
 		}
 	}
 
-	superWrite(buf) {
-		var target; // NOT IMPLEMENTED
-		var width; // NOT IMPLEMENTED
-
-		var active = WriterPanel.active;
-		if (active !== this) {
-			this.activate();
-		}
-
-		var w = this.getWidth() - this.col + 1;
-		var chunks = [];
-
-
-		//var len = splitBufferAt(buf, w, chunks);
-		var at = 0;
-		var sum = 0;
-
-		iterateEscapedString(buf, function (seq, isEscape) {
-			at += seq.length;
-			if (!isEscape) {
-				sum += 1;
-			}
-			if (sum >= width) {
-				return false;
-			}
-		});
-
-		target.push(buf.slice(0, at));
-		target.push(buf.slice(at));
-
-		//return sum;
-		var len = sum;
-		////////
-
-
-		this.stdout.write(chunks[0]);
-		this.col += len;
-		if (len === w) {
-			this.insertNewLine.call(this/*, true?*/);
-		}
-		if (chunks[1]) {
-			this.superWrite(chunks[1]);
-		}
-
-		if (active !== this) {
-			active.activate();
-		}
-	}
+	// TODO REMOVED METHOD superWrite(buf)
 
 	moveCursor(dx, dy) {
 		if (typeof dy === 'undefined') {
@@ -529,7 +482,6 @@ export default class WriterPanel implements Panel {
 		var width = this.getWidth();
 
 		while (this.row < this.height) {
-			//this.write( new Array(this.getWidth() - col + 2).join(' ') );
 			this.stdout.write(new Array(width - this.col + 2).join(' '));
 			rl.moveCursor(this.stdout, -width, 1);
 			this.row += 1;

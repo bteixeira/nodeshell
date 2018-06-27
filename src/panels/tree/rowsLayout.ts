@@ -1,4 +1,4 @@
-import {Panel} from '../composer';
+import Panel from './panel';
 
 export default class RowsLayout implements Panel {
 	private parent: Panel;
@@ -9,16 +9,18 @@ export default class RowsLayout implements Panel {
 		});
 	}
 
-	getChildOffsetV(child) {
-		var i;
-		var sum = 0;
+	getChildOffsetV(child: Panel): number {
+		var i: number;
+		var sum: number = 0;
+
+		// TODO REPLACE WITH Array.reduce()
 		for (i = 0; this.children[i] !== child && i < this.children.length; i++) {
 			sum += this.children[i].getHeight();
 		}
 		return sum + this.parent.getChildOffsetV(this);
 	}
 
-	getChildOffsetH(child) {
+	getChildOffsetH(child: Panel): number {
 		return this.parent.getChildOffsetH(this);
 	}
 
