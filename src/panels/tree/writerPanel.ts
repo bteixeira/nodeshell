@@ -118,8 +118,8 @@ export default class WriterPanel implements Panel {
 	private col: number = 1;
 	private rows: number = 1;
 	private height: number = 1;
-	private footer?;
-	private content = [];
+	private footer?: Panel;
+	private content: string[] = [];
 
 	public columns: number;
 
