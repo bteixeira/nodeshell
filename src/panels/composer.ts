@@ -20,16 +20,15 @@ type PanelSet = {
 
 export default {
 	buildInit(spec: LayoutSpec, stdout: WriteStream): Panel {
-
 		const names: PanelSet = {};
 		const writers: WriterPanel[] = [];
 		var result: Panel;
 
 		if (!spec || !Object.keys(spec).length) {
 			// Single Writer layout ...
-			const singleWriter = new WriterPanel(stdout);
-			result = new CenterFooterLayout(singleWriter, null, stdout);
-			result.prompt = singleWriter;
+			const writerPanel = new WriterPanel(stdout);
+			result = new CenterFooterLayout(writerPanel, null, stdout);
+			result.prompt = writerPanel;
 			//}
 
 			/* TODO
@@ -74,6 +73,7 @@ export default {
 				if (row.name) {
 					// TODO SHOULD WE CHECK FOR UNIQUE NAMES?
 					names[row.name] = child;
+					// TODO DO WE NEED TO HANDLE NAMES OF CHILDREN? ALL OF THEM HAVE THEIR OWN ITERATION OF build() WHICH HANDLES THE NAME
 				}
 			});
 			result = new RowsLayout(rows);
@@ -84,6 +84,7 @@ export default {
 			const layout: WidthSpec[] = [];
 			spec.cols.forEach(col => {
 				if (col.width !== 'auto' && typeof col.width !== 'number') {
+					// TODO NOT NEEDED? TYPE SYSTEM
 					throw 'Column definition needs width specification (either number or "auto")';
 				}
 				layout.push(col.width);
@@ -92,6 +93,7 @@ export default {
 				if (col.name) {
 					// TODO SHOULD WE CHECK FOR UNIQUE NAMES?
 					names[col.name] = child;
+					// TODO DO WE NEED TO HANDLE NAMES OF CHILDREN? ALL OF THEM HAVE THEIR OWN ITERATION OF build() WHICH HANDLES THE NAME
 				}
 			});
 			result = new ColumnsLayout(cols, layout, stdout);
