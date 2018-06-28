@@ -5,11 +5,11 @@ var lastActive;
 var oldFooterHeight = 0;
 var rl = require('readline');
 
-function saveCursor(stdout) {
+function saveCursor (stdout) {
 	stdout.write('\0o33[s');
 }
 
-function restoreCursor(stdout) {
+function restoreCursor (stdout) {
 	stdout.write('\0o33[u');
 }
 
@@ -20,7 +20,7 @@ function restoreCursor(stdout) {
  *              callback(seq, isEscape){}
  *                this callback can return a false to break the iteration
  */
-function iterateEscapedString(str, operator) {
+function iterateEscapedString (str, operator) {
 	var char;
 	var code;
 	var tmp = '';
@@ -85,7 +85,7 @@ function iterateEscapedString(str, operator) {
  *
  * returns: the calculated width of the first chunk.
  */
-function splitBufferAt(buf, width, target) {
+function splitBufferAt (buf, width, target) {
 	// TODO!
 	// TODO! DO THIS FIRST!
 
@@ -116,21 +116,25 @@ export default class WriterPanel implements Panel {
 	private parent: Panel;
 	private row: number = 1;
 	private col: number = 1;
-	private rows: number = 1;
+
+	/**
+	 * The number of rows of the content of this panel
+	 */
 	private height: number = 1;
+
 	private footer?: Panel;
 	private content: string[] = [];
 
 	public columns: number;
 
-	constructor(private stdout: WriteStream) {
+	constructor (private stdout: WriteStream) {
 	}
 
-	setFooter(footer_) {
+	setFooter (footer_) {
 		this.footer = footer_;
 	}
 
-	insert(ch, skipChecks) {
+	insert (ch, skipChecks) {
 		if (ch.charCodeAt(0) === 127) {
 			if (this.col > 1) {
 				this.stdout.write(ch);
@@ -155,7 +159,7 @@ export default class WriterPanel implements Panel {
 		}
 	}
 
-	write(str) {
+	write (str) {
 		/*
 		var ch;
 		var status = 0; // 0 = normal | 1 = escape char found in the previous loop | 2 = in multi-char escape sequence
@@ -208,7 +212,7 @@ export default class WriterPanel implements Panel {
 		this.superWrite3(str);
 	}
 
-	superWrite3(buf) {
+	superWrite3 (buf) {
 		var active = WriterPanel.active;
 		if (active !== this) {
 			this.activate();
@@ -274,7 +278,7 @@ export default class WriterPanel implements Panel {
 		}
 	}
 
-	superWrite2(buf) {
+	superWrite2 (buf) {
 		var active = WriterPanel.active;
 		if (active !== this) {
 			this.activate();
@@ -312,7 +316,7 @@ export default class WriterPanel implements Panel {
 
 	// TODO REMOVED METHOD superWrite(buf)
 
-	moveCursor(dx, dy) {
+	moveCursor (dx, dy) {
 		if (typeof dy === 'undefined') {
 			dy = 0;
 		}
@@ -342,7 +346,7 @@ export default class WriterPanel implements Panel {
 		}
 	}
 
-	cursorTo(x: number, y: number = this.row) {
+	cursorTo (x: number, y: number = this.row) {
 		if (x > this.getWidth()) {
 			x = this.getWidth();
 		} else if (x < 1) {
@@ -362,7 +366,7 @@ export default class WriterPanel implements Panel {
 		this.row = y;
 	}
 
-	rewrite() {
+	rewrite () {
 		/*
 		var active = Writer.active;
 		this.activate();
@@ -385,11 +389,11 @@ export default class WriterPanel implements Panel {
 		this.redraw.call(this);
 	}
 
-	rewind() {
+	rewind () {
 		rl.moveCursor(this.stdout, -this.col + 1, -this.row + 1);
 	}
 
-	activate() {
+	activate () {
 		var offsetThis = this.getOffset();
 		var diff = 0;
 		var active = WriterPanel.active;
@@ -422,24 +426,24 @@ export default class WriterPanel implements Panel {
 		WriterPanel.active = this;
 	}
 
-	getOffset() {
+	getOffset () {
 		var offset = this.parent.getChildOffset(this);
 		return [offset[0] + this.row - 1, offset[1] + this.col - 1];
 	}
 
-	getHeight() {
+	getHeight () {
 		return this.height;
 	}
 
-	setParent(parent_) {
+	setParent (parent_) {
 		this.parent = parent_;
 	}
 
-	calculateWidth() {
+	calculateWidth () {
 		this.columns = this.parent.getChildWidth(this);
 	}
 
-	isFooter() {
+	isFooter () {
 		return this.parent.isFooter(this);
 	}
 
@@ -451,7 +455,7 @@ export default class WriterPanel implements Panel {
 	 * Either have a way to signal the active panel that it lost focus or have a general reset method that builds the
 	 * whole layout assuming the cursor is at the beginning of input.
 	 */
-	repositionCursor() {
+	repositionCursor () {
 		var offset = this.getOffset();
 		rl.moveCursor(this.stdout, offset[1], offset[0]);
 	}
@@ -459,16 +463,16 @@ export default class WriterPanel implements Panel {
 	/**
 	 * Resets the buffered content of this panel. Does not clean the screen.
 	 */
-	reset() {
+	reset () {
 		this.content = [];
 		this.row = this.col = this.height = 1;
 	}
 
-	getWidth() {
+	getWidth () {
 		return this.parent.getChildWidth(this);
 	}
 
-	clearScreenDown() {
+	clearScreenDown () {
 		var active = WriterPanel.active;
 		if (active !== this) {
 			this.activate();
@@ -499,29 +503,29 @@ export default class WriterPanel implements Panel {
 		}
 	}
 
-	clearScreen() {
+	clearScreen () {
 		// TODO
 		this.cursorTo(1, 1);
 		this.clearScreenDown();
 	}
 
-	clearLine() {
+	clearLine () {
 		// TODO
 	}
 
-	clearLineLeft() {
+	clearLineLeft () {
 		// TODO
 	}
 
-	clearLineRight() {
+	clearLineRight () {
 		// TODO
 	}
 
-	setRedraw(redraw_) {
+	setRedraw (redraw_) {
 		this.redraw = redraw_;
 	}
 
-	private insertNewLine(skipChecks?) {
+	private insertNewLine (skipChecks?) {
 		var spaceBelow = this.parent.getSpaceBelowChild(this);
 		var offsetH = this.parent.getChildOffsetH(this);
 		var width = this.parent.getChildWidth(this);
@@ -529,14 +533,26 @@ export default class WriterPanel implements Panel {
 		var oldCol = this.col;
 		this.col = 1;
 		if (this.row > this.height) {
+
+			// IIRC we're adding an extra newline because if the newline is at the last column and last row of the
+			// screen, the screen doesn't actually scroll down until a printable character has been written.
 			this.stdout.write(new Array(spaceBelow + 2).join('\n'));
+
+			// And here we move the cursor back up one row
 			rl.moveCursor(this.stdout, offsetH, -spaceBelow);
+
+			// This makes sure the row is blank by printing spaces
 			this.stdout.write(new Array(width + 1).join(' '));
+
 			rl.moveCursor(this.stdout, -width + (
-				// if this panel is on the right edge of the screen, the cursor is actually one character behind
+				// If this panel is on the right edge of the screen, the cursor is actually one character behind
 				offsetH + width === this.stdout.columns ? 1 : 0
 			), 0);
-			this.rows = this.height = this.row;
+
+			// height is incremented by 1
+			this.height = this.row;
+
+			// Redraw all content below our own, because part of it was overwritten by this panel
 			this.parent.redrawBelowChild(this);
 		} else {
 			rl.moveCursor(this.stdout, -oldCol + 1 + (
@@ -546,36 +562,36 @@ export default class WriterPanel implements Panel {
 		}
 	}
 
-	getChildOffsetV(child) {
+	getChildOffsetV (child) {
 		throw new Error('NOT IMPLEMENTED');
 		return -1;
 	}
 
-	getChildOffsetH(child) {
+	getChildOffsetH (child) {
 		throw new Error('NOT IMPLEMENTED');
 		return -1;
 	}
 
-	getChildOffset(child): [number, number] {
+	getChildOffset (child): [number, number] {
 		throw new Error('NOT IMPLEMENTED');
 		return [-1, -1];
 	}
 
-	getChildWidth(child) {
+	getChildWidth (child) {
 		throw new Error('NOT IMPLEMENTED');
 		return -1;
 	}
 
-	getSpaceBelowChild(child) {
+	getSpaceBelowChild (child) {
 		throw new Error('NOT IMPLEMENTED');
 		return -1;
 	}
 
-	reserveSpace() {
+	reserveSpace () {
 		throw new Error('NOT IMPLEMENTED');
 	}
 
-	redrawBelowChild(child) {
+	redrawBelowChild (child) {
 		throw new Error('NOT IMPLEMENTED');
 		return -1;
 	}

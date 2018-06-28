@@ -49,9 +49,9 @@ const keyHandler: KeyHandler = new KeyHandler(process.stdin);
 
 function setLayout(spec) {
 	// TODO validate spec according to high-level strict rules
-	layout = LayoutComposer.buildInit(spec, stdout);
-	lineReader.setWriter(layout.prompt);
-	permanent.nsh.layout = layout; // Not so permanent after all...
+	rootPanel = LayoutComposer.buildInit(spec, stdout);
+	lineReader.setWriter(rootPanel.prompt);
+	permanent.nsh.layout = rootPanel; // Not so permanent after all...
 }
 
 const permanent = {
@@ -107,9 +107,9 @@ function doneCB(result: any) {
 	console.log(inspect(result));
 	// TODO MAKE READ-ONLY PROPERTIES INSTEAD
 	extend(ctx, permanent);
-	layout.reset();
-	layout.reserveSpace();
-	layout.rewrite();
+	rootPanel.reset();
+	rootPanel.reserveSpace();
+	rootPanel.rewrite();
 	lineReader.refreshLine();
 	process.stdin.resume();
 	process.stdin.setRawMode(true);
@@ -130,8 +130,8 @@ lineReader
 	})
 	.updatePrompt()
 	.on('accept', function (line: string) {
-		layout.writers.forEach(function (writer) {
-			if (writer !== layout.prompt) {
+		rootPanel.writers.forEach(function (writer) {
+			if (writer !== rootPanel.prompt) {
 				writer.cursorTo(1, 1);
 				writer.clearScreenDown();
 			}
@@ -165,13 +165,13 @@ lineReader
 var history = new History(lineReader);
 
 function complete() {
-	CompletionParser.parseCmdLine(lineReader, commands, layout.completions);
+	CompletionParser.parseCmdLine(lineReader, commands, rootPanel.completions);
 }
 
 defaultCmdConfig(CompletionParser);
 require('./defaultKeys')(keyHandler, lineReader, history, complete);
 
-var layout: Panel;
+var rootPanel: Panel;
 
 setLayout({name: 'prompt'});
 
@@ -184,13 +184,13 @@ function runUserFile() {
 
 runUserFile();
 
-layout.writers.forEach(function (writer) {
-	if (writer !== layout.prompt) {
+rootPanel.writers.forEach(function (writer) {
+	if (writer !== rootPanel.prompt) {
 		writer.rewrite();
 	}
 });
 
 lineReader.refreshLine();
 lineReader.on('change', function () {
-	CompletionParser.parseCmdLine(lineReader, commands, layout.completions, false);
+	CompletionParser.parseCmdLine(lineReader, commands, rootPanel.completions, false);
 });

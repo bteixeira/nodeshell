@@ -35,9 +35,20 @@ export default interface Panel {
 	reserveSpace: () => void;
 
 	redrawBelowChild: (Panel) => void;
+
+	// Just calls rewrite() on all children, WriterPanel calls reset() followed by redraw()
 	rewrite: () => void;
+
+	/**
+	 * Resets the buffered content of this panel. Does not clean the screen.
+	 */
 	reset: () => void;
+
 	setParent: (Panel) => void;
+
+	/**
+	 * @returns {number} The number of rows needed to display the content of this panel
+	 */
 	getHeight: () => number;
 
 	// TODO REMOVE ME, THIS IS A SPECIFIC DESCENDANT PANEL USED BY THE CURRENT PROFILE, NAMED PANELS SHOULD BE HANDLED IN A TYPE SAFE WAY

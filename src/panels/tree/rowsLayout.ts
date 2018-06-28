@@ -48,6 +48,7 @@ export default class RowsLayout implements Panel {
 
 	getHeight() {
 		var sum = 0;
+		// TODO REPLACE WITH Array.reduce()
 		this.children.forEach(function (child) {
 			sum += child.getHeight();
 		});

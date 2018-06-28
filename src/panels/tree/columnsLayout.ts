@@ -91,11 +91,13 @@ export default class ColumnsLayout implements Panel {
 		return this.parent.getSpaceBelowChild(this);
 	}
 
-	getHeight() {
+	getHeight(): number {
 		var max = 0;
+		// TODO REPLACE WITH Array.reduce()
 		this.children.forEach(function (child) {
-			if (child.getHeight() > max) {
-				max = child.getHeight();
+			const h = child.getHeight();
+			if (h > max) {
+				max = h;
 			}
 		});
 		return max;
