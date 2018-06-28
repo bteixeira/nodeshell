@@ -1,14 +1,17 @@
+import {WriteStream} from 'tty';
 import CenterFooterLayout from './tree/centerFooterLayout';
 import ColumnsLayout from './tree/columnsLayout';
 import RowsLayout from './tree/rowsLayout';
 import Panel from './tree/panel';
 import WriterPanel from './tree/writerPanel';
 
+type WidthSpec = number | 'auto';
+
 interface LayoutSpec {
 	cols: LayoutSpec[];
 	rows: LayoutSpec[];
 	name: string;
-	width: number | 'auto';
+	width: WidthSpec;
 }
 
 type PanelSet = {
@@ -16,15 +19,15 @@ type PanelSet = {
 }
 
 export default {
-	buildInit(spec: LayoutSpec, stdout): Panel {
+	buildInit(spec: LayoutSpec, stdout: WriteStream): Panel {
 
-		var names: PanelSet = {};
-		var writers: WriterPanel[] = [];
+		const names: PanelSet = {};
+		const writers: WriterPanel[] = [];
 		var result: Panel;
 
 		if (!spec || !Object.keys(spec).length) {
 			// Single Writer layout ...
-			var singleWriter = new WriterPanel(stdout);
+			const singleWriter = new WriterPanel(stdout);
 			result = new CenterFooterLayout(singleWriter, null, stdout);
 			result.prompt = singleWriter;
 			//}
@@ -44,7 +47,7 @@ export default {
 				*/
 		} else {
 			// Center only layout ...
-			var built = this.build(spec, names, writers, stdout);
+			const built: Panel = this.build(spec, names, writers, stdout);
 			result = new CenterFooterLayout(built, null, stdout);
 		}
 
@@ -60,13 +63,13 @@ export default {
 		return result;
 	},
 
-	build: function (spec: LayoutSpec, names: PanelSet, writers: WriterPanel[], stdout): Panel {
+	build: function (spec: LayoutSpec, names: PanelSet, writers: WriterPanel[], stdout: WriteStream): Panel {
 		// TODO MAYBE WE SHOULD CHECK THAT THERE IS NO COLUMNS-COLUMNS OR ROWS-ROWS NESTING
 		var result: Panel;
 		if (spec.rows) {
-			var rows: Panel[] = [];
+			const rows: Panel[] = [];
 			spec.rows.forEach(row => {
-				var child: Panel = this.build(row, names, writers, stdout);
+				const child: Panel = this.build(row, names, writers, stdout);
 				rows.push(child);
 				if (row.name) {
 					// TODO SHOULD WE CHECK FOR UNIQUE NAMES?
@@ -77,14 +80,14 @@ export default {
 		} else if (spec.cols) {
 			// TODO MUST CHECK THAT ONE WIDTH IS 'auto' AND THE REST ARE NUMBERS
 			// TODO MUST CHECK THAT SUM OF WIDTHS IS NOT LARGER THAN AVAILABLE FOR THIS PANEL
-			var cols: Panel[] = [];
-			var layout = [];
+			const cols: Panel[] = [];
+			const layout: WidthSpec[] = [];
 			spec.cols.forEach(col => {
 				if (col.width !== 'auto' && typeof col.width !== 'number') {
 					throw 'Column definition needs width specification (either number or "auto")';
 				}
 				layout.push(col.width);
-				var child = this.build(col, names, writers, stdout);
+				const child = this.build(col, names, writers, stdout);
 				cols.push(child);
 				if (col.name) {
 					// TODO SHOULD WE CHECK FOR UNIQUE NAMES?
@@ -93,7 +96,7 @@ export default {
 			});
 			result = new ColumnsLayout(cols, layout, stdout);
 		} else {
-			var writer = new WriterPanel(stdout);
+			const writer = new WriterPanel(stdout);
 			writers.push(writer);
 			result = writer;
 		}

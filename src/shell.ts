@@ -1,26 +1,27 @@
 import * as vm from 'vm';
 import * as util from 'util';
 import * as path from 'path';
+import * as readline from 'readline';
+import {WriteStream} from 'tty';
+import 'colors';
 
 import KeyHandler from './keyhandler';
-import {Commands} from './commands';
 import LineReader from './lineReader';
-import createDefaultCommands from './createDefaultCommands';
-
-import * as defaultLineParser from './parser/defaultLineParser';
-import * as CompletionParser from './parser/completionParser';
 import Executer from './parser/RunnableWrapperExecuterVisitor';
-
 import LayoutComposer from './panels/composer';
-
 import ErrorWrapper from './errorWrapper';
 import History from './history';
-import * as utils from './utils';
-import 'colors';
-import * as readline from 'readline';
-
-import defaultCmdConfig from './defaultCmdConfig';
 import WriterPanel from './panels/tree/writerPanel';
+import Panel from './panels/tree/panel';
+import Commands from './commands';
+
+import createDefaultCommands from './createDefaultCommands';
+import defaultCmdConfig from './defaultCmdConfig';
+import * as utils from './utils';
+import * as defaultLineParser from './parser/defaultLineParser';
+import * as CompletionParser from './parser/completionParser';
+
+const stdout: WriteStream = process.stdout as WriteStream;
 
 var paused: boolean = false;
 
@@ -43,12 +44,12 @@ process.on('SIGCHLD', function () {
 process.on('SIGTSTP', function () {
 });
 
-const lineReader: LineReader = new LineReader(new WriterPanel(process.stdout));
+const lineReader: LineReader = new LineReader(new WriterPanel(stdout));
 const keyHandler: KeyHandler = new KeyHandler(process.stdin);
 
 function setLayout(spec) {
 	// TODO validate spec according to high-level strict rules
-	layout = LayoutComposer.buildInit(spec, process.stdout);
+	layout = LayoutComposer.buildInit(spec, stdout);
 	lineReader.setWriter(layout.prompt);
 	permanent.nsh.layout = layout; // Not so permanent after all...
 }
@@ -90,19 +91,19 @@ const permanent = {
 	},
 };
 
-var extend = utils.extend;
+const extend = utils.extend;
 
-var ctx = vm.createContext(permanent);
+const ctx = vm.createContext(permanent);
 
-var inspect = function (what) {
+function inspect(what: any) {
 	if (what instanceof ErrorWrapper) {
 		return what.toString().red;
 	} else {
 		return util.inspect.call(this, what, {colors: true});
 	}
-};
+}
 
-function doneCB(result) {
+function doneCB(result: any) {
 	console.log(inspect(result));
 	// TODO MAKE READ-ONLY PROPERTIES INSTEAD
 	extend(ctx, permanent);
@@ -120,7 +121,7 @@ commands = new Commands({
 	parent: commands,
 	skipPath: true
 });
-var executer = new Executer(commands, ctx);
+const executer = new Executer(commands, ctx);
 
 lineReader
 	.setPrompt(function () {
@@ -170,8 +171,7 @@ function complete() {
 defaultCmdConfig(CompletionParser);
 require('./defaultKeys')(keyHandler, lineReader, history, complete);
 
-
-var layout;
+var layout: Panel;
 
 setLayout({name: 'prompt'});
 
@@ -181,6 +181,7 @@ function runUserFile() {
 	utils.sourceSync(path.join(home, NSH_FILE), ctx);
 	utils.sourceSync(path.join('.', NSH_FILE), ctx);
 }
+
 runUserFile();
 
 layout.writers.forEach(function (writer) {

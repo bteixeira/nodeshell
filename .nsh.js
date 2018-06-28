@@ -91,10 +91,6 @@ nsh.layout.completions.setRedraw(function () {
     // this.write('Completions go here...');
 });
 
-
-
-
-
 /**/
 // TODO THIS IS KINDA HOW IT SHOULD BE
 nsh.on('before-execute before-exit', function () {

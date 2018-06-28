@@ -5,7 +5,7 @@ var utils = require('./utils');
 var CPWrapper = require('./parser/runners/cpWrapper');
 var spawn = require('child_process').spawn;
 
-export class Commands {
+export default class Commands {
 	public commands: any;
 	private parent: Commands;
 

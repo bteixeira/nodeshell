@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 import LineReader from './lineReader';
-import {Commands} from './commands';
+import Commands from './commands';
 import * as utils from './utils';
 
 class Completions {

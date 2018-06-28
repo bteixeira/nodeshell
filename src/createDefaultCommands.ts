@@ -1,9 +1,9 @@
 var util = require('util');
 
-import {Commands} from './commands';
+import Commands from './commands';
 import ErrorWrapper from './errorWrapper';
-var utils = require('./utils');
-var FunRunner = require('./parser/runners/FunRunner');
+import * as utils from './utils';
+const FunRunner = require('./parser/runners/FunRunner');
 
 export default function (context) {
 

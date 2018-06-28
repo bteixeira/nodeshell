@@ -1,3 +1,4 @@
+import {WriteStream} from 'tty';
 import Panel from './panel';
 
 var lastActive;
@@ -122,7 +123,7 @@ export default class WriterPanel implements Panel {
 
 	public columns: number;
 
-	constructor(private stdout) {
+	constructor(private stdout: WriteStream) {
 	}
 
 	setFooter(footer_) {
