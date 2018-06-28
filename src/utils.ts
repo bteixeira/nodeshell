@@ -59,15 +59,11 @@ export function expandHomeDir (dir: any): string {
 
 export {extend as extend}
 
-export function createEnum (...argv: string[]): { [index: string]: any } {
-	var enum_: { [key: string]: object } = {};
+// TODO RESEARCH WHETHER IT'S POSSIBLE TO CREATE TYPE-SAFE ENUMS, LOOK INTO GENERICS
+export function createEnum (...argv: string[]): { [index: string]: symbol } {
+	var enum_: { [key: string]: symbol } = {};
 	argv.forEach((arg: string) => {
-		enum_[arg] = {
-			id: arg,
-			toString: function () {
-				return '#' + arg.replace(/\s/g, '_');
-			}
-		}
+		enum_[arg] = Symbol(arg);
 	});
 	return enum_;
 }

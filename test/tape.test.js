@@ -31,12 +31,12 @@ describe('Tape', function () {
 
     it('skips white-space', function () {
         tape.pos = 4;
-        tape.skipWS();
+        tape.skipWhitespace();
         assert.equal(tape.pos, 14);
     });
 
     it('skips non-white-space', function () {
-        tape.skipNonWS();
+        tape.skipNonWhitespace();
         assert.equal(tape.pos, 4);
     });
 
@@ -141,9 +141,9 @@ describe('Tape', function () {
 
         tape = new Tape(arr);
 
-        tape.skipWS();
+        tape.skipWhitespace();
         tape.pos.should.be.exactly(4);
-        tape.skipNonWS();
+        tape.skipNonWhitespace();
         tape.pos.should.be.exactly(6);
         tape.next();
         tape.skipTo(/c+/);
