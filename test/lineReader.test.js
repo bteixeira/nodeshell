@@ -1,8 +1,9 @@
 require('should');
 
 var util = require('util');
-var LineReader = require('../dist/lineReader').default;
 var streams = require('stream');
+var LineReader = require('../dist/lineReader').default;
+var WriterPanel = require('../dist/panels/tree/writerPanel').default;
 
 var DummyStream = function () {
     var args = [].slice(arguments, 0);
@@ -16,11 +17,13 @@ DummyStream.prototype._write = function () {};
 describe('LineReader', function () {
 
     var output;
-    var lineReader;
+	var writerPanel;
+	var lineReader;
 
     beforeEach(function () {
         output = new DummyStream();
-        lineReader = new LineReader(output);
+        writerPanel = new WriterPanel(output);
+        lineReader = new LineReader(writerPanel);
     });
 
     describe('Character Counting', function () {

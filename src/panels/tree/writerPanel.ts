@@ -341,11 +341,7 @@ export default class WriterPanel implements Panel {
 		}
 	}
 
-	cursorTo(x, y) {
-		if (typeof y === 'undefined') {
-			y = this.row;
-		}
-
+	cursorTo(x: number, y: number = this.row) {
 		if (x > this.getWidth()) {
 			x = this.getWidth();
 		} else if (x < 1) {

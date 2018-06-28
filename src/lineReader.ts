@@ -1,6 +1,4 @@
-var readline = require('readline');
-var util = require('util');
-var utils = require('./utils');
+import WriterPanel from "./panels/tree/writerPanel";
 import {EventEmitter} from 'events';
 
 /**
@@ -19,7 +17,7 @@ import {EventEmitter} from 'events';
  * @constructor
  */
 export default class LineReader extends EventEmitter {
-    writer: any;
+    writer: WriterPanel;
     prompt: () => string;
     _prompt: string;
     _prompting: any;
@@ -28,7 +26,7 @@ export default class LineReader extends EventEmitter {
     prevRows: number;
     line: any;
 
-	constructor(writer) {
+	constructor(writer: WriterPanel) {
 	    super();
 		this.writer = writer;
 
