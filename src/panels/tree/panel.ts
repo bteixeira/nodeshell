@@ -41,5 +41,5 @@ export default interface Panel {
 	getHeight: () => number;
 
 	// TODO REMOVE ME, THIS IS A SPECIFIC DESCENDANT PANEL USED BY THE CURRENT PROFILE, NAMED PANELS SHOULD BE HANDLED IN A TYPE SAFE WAY
-	completions?: Panel;
+	completions?: WriterPanel;
 }

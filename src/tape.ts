@@ -12,9 +12,9 @@
 
 var utils = require('./utils');
 
-export class Tape {
+export default class Tape {
 	private sequence: string|any[];
-	private pos: number;
+	public pos: number;
 	private mark: number;
 	private marks: number[];
 

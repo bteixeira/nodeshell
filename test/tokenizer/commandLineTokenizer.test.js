@@ -1,6 +1,6 @@
 var should = require('should');
 var CLT = require('../../dist/tokenizer/commandLineTokenizer').default;
-var Tape = require('../../dist/tape');
+var Tape = require('../../dist/tape').default;
 
 describe('Command Line Tokenizer', function () {
 

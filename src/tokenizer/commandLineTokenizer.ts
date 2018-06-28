@@ -1,4 +1,4 @@
-import {Tape} from '../tape';
+import Tape from '../tape';
 
 import * as jsMatcher from './matchers/jsMatcher';
 import * as redirMatcher from './matchers/redirMatcher';

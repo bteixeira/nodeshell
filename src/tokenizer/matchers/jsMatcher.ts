@@ -1,7 +1,8 @@
 import * as dQStringMatcher from './dqStringMatcher';
 import * as utils from '../../utils';
+import Tape from "../../tape";
 
-export function run (tape) {
+export function run (tape: Tape) {
     if (tape.peek() !== '(') {
         return {
             type: t.JS_ERROR,

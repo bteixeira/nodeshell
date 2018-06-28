@@ -1,7 +1,7 @@
 var assert = require('assert');
 var should = require('should');
 var Parser = require('../../dist/parser/descentParser');
-var Tape = require('../../dist/tape').Tape;
+var Tape = require('../../dist/tape').default;
 var commandsStub = require('../../test/commandsStub');
 var CLT = require('../../dist/tokenizer/commandLineTokenizer').default;
 

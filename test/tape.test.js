@@ -1,5 +1,5 @@
 var assert = require('assert');
-var Tape = require('../dist/tape').Tape;
+var Tape = require('../dist/tape').default;
 var should = require('should');
 
 describe('Tape', function () {
