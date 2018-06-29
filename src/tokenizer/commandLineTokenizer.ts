@@ -6,12 +6,21 @@ import * as dQStringMatcher from './matchers/dqStringMatcher';
 import * as chainMatcher from './matchers/chainMatcher';
 import * as globMatcher from './matchers/globMatcher';
 
+export interface Token {
+	type: symbol | 'COMPLETION'; // TODO COMPLETION SHOULD ALSO BE A SYMBOL
+	text: string;
+	pos?: number;
+	err?: boolean;
+	subTokens?: Token[];
+	fd?: string; // TODO SPECIFIC TO REDIRECTION
+}
+
 export default function (line: sequence) {
 	const tape: Tape = new Tape(line);
 
 	var c: char;
 	var tokens: any[] = [];
-	var token;
+	var token: Token;
 
 	while (tape.hasMore()) {
 		c = tape.peek();

@@ -2,12 +2,12 @@ import * as dQStringMatcher from './dqStringMatcher';
 import * as utils from '../../utils';
 import Tape, {char, sequence} from '../../tape';
 
-export function run(tape: Tape) {
+export function run (tape: Tape) {
 	if (tape.peek() !== '(') {
 		return {
 			type: tokens.JS_ERROR,
 			text: tape.peek(),
-			pos: tape.pos
+			pos: tape.pos,
 		};
 	}
 
@@ -22,7 +22,7 @@ export function run(tape: Tape) {
 	var text: sequence;
 	var stack: string[] = [];
 
-	function top() {
+	function top () {
 		return stack[stack.length - 1];
 	}
 
@@ -80,7 +80,7 @@ export function run(tape: Tape) {
 	return {
 		type: type,
 		text: text,
-		pos: pos
+		pos: pos,
 	};
 }
 

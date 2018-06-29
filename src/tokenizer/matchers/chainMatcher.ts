@@ -1,47 +1,48 @@
 // Matches command chainers ('|', '&', '||' or '&&')
 
 import * as utils from '../../utils';
+import Tape, {char} from '../../tape';
 
-export function run (tape) {
+export function run (tape: Tape) {
 
-    tape.pushMark();
-    tape.setMark();
+	tape.pushMark();
+	tape.setMark();
 
-    var c = tape.next();
-    var type;
+	var c: char = tape.next();
+	var type: symbol;
 
-    if (c === '&') {
-        if (tape.peek() === '&') {
-            tape.next();
-            type = t.DAMP;
-        } else {
-            type = t.AMP;
-        }
-    } else if (c === '|') {
-        if (tape.peek() === '|') {
-            tape.next();
-            type = t.DPIPE;
-        } else {
-            type = t.PIPE;
-        }
-    } else {
-        tape.prev();
-        type = t.NOT_CHAIN;
-    }
+	if (c === '&') {
+		if (tape.peek() === '&') {
+			tape.next();
+			type = tokens.DAMP;
+		} else {
+			type = tokens.AMP;
+		}
+	} else if (c === '|') {
+		if (tape.peek() === '|') {
+			tape.next();
+			type = tokens.DPIPE;
+		} else {
+			type = tokens.PIPE;
+		}
+	} else {
+		tape.prev();
+		type = tokens.NOT_CHAIN;
+	}
 
-    var text = tape.getMarked();
-    var pos = tape.popMark();
+	var text = tape.getMarked();
+	var pos = tape.popMark();
 
-    if (text.join) {
-        text = text.join('');
-    }
+	if (text instanceof Array) {
+		text = text.join('');
+	}
 
-    return {
-        type: type,
-        text: text,
-        pos: pos
-    };
+	return {
+		type: type,
+		text: text,
+		pos: pos,
+	};
 
 }
 
-const t = exports.tokens = utils.createEnum('AMP', 'PIPE', 'DAMP', 'DPIPE', 'NOT_CHAIN');
+export const tokens = utils.createEnum('AMP', 'PIPE', 'DAMP', 'DPIPE', 'NOT_CHAIN');

@@ -1,51 +1,53 @@
 import * as utils from '../../utils';
+import Tape, {char} from '../../tape';
 
-export function run (tape) {
-    if (tape.peek() !== '"') {
-        return {
-            type: t.NO_DQSTRING,
-            text: tape.peek(),
-            pos: tape.pos
-        };
-    }
+export function run (tape: Tape) {
+	if (tape.peek() !== '"') {
+		return {
+			type: tokens.NO_DQSTRING,
+			text: tape.peek(),
+			pos: tape.pos,
+		};
+	}
 
-    tape.pushMark();
-    tape.setMark(); // TODO push is always followed by set, isn't it?
+	tape.pushMark();
+	tape.setMark(); // TODO push is always followed by set, isn't it?
 
-    tape.next();
+	tape.next();
 
-    var c, type;
+	var c: char;
+	var type: symbol;
 
-    while (tape.hasMore()) {
-        c = tape.next();
-        if (c === '"') {
-            type = t.DQSTRING;
-            break;
-        } else if (c === '\\') {
-            if (!tape.hasMore()) {
-                type = t.UNTERMINATED_ESCAPING_DQSTRING;
-                break;
-            }
-            tape.next();
-        }
-        if (!tape.hasMore()) {
-            type = t.UNTERMINATED_DQSTRING;
-        }
-    }
+	while (tape.hasMore()) {
+		c = tape.next();
+		if (c === '"') {
+			type = tokens.DQSTRING;
+			break;
+		} else if (c === '\\') {
+			if (!tape.hasMore()) {
+				type = tokens.UNTERMINATED_ESCAPING_DQSTRING;
+				break;
+			}
+			tape.next();
+		}
+		if (!tape.hasMore()) {
+			type = tokens.UNTERMINATED_DQSTRING;
+		}
+	}
 
-    var text = tape.getMarked();
-    var pos = tape.popMark();
+	var text = tape.getMarked();
+	var pos = tape.popMark();
 
-    if (text.join) {
-        text = text.join('');
-    }
+	if (text instanceof Array) {
+		text = text.join('');
+	}
 
-    return {
-        type: type,
-        text: text,
-        pos: pos
-    };
+	return {
+		type: type,
+		text: text,
+		pos: pos,
+	};
 
 }
 
-const t = exports.tokens = utils.createEnum('DQSTRING', 'NO_DQSTRING', 'UNTERMINATED_DQSTRING', 'UNTERMINATED_ESCAPING_DQSTRING');
+export const tokens = utils.createEnum('DQSTRING', 'NO_DQSTRING', 'UNTERMINATED_DQSTRING', 'UNTERMINATED_ESCAPING_DQSTRING');

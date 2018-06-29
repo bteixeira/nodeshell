@@ -15,6 +15,7 @@ import * as utils from './utils';
 export type char = string;
 export type sequence = string | char[];
 
+// TODO USE GENERICS FOR TAPE
 export default class Tape {
 	private sequence: sequence;
 	public pos: number;
@@ -144,5 +145,9 @@ export default class Tape {
 	 */
 	rewindToMark(): void {
 		this.pos = this.mark;
+	}
+
+	getMark(): number {
+		return this.mark;
 	}
 }

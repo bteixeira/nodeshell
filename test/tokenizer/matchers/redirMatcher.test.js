@@ -147,9 +147,6 @@ describe('Matcher for redirections', function () {
 		var tape = new Tape(str);
 		tape.pos = 6;
 		var token = redirMatcher.run(tape);
-		console.error('XXX');
-		console.error(token.type);
-		console.error(redirMatcher.tokens.LTAMP);
 		token.type.should.be.exactly(redirMatcher.tokens.LTAMP);
 		token.text.should.equal(str.slice(6, 12));
 		token.fd.should.equal(str.slice(6, 10));
