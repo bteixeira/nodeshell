@@ -63,7 +63,7 @@ function matchEscape (tape) {
     if (!tape.hasMore()) {
         return {
             pos: tape.pos,
-            type: t.UNTERMINATED_ESCAPE,
+            type: tokens.UNTERMINATED_ESCAPE,
             err: true
         }
     }
@@ -87,7 +87,7 @@ export function run (tape) {
     var c = tape.peek();
     if (!tape.hasMore() || c in BREAKERS || /^\s$/.test(c)) {
         return {
-            type: t.NO_GLOB,
+            type: tokens.NO_GLOB,
             pos: tape.popMark(),
             text: c
         };
@@ -127,11 +127,11 @@ export function run (tape) {
 
     tape.popMark();
     return {
-        type: type || t.GLOB,
+        type: type || tokens.GLOB,
         pos: tape.mark,
         text: text,
         subTokens: subTokens
     }
 }
 
-var t = exports.tokens = utils.createEnum('GLOB', 'NO_GLOB', 'UNTERMINATED_ESCAPE');
+export const tokens = utils.createEnum('GLOB', 'NO_GLOB', 'UNTERMINATED_ESCAPE');

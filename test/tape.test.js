@@ -155,7 +155,7 @@ describe('Tape', function () {
             tape.next();
         }
         var item = tape.next();
-        item.should.be.exactly(Tape.EOF);
+        should.equal(item, Tape.EOF);
     });
 
     it('returns the current mark when popping it', function () {

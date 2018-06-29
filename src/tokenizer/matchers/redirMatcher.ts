@@ -28,26 +28,26 @@ export function run (tape) {
     if (c === '>') {
         if (tape.peek() === '>') {
             tape.next();
-            type = t.GTGT;
+            type = tokens.GTGT;
         } else if (tape.peek() === '&') {
             tape.next();
-            type = t.GTAMP;
+            type = tokens.GTAMP;
         } else {
-            type = t.GT;
+            type = tokens.GT;
         }
     } else if (c === '<') {
         if (tape.peek() === '>') {
             tape.next();
-            type = t.LTGT;
+            type = tokens.LTGT;
         } else if (tape.peek() === '&') {
             tape.next();
-            type = t.LTAMP;
+            type = tokens.LTAMP;
         } else {
-            type = t.LT;
+            type = tokens.LT;
         }
     } else {
         tape.prev();
-        type = t.NOTREDIR;
+        type = tokens.NOTREDIR;
     }
 
     var text = tape.getMarked();
@@ -61,6 +61,4 @@ export function run (tape) {
     };
 }
 
-var t = utils.createEnum('NOTREDIR', 'GT', 'GTGT', 'GTAMP', 'LT', 'LTGT', 'LTAMP');
-
-export {t as tokens}
+export const tokens = utils.createEnum('NOTREDIR', 'GT', 'GTGT', 'GTAMP', 'LT', 'LTGT', 'LTAMP');
