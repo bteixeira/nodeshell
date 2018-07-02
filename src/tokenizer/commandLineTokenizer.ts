@@ -15,11 +15,11 @@ export interface Token {
 	fd?: string; // TODO SPECIFIC TO REDIRECTION
 }
 
-export default function (line: sequence) {
-	const tape: Tape = new Tape(line);
+export default function (line: sequence<char>): Token[] {
+	const tape: Tape<char> = new Tape(line);
 
 	var c: char;
-	var tokens: any[] = [];
+	var tokens: Token[] = [];
 	var token: Token;
 
 	while (tape.hasMore()) {

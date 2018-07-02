@@ -1,5 +1,6 @@
 import * as path from 'path';
 import * as utils from '../../utils';
+import {Token} from '../commandLineTokenizer';
 
 const ESCAPABLES = {
     '0': '\0',
@@ -79,7 +80,7 @@ function matchEscape (tape) {
     };
 }
 
-export function run (tape) {
+export function run (tape): Token {
 
     tape.pushMark();
     tape.setMark();

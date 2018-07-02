@@ -1,8 +1,9 @@
 import * as dQStringMatcher from './dqStringMatcher';
 import * as utils from '../../utils';
 import Tape, {char, sequence} from '../../tape';
+import {Token} from '../commandLineTokenizer';
 
-export function run (tape: Tape) {
+export function run (tape: Tape<char>): Token {
 	if (tape.peek() !== '(') {
 		return {
 			type: tokens.JS_ERROR,
@@ -19,7 +20,7 @@ export function run (tape: Tape) {
 	var c: char;
 	var type: symbol; // TODO TRY TO MAKE TYPE-SAFE
 	var pos: number;
-	var text: sequence;
+	var text: sequence<char>;
 	var stack: string[] = [];
 
 	function top () {
@@ -79,7 +80,7 @@ export function run (tape: Tape) {
 
 	return {
 		type: type,
-		text: text,
+		text: text as string,
 		pos: pos,
 	};
 }

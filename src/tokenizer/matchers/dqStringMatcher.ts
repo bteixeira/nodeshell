@@ -1,7 +1,8 @@
 import * as utils from '../../utils';
 import Tape, {char} from '../../tape';
+import {Token} from '../commandLineTokenizer';
 
-export function run (tape: Tape) {
+export function run (tape: Tape<char>): Token {
 	if (tape.peek() !== '"') {
 		return {
 			type: tokens.NO_DQSTRING,
@@ -44,7 +45,7 @@ export function run (tape: Tape) {
 
 	return {
 		type: type,
-		text: text,
+		text: text as string,
 		pos: pos,
 	};
 

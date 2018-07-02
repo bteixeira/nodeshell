@@ -13,16 +13,20 @@
 import * as utils from './utils';
 
 export type char = string;
-export type sequence = string | char[];
+export type sequence<T> = {
+	length: number;
+	slice: (a: number, b: number) => sequence<T>;
+	[key: number]: T;
+}
 
 // TODO USE GENERICS FOR TAPE
-export default class Tape {
-	private sequence: sequence;
+export default class Tape<T> {
+	private sequence: sequence<T>;
 	public pos: number;
 	private mark: number;
 	private marks: number[];
 
-	constructor(sequence: sequence) {
+	constructor(sequence: sequence<T>) {
 		this.sequence = sequence;
 		this.pos = 0;
 		this.mark = 0;
@@ -30,17 +34,17 @@ export default class Tape {
 	}
 
 	/* EOF returned when next is called after the end of the sequence. Can be compared for equality. */
-	static readonly EOF: char = null;
+	static readonly EOF: null = null;
 
 	/**
 	 * Returns the character at current position and moves the pointer one character forward.
 	 * @returns {string} the character at the current position
 	 */
-	next(): char {
+	next(): T {
 		if (!this.hasMore()) {
 			return Tape.EOF;
 		}
-		const c: char = this.peek();
+		const c: T = this.peek();
 		this.pos = Math.min(this.pos + 1, this.sequence.length);
 		return c;
 	}
@@ -49,8 +53,8 @@ export default class Tape {
 	 * Returns the character at current position and moves the pointer one character backward.
 	 * @returns {string} the character at the current position
 	 */
-	prev(): char {
-		const c: char = this.peek();
+	prev(): T {
+		const c: T = this.peek();
 		this.pos = Math.max(this.pos - 1, 0);
 		return c;
 	}
@@ -60,7 +64,7 @@ export default class Tape {
 	 * Returns the character at current position without changing the pointer.
 	 * @returns {string} the character at the current position
 	 */
-	peek(): char {
+	peek(): T {
 		return this.sequence[this.pos];
 	}
 
@@ -111,7 +115,7 @@ export default class Tape {
 	 * position.
 	 * @returns {string} the substring between the mark and the current position
 	 */
-	getMarked(): sequence {
+	getMarked(): sequence<T> {
 		return this.sequence.slice(this.mark, this.pos);
 	}
 
