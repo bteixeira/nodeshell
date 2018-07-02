@@ -16,8 +16,6 @@ export function parseCmdLine (
 	panel: WriterPanel,
 	insert: boolean = true
 ) {
-	var parser = new DescentParser(commands);
-
 	const line: string = lineReader.getLine();
 	const idx: number = lineReader.cursor;
 	const chars: any[] = line.split('');
@@ -25,8 +23,7 @@ export function parseCmdLine (
 
 	var tokens = commandLineTokenizer(chars);
 
-	parser.tape = new Tape(tokens);
-	parser.firstCommand = true;
+	var parser = new DescentParser(commands, new Tape(tokens));
 	var ret = parser.COMMAND_LINE();
 
 	var completions: string[] = [];

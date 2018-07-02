@@ -1,24 +1,29 @@
+import * as util from 'util';
+
 import Commands from '../commands';
+import {Token} from '../tokenizer/commandLineTokenizer';
+import Tape from '../tape';
+import ErrorWrapper from '../errorWrapper';
 
-var util = require('util');
-var ErrorWrapper = require('../errorWrapper').default;
-var Tape = require('../tape');
-var dQStringMatcher = require('../tokenizer/matchers/dqStringMatcher');
-var jsMatcher = require('../tokenizer/matchers/jsMatcher');
-var chainMatcher = require('../tokenizer/matchers/chainMatcher');
-var redirMatcher = require('../tokenizer/matchers/redirMatcher');
-var globMatcher = require('../tokenizer/matchers/globMatcher');
+import * as dQStringMatcher from '../tokenizer/matchers/dqStringMatcher';
+import * as jsMatcher from '../tokenizer/matchers/jsMatcher';
+import * as chainMatcher from '../tokenizer/matchers/chainMatcher';
+import * as redirMatcher from '../tokenizer/matchers/redirMatcher';
+import * as globMatcher from '../tokenizer/matchers/globMatcher';
+import {DescentParserNode} from '../ast/nodes/descentParserNodes';
 
-var ast = require('../ast/nodes/descentParserNodes');
+import * as ast from '../ast/nodes/descentParserNodes';
 
 export default class DescentParser {
-	public tape;
-	public firstCommand: boolean;
+	public firstCommand: boolean = true;
 
-	constructor (private commands: Commands) {
+	constructor (
+		private commands: Commands,
+		private tape: Tape<Token>
+	) {
 	}
 
-	ERROR (expected?) {
+	ERROR (expected?: any/*TODO ANY*/): DescentParserNode {
 		return {
 			type: 'ERROR',
 			err: true,
@@ -30,15 +35,15 @@ export default class DescentParser {
 
 	/******************* TODO TODO TODO MUST CONSIDER EOF WHEN CALLING tape.next() ********************/
 
-	REDIRECTION () {
+	REDIRECTION (): DescentParserNode {
 		if (!this.tape.hasMore()) {
 			return this.ERROR(globMatcher.tokens.GLOB);
 		}
 
-		var first = this.tape.next(); // contains direction and possibly fd
+		const first: Token = this.tape.next(); // contains direction and possibly fd
 
-		var allowed = redirMatcher.tokens;
-		if (!(first.type.id in allowed)) {
+		const allowed = redirMatcher.tokens;
+		if (!(<any>Object).values(allowed).includes(first.type)) {
 			this.tape.prev();
 			return this.ERROR(allowed);
 		}
@@ -48,7 +53,7 @@ export default class DescentParser {
 			return this.ERROR(globMatcher.tokens.GLOB);
 		}
 
-		var second = this.tape.next(); // target
+		const second: Token = this.tape.next(); // target
 		if (second.type !== globMatcher.tokens.GLOB) {
 			this.tape.prev();
 			this.tape.prev();
@@ -64,11 +69,10 @@ export default class DescentParser {
 		return ast.REDIR(first, second);
 	}
 
-	SIMPLE_COMMAND () {
-
+	SIMPLE_COMMAND (): DescentParserNode | ErrorWrapper {
 		var redirs = [];
 		var cmd;
-		var args = [];
+		var args: DescentParserNode[] = [];
 
 		var current;
 		do {
@@ -136,14 +140,15 @@ export default class DescentParser {
 		}
 
 		var next = this.tape.next();
+		var node;
 		if (next.type === chainMatcher.tokens.PIPE) {
-			next = this.PIPELINE();
-			if (next.err) {
+			node = this.PIPELINE();
+			if (node.err) {
 				// no need to rewind more, recursed call should have rewinded
 				this.tape.prev();
-				return next; // TODO return something else which wraps `next`
+				return node; // TODO return something else which wraps `next`
 			} else {
-				return ast.PIPELINE(simple, next);
+				return ast.PIPELINE(simple, node);
 			}
 		} else {
 			this.tape.prev();
@@ -206,7 +211,7 @@ export default class DescentParser {
 	/**
 	 * SUBSHELL EOF
 	 */
-	COMMAND_LINE () {
+	COMMAND_LINE (): DescentParserNode {
 		var subs = this.SUBSHELL();
 		if (subs.err) {
 			return subs;

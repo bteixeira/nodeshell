@@ -5,10 +5,8 @@ import DescentParser from './descentParser';
 var ast = require('../ast/nodes/descentParserNodes');
 
 export function parseCmdLine (line: string, commands: Commands) {
-    const parser = new DescentParser(commands);
     const tokens = commandLineTokenizer(line);
-    parser.tape = new Tape(tokens);
-    parser.firstCommand = true;
+	const parser = new DescentParser(commands, new Tape(tokens));
     var ret = parser.COMMAND_LINE();
     if (parser.firstCommand && ret.err) {
         ret.firstCommand = true;
