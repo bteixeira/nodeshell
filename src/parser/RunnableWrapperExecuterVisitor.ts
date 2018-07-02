@@ -6,6 +6,8 @@ import * as utils from '../utils';
 import Visitor from '../ast/visitors/visitor';
 import Commands from '../commands';
 import ErrorWrapper from '../errorWrapper';
+import {Stream} from 'stream';
+import {DescentParserNode} from '../ast/nodes/descentParserNodes';
 
 var PipeRunnable = require('./runners/PipeRunnable');
 var AndR = require('./runners/AndRunnable');
@@ -14,21 +16,30 @@ var SequenceR = require('./runners/SequenceRunnable');
 
 var superVisit = Visitor.prototype.visit;
 
+import * as globMatcher from '../tokenizer/matchers/globMatcher';
+
+export interface Runner {
+	hasConfig: (config: number) => boolean;
+	configFd: (config: number, stream: Stream) => void;
+	run: (callback: (xxx: any) => void) => void; // TODO NAMING
+}
+
 export default class ExecuterVisitor extends Visitor {
 
-	constructor(private commandSet: Commands, private context: Context) {
+	constructor (private commandSet: Commands, private context: Context) {
 		super();
 	}
 
-	visitREDIR(redir) {
+	visitREDIR (redir: DescentParserNode): Runner {
 		// HANDLED DIRECTLY IN COMMAND
+		return null;
 	}
 
-	toString(): string {
+	toString (): string {
 		return 'RunnableWrapperExecuterVisitor';
 	}
 
-	visitCOMMAND(token) {
+	visitCOMMAND (token: DescentParserNode): Runner {
 //    return an object that
 //        has a set of [fd->stream] mappings which will be applied when running
 //        has a run method which will start whatever, with said redirections
@@ -38,23 +49,21 @@ export default class ExecuterVisitor extends Visitor {
 //        UPDATE the mapping must differentiate between input redirection and output redirection
 //        has a method to know, before running, if an fd is supposed to be redirected/inputted
 
-		var args = [];
+		var args: Runner[] = [];
 		var me = this;
-		token.args.forEach(function (arg) {
-			var result = me.visit(arg);
-			if (arg.type === 'GLOB') {
-				args = args.concat(result);
-			} else if (arg.type === 'DQSTRING') {
-				args.push(result);
-			} else if (arg.type === 'JS') {
-				result.run(function (res) {
+		token.args.forEach((node: DescentParserNode) => {
+			const runner: Runner = me.visit(node);
+			if (node.type === 'GLOB' || node.type === 'DQSTRING') {
+				args.push(runner); // Push the runner, push, push the runner
+			} else if (node.type === 'JS') {
+				runner.run((res) => {
 					args.push(res);
 				});
 			}
 		});
 		const runner = this.commandSet.getCmd(token.cmd, args);
 		token.redirs.forEach(function (redir) {
-			var direction = redir.direction.type.id;
+			var direction = redir.direction.type.toString();
 			var fd = redir.direction.number;
 			var target = redir.target;
 
@@ -97,9 +106,9 @@ export default class ExecuterVisitor extends Visitor {
 		return runner;
 	}
 
-	visitPIPELINE(pipeline) {
-		var left = this.visit(pipeline.left);
-		var right = this.visit(pipeline.right);
+	visitPIPELINE (pipeline: DescentParserNode): Runner {
+		const left: Runner = this.visit(pipeline.left);
+		const right: Runner = this.visit(pipeline.right);
 //
 //    left.clearRedirect(1);
 //    right.clearInput(0);
@@ -118,22 +127,22 @@ export default class ExecuterVisitor extends Visitor {
 		return new PipeRunnable(left, right);
 	}
 
-	visitAND_LIST(list) {
-		var left = this.visit(list.left);
-		var right = this.visit(list.right);
+	visitAND_LIST (list: DescentParserNode): Runner {
+		const left = this.visit(list.left);
+		const right = this.visit(list.right);
 
 		return new AndR(left, right);
 	}
 
-	visitOR_LIST(list) {
-		var left = this.visit(list.left);
-		var right = this.visit(list.right);
+	visitOR_LIST (list: DescentParserNode): Runner {
+		const left = this.visit(list.left);
+		const right = this.visit(list.right);
 
 		return new OrR(left, right);
 	}
 
-	visitSEQUENCE(sequence) {
-		var left = this.visit(sequence.left);
+	visitSEQUENCE (sequence: DescentParserNode): Runner {
+		const left = this.visit(sequence.left);
 		var right;
 		if (sequence.right) {
 			right = this.visit(sequence.right);
@@ -142,11 +151,11 @@ export default class ExecuterVisitor extends Visitor {
 		return new SequenceR(left, right);
 	}
 
-	visitGLOB(glob) {
+	visitGLOB (glob: DescentParserNode) {
 		var subTokens = glob.glob.subTokens;
 
 		/* If the first token is ~ then expand it to home dir if it is alone or if it is followed by a path separator */
-		if (subTokens[0].text === '~' && (subTokens.length === 1 || subTokens[1].type.id === 'SEPARATOR')) {
+		if (subTokens[0].text === '~' && (subTokens.length === 1 || subTokens[1].type === globMatcher.SUBTOKENS.SEPARATOR)) {
 			subTokens[0].text = utils.getUserHome();
 		}
 
@@ -157,33 +166,36 @@ export default class ExecuterVisitor extends Visitor {
 		var globbing = false;
 		subTokens.forEach(function (subToken, i) {
 			group.push(subToken);
-			if (subToken.type.id === 'SEPARATOR' || i === subTokens.length - 1) {
+			if (subToken.type === globMatcher.SUBTOKENS.SEPARATOR || i === subTokens.length - 1) {
 				lastGroup = tokenGroups[tokenGroups.length - 1];
 				if (lastGroup && !globbing && !lastGroup.globbing) {
 					lastGroup.group = lastGroup.group.concat(group);
 				} else {
 					tokenGroups.push({
 						glob: globbing,
-						group: group
+						group: group,
 					});
 					globbing = false;
 				}
 				group = [];
-			} else if (subToken.type.id === 'STAR' || subToken.type.id === 'QUESTION') {
+			} else if (subToken.type === globMatcher.SUBTOKENS.STAR || subToken.type === globMatcher.SUBTOKENS.QUESTION) {
 				globbing = true;
 			}
 		});
 
 		/* Second phase: build the list of matched paths evaluating one component at a time. For literals, append it to each one */
-		var extracted = [''], aux;
-		var join, regex, dirs;
+		var extracted: string[] = [''];
+		var aux: string[];
+		var join: string;
+		var regex;
+		var dirs: string[];
 		tokenGroups.forEach(function (tokenGroup, i) {
 			if (tokenGroup.glob) {
 				regex = buildRegex(tokenGroup.group);
 				aux = [];
-				extracted.forEach(function (extr) {
+				extracted.forEach((extr: string) => {
 					dirs = fs.readdirSync(extr || '.');
-					dirs.forEach(function (dir) {
+					dirs.forEach((dir: string) => {
 						if (regex.test(dir)) {
 							aux.push(extr + dir);
 						}
@@ -200,7 +212,7 @@ export default class ExecuterVisitor extends Visitor {
 			}
 		});
 
-		function buildRegex(tokenGroup) {
+		function buildRegex (tokenGroup) {
 			var re = '^';
 			tokenGroup.forEach(function (token) {
 				if (token.type.id === 'STAR') {
@@ -218,12 +230,12 @@ export default class ExecuterVisitor extends Visitor {
 		return extracted;
 	}
 
-	visitJS(token) {
-		var me = this;
+	visitJS (token: DescentParserNode): Runner {
+		const context: Context = this.context;
 		return {
 			run: function (callback) {
 				try {
-					var result = vm.runInContext(token.token.text, me.context);
+					var result = vm.runInContext(token.token.text, context);
 					callback(result);
 				} catch (e) {
 					callback(new ErrorWrapper(e));
@@ -233,15 +245,12 @@ export default class ExecuterVisitor extends Visitor {
 				return false;
 			},
 			configFd: function (fd, config) {
-			}
+			},
 		}
 	}
 
-	visitDQSTRING(dqstring) {
-		//console.log('text:', dqstring.token.text);
-		var str = vm.runInNewContext(dqstring.token.text);
-		//console.log('result:', str);
-		return str;
+	visitDQSTRING (dqstring: DescentParserNode) {
+		return vm.runInNewContext(dqstring.token.text);
 	}
 
 // OVERRIDE VISIT()
@@ -255,11 +264,11 @@ export default class ExecuterVisitor extends Visitor {
 // HOW TO RUN VISIT() ONLY ONCE??? -> SOME PRE-VISIT SUPER METHOD?
 
 
-	visitERROR(err) {
+	visitERROR (err: DescentParserNode): DescentParserNode {
 		return err;
 	}
 
-	visit(node) {
+	visit (node): Runner {
 		var thisVisit = this.visit;
 		this.visit = superVisit; // temporarily. tricky. never saw this anywhere. wonder if it really works
 		var runner = this.visit(node);
@@ -275,5 +284,4 @@ export default class ExecuterVisitor extends Visitor {
 		}
 		return runner;
 	}
-
 }

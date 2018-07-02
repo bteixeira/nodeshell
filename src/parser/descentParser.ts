@@ -37,7 +37,7 @@ export default class DescentParser {
 
 	REDIRECTION (): DescentParserNode {
 		if (!this.tape.hasMore()) {
-			return this.ERROR(globMatcher.tokens.GLOB);
+			return this.ERROR(globMatcher.TOKENS.GLOB);
 		}
 
 		const first: Token = this.tape.next(); // contains direction and possibly fd
@@ -50,14 +50,14 @@ export default class DescentParser {
 
 		if (!this.tape.hasMore()) {
 			this.tape.prev();
-			return this.ERROR(globMatcher.tokens.GLOB);
+			return this.ERROR(globMatcher.TOKENS.GLOB);
 		}
 
 		const second: Token = this.tape.next(); // target
-		if (second.type !== globMatcher.tokens.GLOB) {
+		if (second.type !== globMatcher.TOKENS.GLOB) {
 			this.tape.prev();
 			this.tape.prev();
-			return this.ERROR(globMatcher.tokens.GLOB);
+			return this.ERROR(globMatcher.TOKENS.GLOB);
 		}
 
 		if (first.type === redirMatcher.tokens.GTAMP || first.type === redirMatcher.tokens.LTAMP) {
@@ -70,7 +70,7 @@ export default class DescentParser {
 	}
 
 	SIMPLE_COMMAND (): DescentParserNode | ErrorWrapper {
-		var redirs = [];
+		var redirs: DescentParserNode[] = [];
 		var cmd;
 		var args: DescentParserNode[] = [];
 
@@ -89,14 +89,14 @@ export default class DescentParser {
 				'completion-type': 'COMMAND-NAME',
 				prefix: cmd.text,
 			};
-		} else if (cmd.type !== globMatcher.tokens.GLOB || !this.commands.isCmd(cmd.text)) {
+		} else if (cmd.type !== globMatcher.TOKENS.GLOB || !this.commands.isCmd(cmd.text)) {
 			// TODO REWIND ENOUGH TOKENS (use redirs.length)
 			return new ErrorWrapper('Unknown command: \'' + cmd.text + '\'');
 		}
 
 		while (this.tape.hasMore()) {
 			current = this.tape.next();
-			if (current.type === globMatcher.tokens.GLOB) {
+			if (current.type === globMatcher.TOKENS.GLOB) {
 				args.push(ast.GLOB(current));
 			} else if (current.type === jsMatcher.tokens.JSTOKEN) {
 				args.push(ast.JS(current));

@@ -45,7 +45,7 @@ export function parseCmdLine (
 		else if (ret['completion-type'] === 'COMMAND-ARGUMENT') {
 
 			var config;
-			var cmd = ret.node.cmd;
+			const cmd: string = ret.node.cmd;
 
 			if (cmd in cmdConfig) {
 				config = cmdConfig[cmd];
@@ -53,7 +53,7 @@ export function parseCmdLine (
 				config = $default;
 			}
 
-			var args = ret.node.args.map(function (arg) {
+			const args: string[] = ret.node.args.map(function (arg) {
 				return arg.glob.text;
 			});
 			completions = getCompletionsFromValue(cmd, args, ret.prefix, config);
@@ -127,33 +127,30 @@ export function parseCmdLine (
 }
 
 
-function getCompletionsFromArray (cmdName, args, prefix, array) {
-	var result = [];
-	array.forEach(function (val) {
-		var comps = getCompletionsFromValue(cmdName, args, prefix, val);
-		//console.log('completions for', val, comps);
-		Array.prototype.push.apply(result, comps);
+function getCompletionsFromArray (cmdName: string, args: string[], prefix: string, array: any[]): string[] {
+	const result: string[] = [];
+	array.forEach(val => {
+		const comps: string[] = getCompletionsFromValue(cmdName, args, prefix, val);
+		result.push(...comps);
 	});
 	return result;
 }
 
-function getCompletionsFromObject (cmdName, args, prefix, object, nest: number = 0) {
-	const result = [];
+function getCompletionsFromObject (cmdName: string, args: string[], prefix: string, object: {[key: string]: any}, nest: number = 0) {
+	const result: string[] = [];
 	if (nest === args.length) {
-		return Object.keys(object).filter(function (key) {
-			return key.indexOf(prefix) === 0;
-		});
+		return Object.keys(object).filter((key: string) => (key.indexOf(prefix) === 0));
 	} else {
-		var arg = args[nest];
+		const arg: string = args[nest];
 		if (arg in object) {
-			var val = object[arg];
-			Array.prototype.push.apply(result, getCompletionsFromValue(cmdName, args, prefix, val, nest + 1));
+			const val = object[arg];
+			result.push(...getCompletionsFromValue(cmdName, args, prefix, val, nest + 1));
 		}
 	}
 	return result;
 }
 
-function getCompletionsFromValue (cmdName, args, prefix, val, nest?) {
+function getCompletionsFromValue (cmdName: string, args: string[], prefix: string, val: any, nest?: number): string[] {
 	if (utils.isArray(val)) {
 		return getCompletionsFromArray(cmdName, args, prefix, val);
 	} else if (utils.isFunction(val)) {
@@ -165,11 +162,11 @@ function getCompletionsFromValue (cmdName, args, prefix, val, nest?) {
 	}
 }
 
-export function $dirName (cmd: string, args, prefix: string) {
+export function $dirName (cmd: string, args: string[], prefix: string) {
 	return $fileName(cmd, args, prefix).filter(file => fs.statSync(file).isDirectory());
 }
 
-export function $fileName (cmd: string, args, prefix: string) {
+export function $fileName (cmd: string, args: string[], prefix: string) {
 	const idx: number = prefix.lastIndexOf(path.sep);
 	var dir: string = prefix.substring(0, idx);
 	const filePrefix: string = prefix.substring(idx + 1);
@@ -199,4 +196,4 @@ var $default = $fileName;
 export type completionFunction = (cmd: string, args: string[], prefix: string) => string[];
 export type completionSpec = string | {[key: string]: completionSpec};
 
-export const cmdConfig = {};
+export const cmdConfig: {[cmd: string]: any/*TODO ANY*/} = {};

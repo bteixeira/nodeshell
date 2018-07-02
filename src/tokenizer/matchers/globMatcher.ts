@@ -3,136 +3,134 @@ import * as utils from '../../utils';
 import {Token} from '../commandLineTokenizer';
 
 const ESCAPABLES = {
-    '0': '\0',
-    'n': '\n',
-    'r': '\r',
-    'v': '\v',
-    't': '\t',
-    'b': '\b',
-    'f': '\f'
+	'0': '\0',
+	'n': '\n',
+	'r': '\r',
+	'v': '\v',
+	't': '\t',
+	'b': '\b',
+	'f': '\f',
 };
 
 const BREAKERS = utils.strToObj('&|<>("');
-
 const SPECIALS = utils.createEnum('*', '?');
 
-var subTypes = utils.createEnum('TEXT', 'STAR', 'QUESTION', 'SEPARATOR');
+export const TOKENS = utils.createEnum('GLOB', 'NO_GLOB', 'UNTERMINATED_ESCAPE');
+export const SUBTOKENS = utils.createEnum('TEXT', 'STAR', 'QUESTION', 'SEPARATOR');
 
-function matchText(tape) {
-    tape.pushMark();
-    tape.setMark();
+function matchText (tape) {
+	tape.pushMark();
+	tape.setMark();
 
-    var c = tape.peek();
+	var c = tape.peek();
 
-    while (!(c in BREAKERS) && !/^\s$/.test(c) && !(c in SPECIALS) && c !== '\\' && tape.hasMore() && c.type !== 'COMPLETION') {
-        tape.next();
-        c = tape.peek();
-    }
+	while (!(c in BREAKERS) && !/^\s$/.test(c) && !(c in SPECIALS) && c !== '\\' && tape.hasMore() && c.type !== 'COMPLETION') {
+		tape.next();
+		c = tape.peek();
+	}
 
-    var text = tape.getMarked();
-    if (text.join) {
-        text = text.join('');
-    }
-    tape.popMark();
-    return {
-        type: subTypes.TEXT,
-        text: text
-    };
+	var text = tape.getMarked();
+	if (text.join) {
+		text = text.join('');
+	}
+	tape.popMark();
+	return {
+		type: SUBTOKENS.TEXT,
+		text: text,
+	};
 }
 
 function matchSpecial (tape) {
-    var c = tape.next();
-    var type;
-    if (c === '*') {
-        type = subTypes.STAR;
-    } else if (c === '?') {
-        type = subTypes.QUESTION;
-    }
-    return {
-        type: type,
-        text: c
-    };
+	var c = tape.next();
+	var type;
+	if (c === '*') {
+		type = SUBTOKENS.STAR;
+	} else if (c === '?') {
+		type = SUBTOKENS.QUESTION;
+	}
+	return {
+		type: type,
+		text: c,
+	};
 }
 
 function matchEscape (tape) {
-    if (tape.next() !== '\\') {
-        return {
-            err: true
-        };
-    }
+	if (tape.next() !== '\\') {
+		return {
+			err: true,
+		};
+	}
 
-    if (!tape.hasMore()) {
-        return {
-            pos: tape.pos,
-            type: tokens.UNTERMINATED_ESCAPE,
-            err: true
-        }
-    }
+	if (!tape.hasMore()) {
+		return {
+			pos: tape.pos,
+			type: TOKENS.UNTERMINATED_ESCAPE,
+			err: true,
+		}
+	}
 
-    var c = tape.next();
-    if (c in ESCAPABLES) {
-        c = ESCAPABLES[c];
-    }
+	var c = tape.next();
+	if (c in ESCAPABLES) {
+		c = ESCAPABLES[c];
+	}
 
-    return {
-        type: subTypes.TEXT,
-        text: c
-    };
+	return {
+		type: SUBTOKENS.TEXT,
+		text: c,
+	};
 }
 
 export function run (tape): Token {
 
-    tape.pushMark();
-    tape.setMark();
+	tape.pushMark();
+	tape.setMark();
 
-    var c = tape.peek();
-    if (!tape.hasMore() || c in BREAKERS || /^\s$/.test(c)) {
-        return {
-            type: tokens.NO_GLOB,
-            pos: tape.popMark(),
-            text: c
-        };
-    }
+	var c = tape.peek();
+	if (!tape.hasMore() || c in BREAKERS || /^\s$/.test(c)) {
+		return {
+			type: TOKENS.NO_GLOB,
+			pos: tape.popMark(),
+			text: c,
+		};
+	}
 
-    var subTokens = [];
-    var subToken, text, type;
-    do {
-        if (c.type === 'COMPLETION') {
-            type = 'COMPLETION';
-            break;
-        } else if (c in BREAKERS || /\s/.test(c)) {
-            break;
-        } else if (c in SPECIALS) {
-            subTokens.push(matchSpecial(tape));
-        } else if (c === '\\') {
-            subToken = matchEscape(tape);
-            if (subToken.err) {
-                tape.rewindToMark();
-                tape.popMark();
-                return subToken;
-            }
-            subTokens.push(subToken);
-        } else if (c === path.sep) {
-            tape.next();
-            subTokens.push({type: subTypes.SEPARATOR, text: c});
-        } else {
-            subTokens.push(matchText(tape));
-        }
-        c = tape.peek();
-    } while (tape.hasMore());
+	var subTokens = [];
+	var subToken, text, type;
+	do {
+		if (c.type === 'COMPLETION') {
+			type = 'COMPLETION';
+			break;
+		} else if (c in BREAKERS || /\s/.test(c)) {
+			break;
+		} else if (c in SPECIALS) {
+			subTokens.push(matchSpecial(tape));
+		} else if (c === '\\') {
+			subToken = matchEscape(tape);
+			if (subToken.err) {
+				tape.rewindToMark();
+				tape.popMark();
+				return subToken;
+			}
+			subTokens.push(subToken);
+		} else if (c === path.sep) {
+			tape.next();
+			subTokens.push({type: SUBTOKENS.SEPARATOR, text: c});
+		} else {
+			subTokens.push(matchText(tape));
+		}
+		c = tape.peek();
+	} while (tape.hasMore());
 
-    text = tape.getMarked();
-    if (text.join) {
-        text = text.join('');
-    }
+	text = tape.getMarked();
+	if (text.join) {
+		text = text.join('');
+	}
 
-    tape.popMark();
-    return {
-        type: type || tokens.GLOB,
-        pos: tape.mark,
-        text: text,
-        subTokens: subTokens
-    }
+	tape.popMark();
+	return {
+		type: type || TOKENS.GLOB,
+		pos: tape.mark,
+		text: text,
+		subTokens: subTokens,
+	}
 }
-
-export const tokens = utils.createEnum('GLOB', 'NO_GLOB', 'UNTERMINATED_ESCAPE');

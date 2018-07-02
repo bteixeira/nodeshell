@@ -3,10 +3,10 @@ import {Token} from '../../tokenizer/commandLineTokenizer';
 export interface DescentParserNode {
 	type: string;
 
-	direction?: string;
-	target?: string;
+	direction?: Token;
+	target?: Token;
 	fd?: string;
-	redirs?: string;
+	redirs?: DescentParserNode[];
 	cmd?: string;
 	args?: DescentParserNode[];
 	left?: string;
@@ -23,7 +23,7 @@ export interface DescentParserNode {
 	firstCommand?: boolean;
 }
 
-export function REDIR (direction, target, fd?): DescentParserNode {
+export function REDIR (direction: Token, target: Token, fd?): DescentParserNode {
 	return {
 		type: 'REDIR',
 		direction: direction,
@@ -32,7 +32,7 @@ export function REDIR (direction, target, fd?): DescentParserNode {
 	};
 }
 
-export function COMMAND (cmd, args: DescentParserNode[], redirs): DescentParserNode {
+export function COMMAND (cmd: string, args: DescentParserNode[], redirs: DescentParserNode[]): DescentParserNode {
 	return {
 		type: 'COMMAND',
 		cmd: cmd,

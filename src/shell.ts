@@ -7,7 +7,7 @@ import 'colors';
 
 import KeyHandler from './keyhandler';
 import LineReader from './lineReader';
-import Executer from './parser/RunnableWrapperExecuterVisitor';
+import RWEVisitor, {Runner} from './parser/RunnableWrapperExecuterVisitor';
 import LayoutComposer, {LayoutSpec} from './panels/composer';
 import ErrorWrapper from './errorWrapper';
 import History from './history';
@@ -20,6 +20,7 @@ import defaultCmdConfig from './defaultCmdConfig';
 import * as utils from './utils';
 import * as defaultLineParser from './parser/defaultLineParser';
 import * as CompletionParser from './parser/completionParser';
+import {DescentParserNode} from './ast/nodes/descentParserNodes';
 
 const stdout: WriteStream = process.stdout as WriteStream;
 
@@ -70,7 +71,7 @@ const permanent = {
 		bindings: keyHandler,
 		utils: utils,
 		completion: CompletionParser,
-		alias: function (handle: string, body) {
+		alias: function (handle: string, body: string) {
 			var ast = defaultLineParser.parseCmdLine(body, commands);
 			if (ast.err) {
 				throw ast.err;
@@ -121,7 +122,7 @@ commands = new Commands({
 	parent: commands,
 	skipPath: true
 });
-const executer = new Executer(commands, ctx);
+const executerVisitor = new RWEVisitor(commands, ctx);
 
 lineReader
 	.setPrompt(function () {
@@ -141,12 +142,13 @@ lineReader
 		process.stdin.pause();
 		readline.clearScreenDown(process.stdout);
 		paused = true;
-		var runner, err;
-		var ast = defaultLineParser.parseCmdLine(line, commands);
+		var runner: Runner;
+		var err: DescentParserNode;
+		var ast: DescentParserNode = defaultLineParser.parseCmdLine(line, commands);
 		if (ast.err && ast.firstCommand) {
 			err = ast;
 			ast = defaultLineParser.parseJS(line);
-			runner = executer.visit(ast);
+			runner = executerVisitor.visit(ast);
 			runner.run(function (result) {
 				if (result instanceof ErrorWrapper) {
 					// Magic! If line is ambiguous and could have been both a command and JS, but both errored, show both errors
@@ -157,7 +159,7 @@ lineReader
 		} else if (ast.err) {
 			doneCB(ast);
 		} else {
-			runner = executer.visit(ast);
+			runner = executerVisitor.visit(ast);
 			runner.run(doneCB);
 		}
 	});

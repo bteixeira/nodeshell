@@ -8,7 +8,7 @@ describe('Command Line Tokenizer', function () {
 	it('tokenizes line with single command [git]', function () {
 		var tokens = commandLineTokenizer('git');
 		tokens.length.should.be.exactly(1);
-		tokens[0].type.should.equal(globMatcher.tokens.GLOB);
+		tokens[0].type.should.equal(globMatcher.TOKENS.GLOB);
 	});
 
 });

@@ -13,6 +13,7 @@ export interface Token {
 	err?: boolean;
 	subTokens?: Token[];
 	fd?: string; // TODO SPECIFIC TO REDIRECTION
+	number?: number;
 }
 
 export default function (line: sequence<char>): Token[] {
