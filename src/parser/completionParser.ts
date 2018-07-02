@@ -8,7 +8,7 @@ import LineReader from '../lineReader';
 import commandLineTokenizer from '../tokenizer/commandLineTokenizer';
 import * as utils from '../utils';
 
-var DescentParser = require('./descentParser');
+import DescentParser from './descentParser';
 
 export function parseCmdLine (
 	lineReader: LineReader,
@@ -199,4 +199,7 @@ export function $fileName (cmd: string, args, prefix: string) {
 
 var $default = $fileName;
 
-var cmdConfig = exports.cmdConfig = {};
+export type completionFunction = (cmd: string, args: string[], prefix: string) => string[];
+export type completionSpec = string | {[key: string]: completionSpec};
+
+export const cmdConfig = {};

@@ -1,13 +1,13 @@
 var assert = require('assert');
 var should = require('should');
-var Parser = require('../../dist/parser/descentParser');
+var DescentParser = require('../../dist/parser/descentParser').default;
 var Tape = require('../../dist/tape').default;
 var commandsStub = require('../../test/commandsStub');
 var CLT = require('../../dist/tokenizer/commandLineTokenizer').default;
 
 describe('DefaultParser', function () {
 
-    var parser = new Parser(commandsStub);
+    var parser = new DescentParser(commandsStub);
 
     it.skip('skips JS [(getThing()) anotherArg]', function () {
         var tape = new Tape('(getThing()) anotherArg');
