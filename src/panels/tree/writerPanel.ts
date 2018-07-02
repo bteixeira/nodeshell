@@ -1,17 +1,20 @@
 import {WriteStream} from 'tty';
 import Panel from './panel';
+import {char} from '../../tape';
 
-var lastActive;
+var lastActive: WriterPanel;
 var oldFooterHeight = 0;
 var rl = require('readline');
 
-function saveCursor (stdout) {
+function saveCursor (stdout: WriteStream): void {
 	stdout.write('\0o33[s');
 }
 
-function restoreCursor (stdout) {
+function restoreCursor (stdout: WriteStream): void {
 	stdout.write('\0o33[u');
 }
+
+type sequenceOperator = (seq: string, isEscape: boolean) => (boolean | void);
 
 /**
  * Iterates a string by character but grouping escape sequences.
@@ -20,8 +23,8 @@ function restoreCursor (stdout) {
  *              callback(seq, isEscape){}
  *                this callback can return a false to break the iteration
  */
-function iterateEscapedString (str, operator) {
-	var char;
+function iterateEscapedString (str: string, operator: sequenceOperator) {
+	var char: char;
 	var code;
 	var tmp = '';
 	var status = 0; // 0 = normal | 1 = escape char found in the previous loop | 2 = in multi-char escape sequence
@@ -85,7 +88,7 @@ function iterateEscapedString (str, operator) {
  *
  * returns: the calculated width of the first chunk.
  */
-function splitBufferAt (buf, width, target) {
+function splitBufferAt (buf, width: number, target) {
 	// TODO!
 	// TODO! DO THIS FIRST!
 
@@ -106,12 +109,13 @@ function splitBufferAt (buf, width, target) {
 	target.push(buf.slice(at));
 
 	return sum;
-
 }
+
+type Redraw = () => void;
 
 export default class WriterPanel implements Panel {
 	public static active: WriterPanel;
-	private redraw: () => void = () => {
+	private redraw: Redraw = () => {
 	};
 	private parent: Panel;
 	private row: number = 1;
@@ -122,7 +126,7 @@ export default class WriterPanel implements Panel {
 	 */
 	private height: number = 1;
 
-	private footer?: Panel;
+	private footer?: Panel; // TODO SHOULD PROBABLY NOT BE IMPLEMENTED
 	private content: string[] = [];
 
 	public columns: number;
@@ -130,11 +134,11 @@ export default class WriterPanel implements Panel {
 	constructor (private stdout: WriteStream) {
 	}
 
-	setFooter (footer_) {
+	setFooter (footer_: Panel): void { // TODO SHOULD PROBABLY NOT BE IMPLEMENTED
 		this.footer = footer_;
 	}
 
-	insert (ch, skipChecks) {
+	insert (ch: char, skipChecks: boolean) {
 		if (ch.charCodeAt(0) === 127) {
 			if (this.col > 1) {
 				this.stdout.write(ch);
@@ -159,7 +163,7 @@ export default class WriterPanel implements Panel {
 		}
 	}
 
-	write (str) {
+	write (str: string): void {
 		/*
 		var ch;
 		var status = 0; // 0 = normal | 1 = escape char found in the previous loop | 2 = in multi-char escape sequence
@@ -212,7 +216,7 @@ export default class WriterPanel implements Panel {
 		this.superWrite3(str);
 	}
 
-	superWrite3 (buf) {
+	superWrite3 (buf: string): void {
 		var active = WriterPanel.active;
 		if (active !== this) {
 			this.activate();
@@ -316,11 +320,7 @@ export default class WriterPanel implements Panel {
 
 	// TODO REMOVED METHOD superWrite(buf)
 
-	moveCursor (dx, dy) {
-		if (typeof dy === 'undefined') {
-			dy = 0;
-		}
-
+	moveCursor (dx: number, dy: number = 0): void {
 		var col_ = this.col + dx;
 		if (col_ < 1) {
 			col_ = 1;
@@ -431,19 +431,19 @@ export default class WriterPanel implements Panel {
 		return [offset[0] + this.row - 1, offset[1] + this.col - 1];
 	}
 
-	getHeight () {
+	getHeight (): number {
 		return this.height;
 	}
 
-	setParent (parent_) {
+	setParent (parent_: Panel): void {
 		this.parent = parent_;
 	}
 
-	calculateWidth () {
+	calculateWidth (): void {
 		this.columns = this.parent.getChildWidth(this);
 	}
 
-	isFooter () {
+	isFooter (): boolean {
 		return this.parent.isFooter(this);
 	}
 
@@ -521,11 +521,11 @@ export default class WriterPanel implements Panel {
 		// TODO
 	}
 
-	setRedraw (redraw_) {
+	setRedraw (redraw_: Redraw): void {
 		this.redraw = redraw_;
 	}
 
-	private insertNewLine (skipChecks?) {
+	private insertNewLine (skipChecks?: boolean): void {
 		var spaceBelow = this.parent.getSpaceBelowChild(this);
 		var offsetH = this.parent.getChildOffsetH(this);
 		var width = this.parent.getChildWidth(this);
@@ -562,37 +562,36 @@ export default class WriterPanel implements Panel {
 		}
 	}
 
-	getChildOffsetV (child) {
+	getChildOffsetV (child: Panel): number {
 		throw new Error('NOT IMPLEMENTED');
 		return -1;
 	}
 
-	getChildOffsetH (child) {
+	getChildOffsetH (child: Panel): number {
 		throw new Error('NOT IMPLEMENTED');
 		return -1;
 	}
 
-	getChildOffset (child): [number, number] {
+	getChildOffset (child: Panel): [number, number] {
 		throw new Error('NOT IMPLEMENTED');
 		return [-1, -1];
 	}
 
-	getChildWidth (child) {
+	getChildWidth (child: Panel): number {
 		throw new Error('NOT IMPLEMENTED');
 		return -1;
 	}
 
-	getSpaceBelowChild (child) {
+	getSpaceBelowChild (child: Panel): number {
 		throw new Error('NOT IMPLEMENTED');
 		return -1;
 	}
 
-	reserveSpace () {
+	reserveSpace (): void {
 		throw new Error('NOT IMPLEMENTED');
 	}
 
-	redrawBelowChild (child) {
+	redrawBelowChild (child: Panel): void {
 		throw new Error('NOT IMPLEMENTED');
-		return -1;
 	}
 }

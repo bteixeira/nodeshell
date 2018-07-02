@@ -5,26 +5,27 @@ var utils = require('./utils');
 var CPWrapper = require('./parser/runners/cpWrapper');
 var spawn = require('child_process').spawn;
 
+export interface Options {
+	skipPath?: boolean;
+	parent?: Commands;
+}
+
+export type Command = (...args: any[]) => any;
+
 export default class Commands {
-	public commands: any;
+	public commands: any = {};
 	private parent: Commands;
 
-	constructor(options?) {
-
-		options = options || {};
-
-		this.commands = {};
-
+	constructor(options: Options = {}) {
 		if (!options.skipPath) {
 			this.addFromPath();
 		}
-
 		if (options.parent) {
 			this.parent = options.parent;
 		}
 	}
 
-	private static isExecutable(file) {
+	private static isExecutable(file: string): boolean {
 		if (process.platform === 'win32') {
 			return /\.(exe|bat)$/.test(file);
 		}
@@ -34,10 +35,10 @@ export default class Commands {
 			/* Broken symlink will throw this */
 			return false;
 		}
-		return (stat && (stat.mode & 0o111)); // test for *any* of the execute bits
+		return !!(stat && (stat.mode & 0o111)); // test for *any* of the execute bits
 	}
 
-	addFromPath(path_?: string) {
+	addFromPath(path_?: string): void {
 		var me = this;
 		path_ = path_ || process.env.PATH;
 		var paths = path_.split(path.delimiter);
@@ -46,16 +47,16 @@ export default class Commands {
 		});
 	}
 
-	addFromDir(dir) {
+	addFromDir(dir: string): void {
 		var me = this;
-		var files;
+		var files: string[];
 		try {
 			files = fs.readdirSync(dir);
 		} catch (ex) {
 			/* Probably directory in PATH that doesn't exist */
 			return;
 		}
-		files.forEach(function (file) {
+		files.forEach(file => {
 			file = path.resolve(dir, file);
 			if (Commands.isExecutable(file)) {
 				me.addFromFile(file);
@@ -63,7 +64,7 @@ export default class Commands {
 		});
 	}
 
-	addFromFile(filename) {
+	addFromFile(filename: string): void {
 		var basename = path.basename(filename);
 		if (process.platform === 'win32') {
 			basename = basename.substr(0, basename.lastIndexOf('.'));
@@ -71,21 +72,21 @@ export default class Commands {
 		this.addCommand(basename, Commands.makeCmd(filename), filename);
 	}
 
-	private static makeCmd(filename) {
+	private static makeCmd(filename: string): Command {
 		return function (args) {
 			return new CPWrapper(filename, args);
 		}
 	}
 
-	addCommand(name, body, path: string = '[builtin]') {
+	addCommand(name: string, body, path: string = '[builtin]'): void {
 		this.commands[name] = {runner: body, path: path};
 	}
 
-	isCmd(candidate) {
+	isCmd(candidate: string): boolean {
 		return candidate in this.commands || (this.parent && this.parent.isCmd(candidate));
 	}
 
-	getCmd(name, args) {
+	getCmd(name: string, args) {
 		if (name in this.commands) {
 			return this.commands[name].runner(args);
 		} else if (this.parent) {
@@ -93,7 +94,7 @@ export default class Commands {
 		}
 	}
 
-	getCommandNames() {
+	getCommandNames(): string[] {
 		var names = Object.keys(this.commands);
 		if (this.parent) {
 			Array.prototype.push.apply(names, this.parent.getCommandNames());

@@ -17,7 +17,7 @@ export default class ColumnsLayout implements Panel {
 	private parent: Panel;
 
 	constructor(
-		private children,
+		private children: Panel[],
 		private layout,
 		private stdout: WriteStream
 	) {
@@ -64,11 +64,11 @@ export default class ColumnsLayout implements Panel {
 		return this.parent.getChildOffsetH(this) + sumBefore;
 	}
 
-	getChildOffset(child): [number, number] {
+	getChildOffset(child: Panel): [number, number] {
 		return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
 	}
 
-	getChildWidth(child) {
+	getChildWidth(child: Panel) {
 		var sum = 0;
 		for (var i = 0; i < this.children.length; i++) {
 			var lt = this.layout[i];
@@ -87,7 +87,7 @@ export default class ColumnsLayout implements Panel {
 		return this.parent.getChildWidth(this) - sum;
 	}
 
-	getSpaceBelowChild(child) {
+	getSpaceBelowChild(child: Panel) {
 		return this.parent.getSpaceBelowChild(this);
 	}
 
@@ -103,15 +103,15 @@ export default class ColumnsLayout implements Panel {
 		return max;
 	}
 
-	setParent(parent_) {
+	setParent(parent_: Panel) {
 		this.parent = parent_;
 	}
 
-	isFooter(child) {
+	isFooter(child: Panel) {
 		return this.parent.isFooter(this);
 	}
 
-	redrawBelowChild(child) {
+	redrawBelowChild(child: Panel): void {
 		var me = this;
 		var height = this.getHeight();
 
@@ -148,25 +148,25 @@ export default class ColumnsLayout implements Panel {
 		this.parent.redrawBelowChild(this);
 	}
 
-	rewrite() {
+	rewrite(): void {
 		this.children.forEach(function (child) {
 			child.rewrite();
 		});
 	}
 
-	reset() {
+	reset(): void {
 		this.children.forEach(function (child) {
 			child.reset();
 		});
 	}
 
-	setFooter(footer_) {
+	setFooter(footer_: Panel): void {
 		this.children.forEach(function (child) {
 			child.setFooter(footer_);
 		});
 	}
 
-	reserveSpace() {
+	reserveSpace(): void {
 		throw new Error('NOT IMPLEMENTED')
 	}
 }

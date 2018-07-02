@@ -3,7 +3,7 @@ import Panel from './panel';
 export default class RowsLayout implements Panel {
 	private parent: Panel;
 
-	constructor(private children) {
+	constructor(private children: Panel[]) {
 		children.forEach(child => {
 			child.setParent(this);
 		});
@@ -24,15 +24,15 @@ export default class RowsLayout implements Panel {
 		return this.parent.getChildOffsetH(this);
 	}
 
-	getChildOffset(child): [number, number] {
+	getChildOffset(child: Panel): [number, number] {
 		return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
 	}
 
-	getChildWidth(child) {
+	getChildWidth(child: Panel): number {
 		return this.parent.getChildWidth(this);
 	}
 
-	getSpaceBelowChild(child) {
+	getSpaceBelowChild(child: Panel): number {
 		var i;
 		// Find the index of the child
 		for (i = 1; this.children[i - 1] !== child && i < this.children.length; i++) {
@@ -46,7 +46,7 @@ export default class RowsLayout implements Panel {
 		return sum;
 	}
 
-	getHeight() {
+	getHeight(): number {
 		var sum = 0;
 		// TODO REPLACE WITH Array.reduce()
 		this.children.forEach(function (child) {
@@ -55,15 +55,15 @@ export default class RowsLayout implements Panel {
 		return sum;
 	}
 
-	setParent(parent_) {
+	setParent(parent_: Panel): void {
 		this.parent = parent_;
 	}
 
-	isFooter() {
+	isFooter(): boolean {
 		return this.parent.isFooter(this);
 	}
 
-	redrawBelowChild(child) {
+	redrawBelowChild(child: Panel): void {
 		var found = false;
 		this.children.forEach(function (ch) {
 			if (found) {
@@ -76,25 +76,25 @@ export default class RowsLayout implements Panel {
 		this.parent.redrawBelowChild(this);
 	}
 
-	rewrite() {
+	rewrite(): void {
 		this.children.forEach(function (child) {
 			child.rewrite();
 		});
 	}
 
-	reset() {
+	reset(): void {
 		this.children.forEach(function (child) {
 			child.reset();
 		});
 	}
 
-	setFooter(footer_) {
+	setFooter(footer_: Panel): void {
 		this.children.forEach(function (child) {
 			child.setFooter(footer_);
 		});
 	}
 
-	reserveSpace() {
+	reserveSpace(): void {
 		throw new Error('NOT IMPLEMENTED')
 	}
 }

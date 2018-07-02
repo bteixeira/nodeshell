@@ -6,13 +6,13 @@ import WriterPanel from './writerPanel';
 export default interface Panel {
 
 	prompt?: WriterPanel;
-	writers?;
+	writers?: WriterPanel[];
 	name?: string;
 
-	getChildOffsetV: (Panel) => number;
-	getChildOffsetH: (Panel) => number;
-	getChildOffset: (Panel) => [number, number]; // LENGTH === 2
-	getChildWidth: (Panel) => number;
+	getChildOffsetV: (Panel: Panel) => number;
+	getChildOffsetH: (Panel: Panel) => number;
+	getChildOffset: (Panel: Panel) => [number, number]; // LENGTH === 2
+	getChildWidth: (Panel: Panel) => number;
 
 	/**
 	 * @param {Panel} child a child of this panel
@@ -34,7 +34,7 @@ export default interface Panel {
 	 */
 	reserveSpace: () => void;
 
-	redrawBelowChild: (Panel) => void;
+	redrawBelowChild: (Panel: Panel) => void;
 
 	// Just calls rewrite() on all children, WriterPanel calls reset() followed by redraw()
 	rewrite: () => void;
@@ -44,7 +44,9 @@ export default interface Panel {
 	 */
 	reset: () => void;
 
-	setParent: (Panel) => void;
+	setParent: (Panel: Panel) => void;
+
+	setFooter: (Panel: Panel) => void;
 
 	/**
 	 * @returns {number} The number of rows needed to display the content of this panel

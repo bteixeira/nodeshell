@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as vm from 'vm';
 import * as path from 'path';
-import {Context} from "vm";
+import {Context} from 'vm';
 
 import * as extend from 'extend';
 import ErrorWrapper from './errorWrapper';

@@ -29,15 +29,15 @@ export function parseCmdLine (
 	parser.firstCommand = true;
 	var ret = parser.COMMAND_LINE();
 
-	var completions = [];
+	var completions: string[] = [];
 
 	// check if returned is completion
 	if (ret.type === 'COMPLETION') {
 		// if so, check completion type
 		// if command name, check possible commands for prefix
 		if (ret['completion-type'] === 'COMMAND-NAME') {
-			var cmdNames = [];
-			commands.getCommandNames().forEach(function (cmd) {
+			const cmdNames: string[] = [];
+			commands.getCommandNames().forEach((cmd: string) => {
 				if (cmd.indexOf(ret.prefix) === 0) {
 					cmdNames.push(cmd);
 				}
@@ -140,9 +140,8 @@ function getCompletionsFromArray (cmdName, args, prefix, array) {
 	return result;
 }
 
-function getCompletionsFromObject (cmdName, args, prefix, object, nest) {
-	nest = nest || 0;
-	var result = [];
+function getCompletionsFromObject (cmdName, args, prefix, object, nest: number = 0) {
+	const result = [];
 	if (nest === args.length) {
 		return Object.keys(object).filter(function (key) {
 			return key.indexOf(prefix) === 0;
@@ -169,16 +168,14 @@ function getCompletionsFromValue (cmdName, args, prefix, val, nest?) {
 	}
 }
 
-var $dirName = exports.$dirName = function (cmd, args, prefix) {
-	return $fileName(cmd, args, prefix).filter(function (file) {
-		return fs.statSync(file).isDirectory();
-	});
-};
+export function $dirName (cmd: string, args, prefix: string) {
+	return $fileName(cmd, args, prefix).filter(file => fs.statSync(file).isDirectory());
+}
 
-var $fileName = exports.$fileName = function (cmd, args, prefix) {
-	var idx = prefix.lastIndexOf(path.sep);
-	var dir = prefix.substring(0, idx);
-	var filePrefix = prefix.substring(idx + 1);
+export function $fileName (cmd: string, args, prefix: string) {
+	const idx: number = prefix.lastIndexOf(path.sep);
+	var dir: string = prefix.substring(0, idx);
+	const filePrefix: string = prefix.substring(idx + 1);
 
 	if (!fs.existsSync(dir)) {
 		dir = utils.expandHomeDir(dir);
@@ -187,18 +184,18 @@ var $fileName = exports.$fileName = function (cmd, args, prefix) {
 		dir = path.resolve(process.cwd(), dir);
 	}
 
-	var files = [];
+	var files: string[] = [];
 
 	if (fs.existsSync(dir)) {
 		files = fs.readdirSync(dir);
 	}
-	return files.filter(function (file) {
-		return file.lastIndexOf(filePrefix, 0) === 0;
-	}).map(function (file) {
-		var isDir = fs.statSync(path.join(dir, file)).isDirectory();
-		return prefix.substring(0, idx + 1) + file + (isDir ? '/' : '');
-	});
-};
+	return files.
+			filter((file: string) => (file.lastIndexOf(filePrefix, 0) === 0)).
+			map((file: string) => {
+				var isDir = fs.statSync(path.join(dir, file)).isDirectory();
+				return prefix.substring(0, idx + 1) + file + (isDir ? '/' : '');
+			});
+}
 
 var $default = $fileName;
 

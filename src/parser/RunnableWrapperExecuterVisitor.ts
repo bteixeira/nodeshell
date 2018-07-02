@@ -1,10 +1,11 @@
-var vm = require('vm');
-var fs = require('fs');
+import * as vm from 'vm';
+import * as fs from 'fs';
+import {Context} from 'vm';
 
-var utils = require('../utils');
+import * as utils from '../utils';
 import Visitor from '../ast/visitors/visitor';
-
-var ErrorWrapper = require('../errorWrapper').default;
+import Commands from '../commands';
+import ErrorWrapper from '../errorWrapper';
 
 var PipeRunnable = require('./runners/PipeRunnable');
 var AndR = require('./runners/AndRunnable');
@@ -15,7 +16,7 @@ var superVisit = Visitor.prototype.visit;
 
 export default class ExecuterVisitor extends Visitor {
 
-	constructor(private commandSet, private context) {
+	constructor(private commandSet: Commands, private context: Context) {
 		super();
 	}
 
@@ -23,7 +24,7 @@ export default class ExecuterVisitor extends Visitor {
 		// HANDLED DIRECTLY IN COMMAND
 	}
 
-	toString() {
+	toString(): string {
 		return 'RunnableWrapperExecuterVisitor';
 	}
 
@@ -51,7 +52,7 @@ export default class ExecuterVisitor extends Visitor {
 				});
 			}
 		});
-		var runner = this.commandSet.getCmd(token.cmd, args);
+		const runner = this.commandSet.getCmd(token.cmd, args);
 		token.redirs.forEach(function (redir) {
 			var direction = redir.direction.type.id;
 			var fd = redir.direction.number;

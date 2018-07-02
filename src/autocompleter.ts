@@ -99,16 +99,14 @@ export class Autocompleter {
 			dir = path.resolve(process.cwd(), dir);
 		}
 
-		var files = [];
+		var files: string[] = [];
 
 		if (fs.existsSync(dir)) {
 			files = fs.readdirSync(dir);
 		}
-		return files.filter(function (file) {
-			return (file.lastIndexOf(filePrefix, 0) === 0);
-		}).map(function (file) {
-			return prefix.substring(0, idx + 1) + file;
-		});
+		return files.
+				filter(file => (file.lastIndexOf(filePrefix, 0) === 0)).
+				map(file => (prefix.substring(0, idx + 1) + file));
 	};
 
 	getCommands(prefix: string): string[] {
@@ -120,7 +118,7 @@ export class Autocompleter {
 	};
 
 	private static getProperties(obj: Object, prefix: string): string[] {
-		const props = [];
+		const props: string[] = [];
 		Object.keys(obj).forEach(p => {
 			if (p.lastIndexOf(prefix, 0) === 0) { // TODO WHY DO WE NEED TO PASS ZERO?
 				props.push(p);

@@ -8,7 +8,7 @@ import 'colors';
 import KeyHandler from './keyhandler';
 import LineReader from './lineReader';
 import Executer from './parser/RunnableWrapperExecuterVisitor';
-import LayoutComposer from './panels/composer';
+import LayoutComposer, {LayoutSpec} from './panels/composer';
 import ErrorWrapper from './errorWrapper';
 import History from './history';
 import WriterPanel from './panels/tree/writerPanel';
@@ -47,7 +47,7 @@ process.on('SIGTSTP', function () {
 const lineReader: LineReader = new LineReader(new WriterPanel(stdout));
 const keyHandler: KeyHandler = new KeyHandler(process.stdin);
 
-function setLayout(spec) {
+function setLayout(spec: LayoutSpec) {
 	// TODO validate spec according to high-level strict rules
 	rootPanel = LayoutComposer.buildInit(spec, stdout);
 	lineReader.setWriter(rootPanel.prompt);
@@ -70,7 +70,7 @@ const permanent = {
 		bindings: keyHandler,
 		utils: utils,
 		completion: CompletionParser,
-		alias: function (handle, body) {
+		alias: function (handle: string, body) {
 			var ast = defaultLineParser.parseCmdLine(body, commands);
 			if (ast.err) {
 				throw ast.err;
@@ -84,7 +84,7 @@ const permanent = {
 		},
 		home: __dirname,
 		setLayout: setLayout,
-		on: function (event, cb) {
+		on: function (event: string, cb: () => any) {
 			// TODO
 		},
 		layout: null,

@@ -61,7 +61,7 @@ export default class LineReader extends EventEmitter {
 		var columns = this.writer.getWidth ? this.writer.getWidth() : this.writer.columns;
 
 		var lines = this._prompt.split(/[\r\n]/);
-		var lineCols;
+		var lineCols: number;
 		var lineRows = 0;
 
 		lines.forEach(function (ln) {
@@ -99,7 +99,7 @@ export default class LineReader extends EventEmitter {
 	 * Inserts text at the current cursor position. Moves the cursor accordingly.
 	 * @param str the string to insert
 	 */
-	insert(str) {
+	insert(str: string): void {
 		//BUG: Problem when adding tabs with following content.
 		//     Perhaps the bug is in refreshLine(). Not sure.
 		//     A hack would be to insert spaces instead of literal '\t'.
@@ -131,7 +131,7 @@ export default class LineReader extends EventEmitter {
 	 * Move the cursor
 	 * @param dx the number of characters to move forward (negative numbers will cause the cursor to move backward)
 	 */
-	moveCursor(dx) {
+	moveCursor(dx: number): void {
 		var oldcursor = this.cursor;
 		var oldPos = this.getCursorPos();
 		this.cursor += dx;
@@ -284,7 +284,7 @@ export default class LineReader extends EventEmitter {
 	 * Sets the current text. Moves the cursor to the end.
 	 * @param line
 	 */
-	setLine(line) {
+	setLine(line: string): LineReader {
 		this.line = line;
 		this.cursor = line.length;
 		this.emit('change');
@@ -390,7 +390,7 @@ export default class LineReader extends EventEmitter {
 		this.prevRows = cursorPos.rows;
 	};
 
-	setWriter(writer) {
+	setWriter(writer: WriterPanel): void {
 		this.writer = writer;
 	};
 

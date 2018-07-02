@@ -69,6 +69,10 @@ export default class CenterFooterLayout implements Panel {
 		throw new Error('This panel should not need a parent');
 	}
 
+	setFooter(footer) {
+		throw new Error('Not implemented');
+	}
+
 	getHeight(): number {
 		throw new Error('Not implemented');
 		return -1;

@@ -7,11 +7,11 @@ import WriterPanel from './tree/writerPanel';
 
 type WidthSpec = number | 'auto';
 
-interface LayoutSpec {
-	cols: LayoutSpec[];
-	rows: LayoutSpec[];
+export interface LayoutSpec {
+	cols?: LayoutSpec[];
+	rows?: LayoutSpec[];
 	name: string;
-	width: WidthSpec;
+	width?: WidthSpec;
 }
 
 type PanelSet = {
