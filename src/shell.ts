@@ -2,7 +2,7 @@ import * as vm from 'vm';
 import * as util from 'util';
 import * as path from 'path';
 import * as readline from 'readline';
-import {WriteStream} from 'tty';
+import {ReadStream, WriteStream} from 'tty';
 import 'colors';
 
 import KeyHandler from './keyhandler';
@@ -22,6 +22,7 @@ import * as defaultLineParser from './parser/defaultLineParser';
 import * as CompletionParser from './parser/completionParser';
 import {DescentParserNode} from './ast/nodes/descentParserNodes';
 
+const stdin: ReadStream = process.stdin as ReadStream;
 const stdout: WriteStream = process.stdout as WriteStream;
 
 var paused: boolean = false;
@@ -46,7 +47,7 @@ process.on('SIGTSTP', function () {
 });
 
 const lineReader: LineReader = new LineReader(new WriterPanel(stdout));
-const keyHandler: KeyHandler = new KeyHandler(process.stdin);
+const keyHandler: KeyHandler = new KeyHandler(stdin);
 
 function setLayout(spec: LayoutSpec) {
 	// TODO validate spec according to high-level strict rules
