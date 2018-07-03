@@ -17,11 +17,17 @@ var SequenceR = require('./runners/SequenceRunnable');
 var superVisit = Visitor.prototype.visit;
 
 import * as globMatcher from '../tokenizer/matchers/globMatcher';
+import {Token} from '../tokenizer/commandLineTokenizer';
 
 export interface Runner {
 	hasConfig: (config: number) => boolean;
 	configFd: (config: number, stream: Stream) => void;
 	run: (callback: (xxx: any) => void) => void; // TODO NAMING
+}
+
+interface TokenGroup {
+	glob: boolean;
+	group: Token[];
 }
 
 export default class ExecuterVisitor extends Visitor {
@@ -151,8 +157,8 @@ export default class ExecuterVisitor extends Visitor {
 		return new SequenceR(left, right);
 	}
 
-	visitGLOB (glob: DescentParserNode) {
-		var subTokens = glob.glob.subTokens;
+	visitGLOB (glob: DescentParserNode): string[] {
+		var subTokens: Token[] = glob.glob.subTokens;
 
 		/* If the first token is ~ then expand it to home dir if it is alone or if it is followed by a path separator */
 		if (subTokens[0].text === '~' && (subTokens.length === 1 || subTokens[1].type === globMatcher.SUBTOKENS.SEPARATOR)) {
@@ -160,15 +166,14 @@ export default class ExecuterVisitor extends Visitor {
 		}
 
 		/* First phase: transform the subtoken list into another one with literal path components and globbed path components */
-		var tokenGroups = [];
-		var group = [];
-		var lastGroup;
-		var globbing = false;
-		subTokens.forEach(function (subToken, i) {
+		var tokenGroups: TokenGroup[] = [];
+		var group: Token[] = [];
+		var globbing: boolean = false;
+		subTokens.forEach((subToken: Token, i: number) => {
 			group.push(subToken);
 			if (subToken.type === globMatcher.SUBTOKENS.SEPARATOR || i === subTokens.length - 1) {
-				lastGroup = tokenGroups[tokenGroups.length - 1];
-				if (lastGroup && !globbing && !lastGroup.globbing) {
+				var lastGroup: TokenGroup = tokenGroups[tokenGroups.length - 1];
+				if (lastGroup && !globbing && !lastGroup.glob) {
 					lastGroup.group = lastGroup.group.concat(group);
 				} else {
 					tokenGroups.push({
@@ -187,7 +192,7 @@ export default class ExecuterVisitor extends Visitor {
 		var extracted: string[] = [''];
 		var aux: string[];
 		var join: string;
-		var regex;
+		var regex: RegExp;
 		var dirs: string[];
 		tokenGroups.forEach(function (tokenGroup, i) {
 			if (tokenGroup.glob) {
@@ -212,12 +217,12 @@ export default class ExecuterVisitor extends Visitor {
 			}
 		});
 
-		function buildRegex (tokenGroup) {
-			var re = '^';
+		function buildRegex (tokenGroup: Token[]): RegExp {
+			var re: string = '^';
 			tokenGroup.forEach(function (token) {
-				if (token.type.id === 'STAR') {
+				if (token.type === globMatcher.SUBTOKENS.STAR) {
 					re += '.*';
-				} else if (token.type.id === 'QUESTION') {
+				} else if (token.type === globMatcher.SUBTOKENS.QUESTION) {
 					re += '.';
 				} else {
 					re += token.text.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
@@ -268,7 +273,7 @@ export default class ExecuterVisitor extends Visitor {
 		return err;
 	}
 
-	visit (node): Runner {
+	visit (node: DescentParserNode): Runner {
 		var thisVisit = this.visit;
 		this.visit = superVisit; // temporarily. tricky. never saw this anywhere. wonder if it really works
 		var runner = this.visit(node);

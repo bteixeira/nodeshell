@@ -9,8 +9,8 @@ export interface DescentParserNode {
 	redirs?: DescentParserNode[];
 	cmd?: string;
 	args?: DescentParserNode[];
-	left?: string;
-	right?: string;
+	left?: DescentParserNode;
+	right?: DescentParserNode;
 	glob?: Token;
 	token?: Token;
 	err?: boolean;
