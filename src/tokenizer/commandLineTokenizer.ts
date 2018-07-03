@@ -5,9 +5,10 @@ import * as redirMatcher from './matchers/redirMatcher';
 import * as dQStringMatcher from './matchers/dqStringMatcher';
 import * as chainMatcher from './matchers/chainMatcher';
 import * as globMatcher from './matchers/globMatcher';
+import * as completionParser from '../parser/completionParser';
 
 export interface Token {
-	type: symbol | 'COMPLETION'; // TODO COMPLETION SHOULD ALSO BE A SYMBOL
+	type: symbol;
 	text: string;
 	pos?: number;
 	err?: boolean;
@@ -50,7 +51,7 @@ export default function (line: sequence<char>): Token[] {
 		}
 
 		tokens.push(token);
-		if (token.type === 'COMPLETION') {
+		if (token.type === completionParser.COMPLETION_TYPE) {
 			break
 		}
 	}

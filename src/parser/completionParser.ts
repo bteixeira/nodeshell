@@ -9,6 +9,10 @@ import commandLineTokenizer from '../tokenizer/commandLineTokenizer';
 import * as utils from '../utils';
 
 import DescentParser from './descentParser';
+import {DescentParserNode} from '../ast/nodes/descentParserNodes';
+
+export const COMPLETION = 'COMPLETION';
+export const COMPLETION_TYPE = Symbol(COMPLETION);
 
 export function parseCmdLine (
 	lineReader: LineReader,
@@ -19,17 +23,18 @@ export function parseCmdLine (
 	const line: string = lineReader.getLine();
 	const idx: number = lineReader.cursor;
 	const chars: any[] = line.split('');
-	chars.splice(idx, 0, {type: 'COMPLETION'});
+
+	chars.splice(idx, 0, COMPLETION);
 
 	var tokens = commandLineTokenizer(chars);
 
 	var parser = new DescentParser(commands, new Tape(tokens));
-	var ret = parser.COMMAND_LINE();
+	const ret: DescentParserNode = parser.COMMAND_LINE();
 
 	var completions: string[] = [];
 
 	// check if returned is completion
-	if (ret.type === 'COMPLETION') {
+	if (ret.type === COMPLETION) {
 		// if so, check completion type
 		// if command name, check possible commands for prefix
 		if (ret['completion-type'] === 'COMMAND-NAME') {

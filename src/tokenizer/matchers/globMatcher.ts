@@ -1,6 +1,8 @@
 import * as path from 'path';
 import * as utils from '../../utils';
 import {Token} from '../commandLineTokenizer';
+import * as completionParser from '../../parser/completionParser';
+import {char, sequence} from '../../tape';
 
 const ESCAPABLES = {
 	'0': '\0',
@@ -24,7 +26,7 @@ function matchText (tape) {
 
 	var c = tape.peek();
 
-	while (!(c in BREAKERS) && !/^\s$/.test(c) && !(c in SPECIALS) && c !== '\\' && tape.hasMore() && c.type !== 'COMPLETION') {
+	while (!(c in BREAKERS) && !/^\s$/.test(c) && !(c in SPECIALS) && c !== '\\' && tape.hasMore() && c !== completionParser.COMPLETION) {
 		tape.next();
 		c = tape.peek();
 	}
@@ -94,11 +96,13 @@ export function run (tape): Token {
 		};
 	}
 
-	var subTokens = [];
-	var subToken, text, type;
+	var subTokens: Token[] = [];
+	var subToken;
+	var text: sequence<char>;
+	var type: symbol;
 	do {
-		if (c.type === 'COMPLETION') {
-			type = 'COMPLETION';
+		if (c === completionParser.COMPLETION) {
+			type = completionParser.COMPLETION_TYPE; // TODO TODO TODO
 			break;
 		} else if (c in BREAKERS || /\s/.test(c)) {
 			break;
@@ -122,7 +126,7 @@ export function run (tape): Token {
 	} while (tape.hasMore());
 
 	text = tape.getMarked();
-	if (text.join) {
+	if (text instanceof Array) {
 		text = text.join('');
 	}
 
@@ -130,7 +134,7 @@ export function run (tape): Token {
 	return {
 		type: type || TOKENS.GLOB,
 		pos: tape.mark,
-		text: text,
+		text: text as string,
 		subTokens: subTokens,
 	}
 }

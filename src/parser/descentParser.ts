@@ -10,6 +10,7 @@ import * as jsMatcher from '../tokenizer/matchers/jsMatcher';
 import * as chainMatcher from '../tokenizer/matchers/chainMatcher';
 import * as redirMatcher from '../tokenizer/matchers/redirMatcher';
 import * as globMatcher from '../tokenizer/matchers/globMatcher';
+import * as completionParser from './completionParser';
 import {DescentParserNode} from '../ast/nodes/descentParserNodes';
 
 import * as ast from '../ast/nodes/descentParserNodes';
@@ -71,7 +72,7 @@ export default class DescentParser {
 
 	SIMPLE_COMMAND (): DescentParserNode | ErrorWrapper {
 		var redirs: DescentParserNode[] = [];
-		var cmd;
+		var cmd: Token;
 		var args: DescentParserNode[] = [];
 
 		var current;
@@ -81,11 +82,11 @@ export default class DescentParser {
 		} while (!current.err);
 
 		cmd = this.tape.next();
-		if (cmd.type && cmd.type === 'COMPLETION') {
+		if (cmd.type === completionParser.COMPLETION_TYPE) { ////TODO TODO TODO
 			// TODO RETURN COMPLETION OBJECT FOR COMMAND NAME
 			//console.log('returning completion');
 			return {
-				type: 'COMPLETION',
+				type: completionParser.COMPLETION,
 				'completion-type': 'COMMAND-NAME',
 				prefix: cmd.text,
 			};
@@ -116,18 +117,15 @@ export default class DescentParser {
 		this.firstCommand = false;
 		var node = ast.COMMAND(cmd.text, args, redirs);
 
-		if (this.tape.hasMore() && this.tape.peek().type === 'COMPLETION') {
+		if (this.tape.hasMore() && this.tape.peek().type === completionParser.COMPLETION_TYPE) { // TODO TODO TODO
 			// TODO RETURN COMPLETION OBJECT CONTAINING AST NODE BUILT SO FAR
-//        console.log('returning completion 2');
-
 			return {
-				type: 'COMPLETION',
+				type: completionParser.COMPLETION,
 				'completion-type': 'COMMAND-ARGUMENT',
 				node: node,
 				prefix: this.tape.next().text,
 			};
 		}
-		//console.log('returning node without completion');
 		return node;
 	}
 
