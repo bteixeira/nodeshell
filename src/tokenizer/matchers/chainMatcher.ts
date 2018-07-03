@@ -1,9 +1,10 @@
-// Matches command chainers ('|', '&', '||' or '&&')
-
 import * as utils from '../../utils';
 import Tape, {char} from '../../tape';
 import {Token} from '../commandLineTokenizer';
 
+export const TOKENS = utils.createEnum('AMP', 'PIPE', 'DAMP', 'DPIPE', 'NOT_CHAIN');
+
+// Matches command chainers ('|', '&', '||' or '&&')
 export function run (tape: Tape<char>): Token {
 
 	tape.pushMark();
@@ -15,20 +16,20 @@ export function run (tape: Tape<char>): Token {
 	if (c === '&') {
 		if (tape.peek() === '&') {
 			tape.next();
-			type = tokens.DAMP;
+			type = TOKENS.DAMP;
 		} else {
-			type = tokens.AMP;
+			type = TOKENS.AMP;
 		}
 	} else if (c === '|') {
 		if (tape.peek() === '|') {
 			tape.next();
-			type = tokens.DPIPE;
+			type = TOKENS.DPIPE;
 		} else {
-			type = tokens.PIPE;
+			type = TOKENS.PIPE;
 		}
 	} else {
 		tape.prev();
-		type = tokens.NOT_CHAIN;
+		type = TOKENS.NOT_CHAIN;
 	}
 
 	var text = tape.getMarked();
@@ -45,5 +46,3 @@ export function run (tape: Tape<char>): Token {
 	};
 
 }
-
-export const tokens = utils.createEnum('AMP', 'PIPE', 'DAMP', 'DPIPE', 'NOT_CHAIN');

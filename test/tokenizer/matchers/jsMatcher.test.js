@@ -6,7 +6,7 @@ describe('Matcher for Javascript snippets', function () {
     it('fails if tape is not positioned at JS', function () {
         var tape = new Tape('   (var x = 3)');
         var token = jsMatcher.run(tape);
-        token.type.should.be.exactly(jsMatcher.tokens.JS_ERROR);
+        token.type.should.be.exactly(jsMatcher.TOKENS.JS_ERROR);
     });
 
     it('moves the tape to just after JS', function () {
@@ -15,7 +15,7 @@ describe('Matcher for Javascript snippets', function () {
         var tape = new Tape(str);
         tape.pos = 3;
         var token = jsMatcher.run(tape);
-        token.type.should.be.exactly(jsMatcher.tokens.JSTOKEN);
+        token.type.should.be.exactly(jsMatcher.TOKENS.JSTOKEN);
         token.text.should.equal(str.slice(3, 109));
         token.pos.should.equal(3);
         tape.pos.should.equal(109);
@@ -26,7 +26,7 @@ describe('Matcher for Javascript snippets', function () {
         var tape = new Tape(str);
 
         var token = jsMatcher.run(tape);
-        token.type.should.be.exactly(jsMatcher.tokens.JS_ERROR);
+        token.type.should.be.exactly(jsMatcher.TOKENS.JS_ERROR);
         token.text.should.equal(str);
         token.pos.should.equal(str.length);
         tape.pos.should.equal(str.length);
@@ -37,7 +37,7 @@ describe('Matcher for Javascript snippets', function () {
         var tape = new Tape(str);
 
         var token = jsMatcher.run(tape);
-        token.type.should.be.exactly(jsMatcher.tokens.JS_ERROR);
+        token.type.should.be.exactly(jsMatcher.TOKENS.JS_ERROR);
         token.text.should.equal(')');
         token.pos.should.equal(52);
         tape.pos.should.equal(53);

@@ -10,7 +10,7 @@ import * as completionParser from '../parser/completionParser';
 export interface Token {
 	type: symbol;
 	text: string;
-	pos?: number;
+	pos: number;
 	err?: boolean;
 	subTokens?: Token[];
 	fd?: string; // TODO SPECIFIC TO REDIRECTION
@@ -41,7 +41,7 @@ export default function (line: sequence<char>): Token[] {
 			tape.setMark();
 			tape.pushMark();
 			token = redirMatcher.run(tape);
-			if (token.type === redirMatcher.tokens.NOTREDIR) {
+			if (token.type === redirMatcher.TOKENS.NOTREDIR) {
 				tape.popMark();
 				tape.rewindToMark();
 				token = globMatcher.run(tape);

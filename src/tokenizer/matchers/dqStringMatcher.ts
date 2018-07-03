@@ -2,10 +2,12 @@ import * as utils from '../../utils';
 import Tape, {char} from '../../tape';
 import {Token} from '../commandLineTokenizer';
 
+export const TOKENS = utils.createEnum('DQSTRING', 'NO_DQSTRING', 'UNTERMINATED_DQSTRING', 'UNTERMINATED_ESCAPING_DQSTRING');
+
 export function run (tape: Tape<char>): Token {
 	if (tape.peek() !== '"') {
 		return {
-			type: tokens.NO_DQSTRING,
+			type: TOKENS.NO_DQSTRING,
 			text: tape.peek(),
 			pos: tape.pos,
 		};
@@ -22,17 +24,17 @@ export function run (tape: Tape<char>): Token {
 	while (tape.hasMore()) {
 		c = tape.next();
 		if (c === '"') {
-			type = tokens.DQSTRING;
+			type = TOKENS.DQSTRING;
 			break;
 		} else if (c === '\\') {
 			if (!tape.hasMore()) {
-				type = tokens.UNTERMINATED_ESCAPING_DQSTRING;
+				type = TOKENS.UNTERMINATED_ESCAPING_DQSTRING;
 				break;
 			}
 			tape.next();
 		}
 		if (!tape.hasMore()) {
-			type = tokens.UNTERMINATED_DQSTRING;
+			type = TOKENS.UNTERMINATED_DQSTRING;
 		}
 	}
 
@@ -50,5 +52,3 @@ export function run (tape: Tape<char>): Token {
 	};
 
 }
-
-export const tokens = utils.createEnum('DQSTRING', 'NO_DQSTRING', 'UNTERMINATED_DQSTRING', 'UNTERMINATED_ESCAPING_DQSTRING');

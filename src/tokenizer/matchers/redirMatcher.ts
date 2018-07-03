@@ -2,6 +2,8 @@ import * as utils from '../../utils';
 import Tape, {char} from '../../tape';
 import {Token} from '../commandLineTokenizer';
 
+export const TOKENS = utils.createEnum('NOTREDIR', 'GT', 'GTGT', 'GTAMP', 'LT', 'LTGT', 'LTAMP');
+
 /**
  * Allowed sequences:
  *      [0-9]*>
@@ -11,7 +13,6 @@ import {Token} from '../commandLineTokenizer';
  *      [0-9]*<>
  *      [0-9]*<&
  */
-
 export function run (tape: Tape<char>): Token {
 	tape.pushMark();
 	tape.setMark();
@@ -30,26 +31,26 @@ export function run (tape: Tape<char>): Token {
 	if (c === '>') {
 		if (tape.peek() === '>') {
 			tape.next();
-			type = tokens.GTGT;
+			type = TOKENS.GTGT;
 		} else if (tape.peek() === '&') {
 			tape.next();
-			type = tokens.GTAMP;
+			type = TOKENS.GTAMP;
 		} else {
-			type = tokens.GT;
+			type = TOKENS.GT;
 		}
 	} else if (c === '<') {
 		if (tape.peek() === '>') {
 			tape.next();
-			type = tokens.LTGT;
+			type = TOKENS.LTGT;
 		} else if (tape.peek() === '&') {
 			tape.next();
-			type = tokens.LTAMP;
+			type = TOKENS.LTAMP;
 		} else {
-			type = tokens.LT;
+			type = TOKENS.LT;
 		}
 	} else {
 		tape.prev();
-		type = tokens.NOTREDIR;
+		type = TOKENS.NOTREDIR;
 	}
 
 	var text = tape.getMarked();
@@ -69,5 +70,3 @@ export function run (tape: Tape<char>): Token {
 		fd: fd,
 	};
 }
-
-export const tokens = utils.createEnum('NOTREDIR', 'GT', 'GTGT', 'GTAMP', 'LT', 'LTGT', 'LTAMP');

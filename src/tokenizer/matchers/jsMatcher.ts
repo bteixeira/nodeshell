@@ -3,10 +3,12 @@ import * as utils from '../../utils';
 import Tape, {char, sequence} from '../../tape';
 import {Token} from '../commandLineTokenizer';
 
+export const TOKENS = utils.createEnum('JS_ERROR', 'JSTOKEN');
+
 export function run (tape: Tape<char>): Token {
 	if (tape.peek() !== '(') {
 		return {
-			type: tokens.JS_ERROR,
+			type: TOKENS.JS_ERROR,
 			text: tape.peek(),
 			pos: tape.pos,
 		};
@@ -31,12 +33,12 @@ export function run (tape: Tape<char>): Token {
 		c = tape.next();
 		if (c === ')') {
 			if (!stack.length) {
-				type = tokens.JSTOKEN;
+				type = TOKENS.JSTOKEN;
 				break;
 			} else if (top() === '(') {
 				stack.pop();
 			} else {
-				type = tokens.JS_ERROR;
+				type = TOKENS.JS_ERROR;
 				pos = tape.pos - 1;
 				text = c;
 				break;
@@ -46,7 +48,7 @@ export function run (tape: Tape<char>): Token {
 			if (top() === '{') {
 				stack.pop();
 			} else {
-				type = tokens.JS_ERROR;
+				type = TOKENS.JS_ERROR;
 				pos = tape.pos;
 				break;
 			}
@@ -54,7 +56,7 @@ export function run (tape: Tape<char>): Token {
 			if (top() === '[') {
 				stack.pop();
 			} else {
-				type = tokens.JS_ERROR;
+				type = TOKENS.JS_ERROR;
 				pos = tape.pos;
 				break;
 			}
@@ -65,7 +67,7 @@ export function run (tape: Tape<char>): Token {
 			dQStringMatcher.run(tape);
 		}
 		if (!tape.hasMore()) {
-			type = tokens.JS_ERROR;
+			type = TOKENS.JS_ERROR;
 			pos = tape.pos;
 		}
 	}
@@ -84,5 +86,3 @@ export function run (tape: Tape<char>): Token {
 		pos: pos,
 	};
 }
-
-export const tokens = utils.createEnum('JS_ERROR', 'JSTOKEN');

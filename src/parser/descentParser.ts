@@ -43,7 +43,7 @@ export default class DescentParser {
 
 		const first: Token = this.tape.next(); // contains direction and possibly fd
 
-		const allowed = redirMatcher.tokens;
+		const allowed = redirMatcher.TOKENS;
 		if (!(<any>Object).values(allowed).includes(first.type)) {
 			this.tape.prev();
 			return this.ERROR(allowed);
@@ -61,7 +61,7 @@ export default class DescentParser {
 			return this.ERROR(globMatcher.TOKENS.GLOB);
 		}
 
-		if (first.type === redirMatcher.tokens.GTAMP || first.type === redirMatcher.tokens.LTAMP) {
+		if (first.type === redirMatcher.TOKENS.GTAMP || first.type === redirMatcher.TOKENS.LTAMP) {
 			if (isNaN(Number(second.text))) {
 				return this.ERROR();
 			}
@@ -99,9 +99,9 @@ export default class DescentParser {
 			current = this.tape.next();
 			if (current.type === globMatcher.TOKENS.GLOB) {
 				args.push(ast.GLOB(current));
-			} else if (current.type === jsMatcher.tokens.JSTOKEN) {
+			} else if (current.type === jsMatcher.TOKENS.JSTOKEN) {
 				args.push(ast.JS(current));
-			} else if (current.type === dQStringMatcher.tokens.DQSTRING) {
+			} else if (current.type === dQStringMatcher.TOKENS.DQSTRING) {
 				args.push(ast.DQSTRING(current));
 			} else {
 				this.tape.prev();
@@ -139,7 +139,7 @@ export default class DescentParser {
 
 		var next = this.tape.next();
 		var node;
-		if (next.type === chainMatcher.tokens.PIPE) {
+		if (next.type === chainMatcher.TOKENS.PIPE) {
 			node = this.PIPELINE();
 			if (node.err) {
 				// no need to rewind more, recursed call should have rewinded
@@ -161,14 +161,14 @@ export default class DescentParser {
 		}
 
 		var next = this.tape.next();
-		if (next.type === chainMatcher.tokens.DPIPE || next.type === chainMatcher.tokens.DAMP) {
+		if (next.type === chainMatcher.TOKENS.DPIPE || next.type === chainMatcher.TOKENS.DAMP) {
 			var listType = next.type;
 			next = this.LIST();
 			if (next.err) {
 				// no need to rewind more, recursed call should have rewinded
 				this.tape.prev();
 			} else {
-				if (listType === chainMatcher.tokens.DPIPE) {
+				if (listType === chainMatcher.TOKENS.DPIPE) {
 					return ast.OR_LIST(pipeline, next);
 				} else {
 					return ast.AND_LIST(pipeline, next);
@@ -193,7 +193,7 @@ export default class DescentParser {
 			return list;
 		}
 		var next = this.tape.next();
-		if (next.type === chainMatcher.tokens.AMP) {
+		if (next.type === chainMatcher.TOKENS.AMP) {
 			next = this.SUBSHELL();
 			if (next.err) {
 				return ast.SEQUENCE(list);

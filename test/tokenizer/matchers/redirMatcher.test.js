@@ -7,7 +7,7 @@ describe('Matcher for redirections', function () {
 	it('fails if tape is not positioned at neither digit nor > nor <', function () {
 		var tape = new Tape('echo "stuff" > out.txt ');
 		var token = redirMatcher.run(tape);
-		token.type.should.be.exactly(redirMatcher.tokens.NOTREDIR);
+		token.type.should.be.exactly(redirMatcher.TOKENS.NOTREDIR);
 	});
 
 	it('moves the tape to just after >', function () {
@@ -15,7 +15,7 @@ describe('Matcher for redirections', function () {
 		var tape = new Tape(str);
 		tape.pos = 13;
 		var token = redirMatcher.run(tape);
-		token.type.should.be.exactly(redirMatcher.tokens.GT);
+		token.type.should.be.exactly(redirMatcher.TOKENS.GT);
 		token.text.should.equal(str.slice(13, 14));
 		assert(!token.fd);
 		token.pos.should.equal(13);
@@ -27,7 +27,7 @@ describe('Matcher for redirections', function () {
 		var tape = new Tape(str);
 		tape.pos = 13;
 		var token = redirMatcher.run(tape);
-		token.type.should.be.exactly(redirMatcher.tokens.GT);
+		token.type.should.be.exactly(redirMatcher.TOKENS.GT);
 		token.text.should.equal(str.slice(13, 16));
 		token.fd.should.equal(str.slice(13, 15));
 		token.pos.should.equal(13);
@@ -39,7 +39,7 @@ describe('Matcher for redirections', function () {
 		var tape = new Tape(str);
 		tape.pos = 6;
 		var token = redirMatcher.run(tape);
-		token.type.should.be.exactly(redirMatcher.tokens.LT);
+		token.type.should.be.exactly(redirMatcher.TOKENS.LT);
 		token.text.should.equal(str.slice(6, 7));
 		assert(!token.fd);
 		token.pos.should.equal(6);
@@ -51,7 +51,7 @@ describe('Matcher for redirections', function () {
 		var tape = new Tape(str);
 		tape.pos = 11;
 		var token = redirMatcher.run(tape);
-		token.type.should.be.exactly(redirMatcher.tokens.LT);
+		token.type.should.be.exactly(redirMatcher.TOKENS.LT);
 		token.text.should.equal(str.slice(11, 15));
 		token.fd.should.equal(str.slice(11, 14));
 		token.pos.should.equal(11);
@@ -63,7 +63,7 @@ describe('Matcher for redirections', function () {
 		var tape = new Tape(str);
 		tape.pos = 13;
 		var token = redirMatcher.run(tape);
-		token.type.should.be.exactly(redirMatcher.tokens.GTGT);
+		token.type.should.be.exactly(redirMatcher.TOKENS.GTGT);
 		assert(!token.fd);
 		token.text.should.equal(str.slice(13, 15));
 		token.pos.should.equal(13);
@@ -75,7 +75,7 @@ describe('Matcher for redirections', function () {
 		var tape = new Tape(str);
 		tape.pos = 13;
 		var token = redirMatcher.run(tape);
-		token.type.should.be.exactly(redirMatcher.tokens.GTGT);
+		token.type.should.be.exactly(redirMatcher.TOKENS.GTGT);
 		token.text.should.equal(str.slice(13, 17));
 		token.fd.should.equal(str.slice(13, 15));
 		token.pos.should.equal(13);
@@ -87,7 +87,7 @@ describe('Matcher for redirections', function () {
 		var tape = new Tape(str);
 		tape.pos = 7;
 		var token = redirMatcher.run(tape);
-		token.type.should.be.exactly(redirMatcher.tokens.GTAMP);
+		token.type.should.be.exactly(redirMatcher.TOKENS.GTAMP);
 		token.text.should.equal(str.slice(7, 9));
 		assert(!token.fd);
 		token.pos.should.equal(7);
@@ -99,7 +99,7 @@ describe('Matcher for redirections', function () {
 		var tape = new Tape(str);
 		tape.pos = 7;
 		var token = redirMatcher.run(tape);
-		token.type.should.be.exactly(redirMatcher.tokens.GTAMP);
+		token.type.should.be.exactly(redirMatcher.TOKENS.GTAMP);
 		token.text.should.equal(str.slice(7, 12));
 		token.fd.should.equal(str.slice(7, 10));
 		token.pos.should.equal(7);
@@ -111,7 +111,7 @@ describe('Matcher for redirections', function () {
 		var tape = new Tape(str);
 		tape.pos = 6;
 		var token = redirMatcher.run(tape);
-		token.type.should.be.exactly(redirMatcher.tokens.LTGT);
+		token.type.should.be.exactly(redirMatcher.TOKENS.LTGT);
 		token.text.should.equal(str.slice(6, 8));
 		assert(!token.fd);
 		token.pos.should.equal(6);
@@ -123,7 +123,7 @@ describe('Matcher for redirections', function () {
 		var tape = new Tape(str);
 		tape.pos = 6;
 		var token = redirMatcher.run(tape);
-		token.type.should.be.exactly(redirMatcher.tokens.LTGT);
+		token.type.should.be.exactly(redirMatcher.TOKENS.LTGT);
 		token.text.should.equal(str.slice(6, 9));
 		token.fd.should.equal(str.slice(6, 7));
 		token.pos.should.equal(6);
@@ -135,7 +135,7 @@ describe('Matcher for redirections', function () {
 		var tape = new Tape(str);
 		tape.pos = 6;
 		var token = redirMatcher.run(tape);
-		token.type.should.be.exactly(redirMatcher.tokens.LTAMP);
+		token.type.should.be.exactly(redirMatcher.TOKENS.LTAMP);
 		token.text.should.equal(str.slice(6, 8));
 		assert(!token.fd);
 		token.pos.should.equal(6);
@@ -147,7 +147,7 @@ describe('Matcher for redirections', function () {
 		var tape = new Tape(str);
 		tape.pos = 6;
 		var token = redirMatcher.run(tape);
-		token.type.should.be.exactly(redirMatcher.tokens.LTAMP);
+		token.type.should.be.exactly(redirMatcher.TOKENS.LTAMP);
 		token.text.should.equal(str.slice(6, 12));
 		token.fd.should.equal(str.slice(6, 10));
 		token.pos.should.equal(6);

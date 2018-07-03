@@ -6,7 +6,7 @@ describe('Matcher for Double-Quoted String', function () {
     it('fails if tape is not positioned at DQS', function () {
         var tape = new Tape('   "qwerty"');
         var token = dQStringMatcher.run(tape);
-        token.type.should.be.exactly(dQStringMatcher.tokens.NO_DQSTRING);
+        token.type.should.be.exactly(dQStringMatcher.TOKENS.NO_DQSTRING);
     });
 
     it('moves the tape to just after DQS', function () {
@@ -14,7 +14,7 @@ describe('Matcher for Double-Quoted String', function () {
         var tape = new Tape(str);
         tape.pos = 3;
         var token = dQStringMatcher.run(tape);
-        token.type.should.be.exactly(dQStringMatcher.tokens.DQSTRING);
+        token.type.should.be.exactly(dQStringMatcher.TOKENS.DQSTRING);
         token.text.should.equal(str.slice(3, 23));
         token.pos.should.equal(3);
         tape.pos.should.equal(23);
@@ -25,7 +25,7 @@ describe('Matcher for Double-Quoted String', function () {
         var tape = new Tape(str);
 
         var token = dQStringMatcher.run(tape);
-        token.type.should.be.exactly(dQStringMatcher.tokens.UNTERMINATED_DQSTRING);
+        token.type.should.be.exactly(dQStringMatcher.TOKENS.UNTERMINATED_DQSTRING);
         token.text.should.equal(str);
         token.pos.should.equal(0);
         tape.pos.should.equal(str.length);
@@ -36,7 +36,7 @@ describe('Matcher for Double-Quoted String', function () {
         var tape = new Tape(str);
 
         var token = dQStringMatcher.run(tape);
-        token.type.should.be.exactly(dQStringMatcher.tokens.UNTERMINATED_ESCAPING_DQSTRING);
+        token.type.should.be.exactly(dQStringMatcher.TOKENS.UNTERMINATED_ESCAPING_DQSTRING);
         token.text.should.equal(str);
         token.pos.should.equal(0);
         tape.pos.should.equal(str.length);
