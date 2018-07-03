@@ -57,4 +57,4 @@ export default function (line: sequence<char>): Token[] {
 	}
 
 	return tokens;
-};
+}

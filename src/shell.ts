@@ -7,7 +7,7 @@ import 'colors';
 
 import KeyHandler from './keyhandler';
 import LineReader from './lineReader';
-import RWEVisitor, {Runner} from './parser/RunnableWrapperExecuterVisitor';
+import RWEVisitor, {Runnable} from './parser/RunnableWrapperExecuterVisitor';
 import LayoutComposer, {LayoutSpec} from './panels/composer';
 import ErrorWrapper from './errorWrapper';
 import History from './history';
@@ -143,7 +143,7 @@ lineReader
 		process.stdin.pause();
 		readline.clearScreenDown(process.stdout);
 		paused = true;
-		var runner: Runner;
+		var runner: Runnable;
 		var err: DescentParserNode;
 		var ast: DescentParserNode = defaultLineParser.parseCmdLine(line, commands);
 		if (ast.err && ast.firstCommand) {

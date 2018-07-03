@@ -1,9 +1,7 @@
-var fs = require('fs');
-var path = require('path');
+import * as fs from 'fs';
+import * as path from 'path';
 
-var utils = require('./utils');
-var CPWrapper = require('./parser/runners/cpWrapper');
-var spawn = require('child_process').spawn;
+import ChildProcessWRapper from './parser/runners/childProcessWrapper';
 
 export interface Options {
 	skipPath?: boolean;
@@ -74,7 +72,7 @@ export default class Commands {
 
 	private static makeCmd(filename: string): Command {
 		return function (args) {
-			return new CPWrapper(filename, args);
+			return new ChildProcessWRapper(filename, args);
 		}
 	}
 

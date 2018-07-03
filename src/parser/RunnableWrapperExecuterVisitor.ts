@@ -9,8 +9,8 @@ import ErrorWrapper from '../errorWrapper';
 import {Stream} from 'stream';
 import {DescentParserNode} from '../ast/nodes/descentParserNodes';
 
+import AndRunnable from './runners/AndRunnable';
 var PipeRunnable = require('./runners/PipeRunnable');
-var AndR = require('./runners/AndRunnable');
 var OrR = require('./runners/OrRunnable');
 var SequenceR = require('./runners/SequenceRunnable');
 
@@ -19,7 +19,7 @@ var superVisit = Visitor.prototype.visit;
 import * as globMatcher from '../tokenizer/matchers/globMatcher';
 import {Token} from '../tokenizer/commandLineTokenizer';
 
-export interface Runner {
+export interface Runnable {
 	hasConfig: (config: number) => boolean;
 	configFd: (config: number, stream: Stream) => void;
 	run: (callback: (xxx: any) => void) => void; // TODO NAMING
@@ -36,7 +36,7 @@ export default class ExecuterVisitor extends Visitor {
 		super();
 	}
 
-	visitREDIR (redir: DescentParserNode): Runner {
+	visitREDIR (redir: DescentParserNode): Runnable {
 		// HANDLED DIRECTLY IN COMMAND
 		return null;
 	}
@@ -45,7 +45,7 @@ export default class ExecuterVisitor extends Visitor {
 		return 'RunnableWrapperExecuterVisitor';
 	}
 
-	visitCOMMAND (token: DescentParserNode): Runner {
+	visitCOMMAND (node: DescentParserNode): Runnable {
 //    return an object that
 //        has a set of [fd->stream] mappings which will be applied when running
 //        has a run method which will start whatever, with said redirections
@@ -55,10 +55,10 @@ export default class ExecuterVisitor extends Visitor {
 //        UPDATE the mapping must differentiate between input redirection and output redirection
 //        has a method to know, before running, if an fd is supposed to be redirected/inputted
 
-		var args: Runner[] = [];
+		var args: Runnable[] = [];
 		var me = this;
-		token.args.forEach((node: DescentParserNode) => {
-			const runner: Runner = me.visit(node);
+		node.args.forEach((node: DescentParserNode) => {
+			const runner: Runnable = me.visit(node);
 			if (node.type === 'GLOB' || node.type === 'DQSTRING') {
 				args.push(runner); // Push the runner, push, push the runner
 			} else if (node.type === 'JS') {
@@ -67,8 +67,8 @@ export default class ExecuterVisitor extends Visitor {
 				});
 			}
 		});
-		const runner = this.commandSet.getCmd(token.cmd, args);
-		token.redirs.forEach(function (redir) {
+		const runner = this.commandSet.getCmd(node.cmd, args);
+		node.redirs.forEach(function (redir) {
 			var direction = redir.direction.type.toString();
 			var fd = redir.direction.number;
 			var target = redir.target;
@@ -112,9 +112,9 @@ export default class ExecuterVisitor extends Visitor {
 		return runner;
 	}
 
-	visitPIPELINE (pipeline: DescentParserNode): Runner {
-		const left: Runner = this.visit(pipeline.left);
-		const right: Runner = this.visit(pipeline.right);
+	visitPIPELINE (pipeline: DescentParserNode): Runnable {
+		const left: Runnable = this.visit(pipeline.left);
+		const right: Runnable = this.visit(pipeline.right);
 //
 //    left.clearRedirect(1);
 //    right.clearInput(0);
@@ -133,21 +133,21 @@ export default class ExecuterVisitor extends Visitor {
 		return new PipeRunnable(left, right);
 	}
 
-	visitAND_LIST (list: DescentParserNode): Runner {
+	visitAND_LIST (list: DescentParserNode): Runnable {
 		const left = this.visit(list.left);
 		const right = this.visit(list.right);
 
-		return new AndR(left, right);
+		return new AndRunnable(left, right);
 	}
 
-	visitOR_LIST (list: DescentParserNode): Runner {
+	visitOR_LIST (list: DescentParserNode): Runnable {
 		const left = this.visit(list.left);
 		const right = this.visit(list.right);
 
 		return new OrR(left, right);
 	}
 
-	visitSEQUENCE (sequence: DescentParserNode): Runner {
+	visitSEQUENCE (sequence: DescentParserNode): Runnable {
 		const left = this.visit(sequence.left);
 		var right;
 		if (sequence.right) {
@@ -235,7 +235,7 @@ export default class ExecuterVisitor extends Visitor {
 		return extracted;
 	}
 
-	visitJS (token: DescentParserNode): Runner {
+	visitJS (token: DescentParserNode): Runnable {
 		const context: Context = this.context;
 		return {
 			run: function (callback) {
@@ -273,7 +273,7 @@ export default class ExecuterVisitor extends Visitor {
 		return err;
 	}
 
-	visit (node: DescentParserNode): Runner {
+	visit (node: DescentParserNode): Runnable {
 		var thisVisit = this.visit;
 		this.visit = superVisit; // temporarily. tricky. never saw this anywhere. wonder if it really works
 		var runner = this.visit(node);

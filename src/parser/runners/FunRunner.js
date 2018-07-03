@@ -1,5 +1,3 @@
-var utils = require('../../utils');
-
 var FunRunner = module.exports = function (fun) {
     this._fun = fun;
     this._stdio = [];
@@ -16,12 +14,7 @@ p.run = function (cb) {
         if (cfg === 'pipe') {
             this.pipes[i] = (function () {
                 var j = i;
-//                var buffer = new Buffer(1024);
-//                var
                 return {
-//                    write: function (what) {
-//                        buffer
-//                    },
                     pipe: function (target) {
                         me.pipes[j] = target;
                     }

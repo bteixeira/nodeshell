@@ -1,7 +1,12 @@
+import {DescentParserNode} from '../nodes/descentParserNodes';
+import {Runnable} from '../../parser/RunnableWrapperExecuterVisitor';
+
+type visitorMethod = (node: DescentParserNode) => Runnable;
+
 export default class Visitor {
-	visit(token) {
-		const methodName = `visit${token.type}`;
-		const method = this[methodName];
+	visit(node: DescentParserNode) {
+		const methodName: string = `visit${node.type}`;
+		const method: visitorMethod = this[methodName];
 		if (!method) {
 			throw new Error(`${this} has no implementation for ${methodName}`);
 		}
