@@ -3,9 +3,8 @@ import {Context} from 'vm';
 
 import Commands from './commands';
 import ErrorWrapper from './errorWrapper';
+import FunctionRunnable from'./parser/runners/functionRunnable';
 import * as utils from './utils';
-
-const FunRunner = require('./parser/runners/FunRunner');
 
 export default function (context: Context) {
 
@@ -16,7 +15,7 @@ export default function (context: Context) {
 		stub: stub,
 		exit: exit,
 		all: function (args) {
-			return new FunRunner(function (stdio) {
+			return new FunctionRunnable(function (stdio) {
 				commands.getCommandNames().forEach(function (command) {
 					stdio[1].write(command + '\n');
 				});
@@ -25,7 +24,7 @@ export default function (context: Context) {
 		},
 		source: function (args) {
 			var filename = args.length && args[0];
-			return new FunRunner(function (stdio) {
+			return new FunctionRunnable(function (stdio) {
 				return utils.sourceSync(filename, context);
 			});
 		},
@@ -47,7 +46,7 @@ var cd = (function () {
 		if (dir === '-') {
 			dir = previous;
 		}
-		return new FunRunner(function (stdio) {
+		return new FunctionRunnable(function (stdio) {
 			try {
 				var tmp = process.cwd();
 				process.chdir(dir);
@@ -60,7 +59,7 @@ var cd = (function () {
 }());
 
 function stub (args: string[]) {
-	return new FunRunner(function (stdio) {
+	return new FunctionRunnable(function (stdio) {
 		stdio[1].write('This is simply a stub command.\n');
 		stdio[1].write('You gave me these arguments:\n' + util.inspect(args) + '\n');
 	});
@@ -68,7 +67,7 @@ function stub (args: string[]) {
 
 function exit (args) {
 	var status = args[0];
-	return new FunRunner(function (stdio) {
+	return new FunctionRunnable(function (stdio) {
 		process.exit(status);
 	});
 }

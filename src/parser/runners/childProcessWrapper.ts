@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as cp from 'child_process';
 
-import {Runnable} from '../RunnableWrapperExecuterVisitor';
+import {Runnable} from '../runnableWrapperExecuterVisitor';
 
 export default class ChildProcessWrapper implements Runnable {
 	private _started = false;

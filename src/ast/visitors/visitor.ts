@@ -1,5 +1,5 @@
 import {DescentParserNode} from '../nodes/descentParserNodes';
-import {Runnable} from '../../parser/RunnableWrapperExecuterVisitor';
+import {Runnable} from '../../parser/runnableWrapperExecuterVisitor';
 
 type visitorMethod = (node: DescentParserNode) => Runnable;
 

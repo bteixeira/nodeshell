@@ -9,10 +9,10 @@ import ErrorWrapper from '../errorWrapper';
 import {Stream} from 'stream';
 import {DescentParserNode} from '../ast/nodes/descentParserNodes';
 
-import AndRunnable from './runners/AndRunnable';
-var PipeRunnable = require('./runners/PipeRunnable');
-var OrR = require('./runners/OrRunnable');
-var SequenceR = require('./runners/SequenceRunnable');
+import AndRunnable from './runners/andRunnable';
+import OrRunnable from './runners/orRunnable';
+import PipeRunnable from './runners/pipeRunnable';
+import SequenceRunnable from './runners/sequenceRunnable';
 
 var superVisit = Visitor.prototype.visit;
 
@@ -144,7 +144,7 @@ export default class ExecuterVisitor extends Visitor {
 		const left = this.visit(list.left);
 		const right = this.visit(list.right);
 
-		return new OrR(left, right);
+		return new OrRunnable(left, right);
 	}
 
 	visitSEQUENCE (sequence: DescentParserNode): Runnable {
@@ -154,7 +154,7 @@ export default class ExecuterVisitor extends Visitor {
 			right = this.visit(sequence.right);
 		}
 
-		return new SequenceR(left, right);
+		return new SequenceRunnable(left, right);
 	}
 
 	visitGLOB (glob: DescentParserNode): string[] {

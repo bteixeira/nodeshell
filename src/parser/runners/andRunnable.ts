@@ -1,12 +1,11 @@
-import {Runnable} from '../RunnableWrapperExecuterVisitor';
+import {Runnable} from '../runnableWrapperExecuterVisitor';
 import {Stream} from 'stream';
 
 export default class AndRunnable implements Runnable {
 	constructor (
 		private left,
 		private right,
-	) {
-	}
+	) {}
 
 	run (callback): void {
 		this.left.run((status: number) => {
@@ -23,7 +22,7 @@ export default class AndRunnable implements Runnable {
 		return false;
 	}
 
-	configFd(config: number, stream: Stream): void {
+	configFd (config: number, stream: Stream): void {
 		throw new Error('Method not implemented');
 	}
 }
