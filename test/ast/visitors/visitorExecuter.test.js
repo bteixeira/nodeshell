@@ -1,6 +1,6 @@
 require('should');
 
-var Executer = require('../../../dist/ast/visitors/visitorExecuter');
+var Executer = require('../../../dist/ast/visitors/visitorExecuter').default;
 var NodeLiteral = require('../../../dist/ast/nodes/nodeLiteral');
 var path = require('path');
 
