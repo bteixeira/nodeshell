@@ -5,7 +5,6 @@ export interface DescentParserNode {
 
 	direction?: Token;
 	target?: Token;
-	fd?: string;
 	redirs?: DescentParserNode[];
 	cmd?: string;
 	args?: DescentParserNode[];
@@ -23,12 +22,11 @@ export interface DescentParserNode {
 	firstCommand?: boolean;
 }
 
-export function REDIR (direction: Token, target: Token, fd?): DescentParserNode {
+export function REDIR (direction: Token, target: Token): DescentParserNode {
 	return {
 		type: 'REDIR',
 		direction: direction,
 		target: target,
-		fd: fd,
 	};
 }
 
@@ -41,7 +39,7 @@ export function COMMAND (cmd: string, args: DescentParserNode[], redirs: Descent
 	};
 }
 
-export function PIPELINE (left, right): DescentParserNode {
+export function PIPELINE (left, right: DescentParserNode): DescentParserNode {
 	return {
 		type: 'PIPELINE',
 		left: left,
@@ -49,7 +47,7 @@ export function PIPELINE (left, right): DescentParserNode {
 	};
 }
 
-export function AND_LIST (left, right): DescentParserNode {
+export function AND_LIST (left: DescentParserNode, right): DescentParserNode {
 	return {
 		type: 'AND_LIST',
 		left: left,
@@ -57,7 +55,7 @@ export function AND_LIST (left, right): DescentParserNode {
 	};
 }
 
-export function OR_LIST (left, right): DescentParserNode {
+export function OR_LIST (left: DescentParserNode, right): DescentParserNode {
 	return {
 		type: 'OR_LIST',
 		left: left,
@@ -65,7 +63,7 @@ export function OR_LIST (left, right): DescentParserNode {
 	};
 }
 
-export function SEQUENCE (left, right?): DescentParserNode {
+export function SEQUENCE (left: DescentParserNode, right?): DescentParserNode {
 	return {
 		type: 'SEQUENCE',
 		left: left,
@@ -73,21 +71,21 @@ export function SEQUENCE (left, right?): DescentParserNode {
 	};
 }
 
-export function GLOB (glob): DescentParserNode {
+export function GLOB (glob: Token): DescentParserNode {
 	return {
 		type: 'GLOB',
 		glob: glob,
 	};
 }
 
-export function JS (js): DescentParserNode {
+export function JS (js: Token): DescentParserNode {
 	return {
 		type: 'JS',
 		token: js,
 	};
 }
 
-export function DQSTRING (dqstring): DescentParserNode {
+export function DQSTRING (dqstring: Token): DescentParserNode {
 	return {
 		type: 'DQSTRING',
 		token: dqstring,

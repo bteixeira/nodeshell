@@ -1,9 +1,6 @@
-import * as util from 'util';
-
 import Commands from '../commands';
 import {Token} from '../tokenizer/commandLineTokenizer';
 import Tape from '../tape';
-import ErrorWrapper from '../errorWrapper';
 
 import * as dQStringMatcher from '../tokenizer/matchers/dqStringMatcher';
 import * as jsMatcher from '../tokenizer/matchers/jsMatcher';
@@ -11,9 +8,8 @@ import * as chainMatcher from '../tokenizer/matchers/chainMatcher';
 import * as redirMatcher from '../tokenizer/matchers/redirMatcher';
 import * as globMatcher from '../tokenizer/matchers/globMatcher';
 import * as completionParser from './completionParser';
-import {DescentParserNode} from '../ast/nodes/descentParserNodes';
-
 import * as ast from '../ast/nodes/descentParserNodes';
+import {DescentParserNode} from '../ast/nodes/descentParserNodes';
 
 export default class DescentParser {
 	public firstCommand: boolean = true;
@@ -48,7 +44,6 @@ export default class DescentParser {
 			this.tape.prev();
 			return this.ERROR(allowed);
 		}
-
 		if (!this.tape.hasMore()) {
 			this.tape.prev();
 			return this.ERROR(globMatcher.TOKENS.GLOB);
@@ -60,7 +55,6 @@ export default class DescentParser {
 			this.tape.prev();
 			return this.ERROR(globMatcher.TOKENS.GLOB);
 		}
-
 		if (first.type === redirMatcher.TOKENS.GTAMP || first.type === redirMatcher.TOKENS.LTAMP) {
 			if (isNaN(Number(second.text))) {
 				return this.ERROR();
@@ -70,21 +64,21 @@ export default class DescentParser {
 		return ast.REDIR(first, second);
 	}
 
-	SIMPLE_COMMAND (): DescentParserNode | ErrorWrapper {
+	SIMPLE_COMMAND (): DescentParserNode {
 		var redirs: DescentParserNode[] = [];
-		var cmd: Token;
 		var args: DescentParserNode[] = [];
 
-		var current;
+		var current: DescentParserNode;
 		do {
 			current = this.REDIRECTION();
-			current.err || redirs.push(current);
+			if (!current.err) {
+				redirs.push(current);
+			}
 		} while (!current.err);
 
-		cmd = this.tape.next();
+		var cmd: Token = this.tape.next();
 		if (cmd.type === completionParser.COMPLETION_TYPE) { ////TODO TODO TODO
 			// TODO RETURN COMPLETION OBJECT FOR COMMAND NAME
-			//console.log('returning completion');
 			return {
 				type: completionParser.COMPLETION,
 				'completion-type': 'COMMAND-NAME',
@@ -92,17 +86,19 @@ export default class DescentParser {
 			};
 		} else if (cmd.type !== globMatcher.TOKENS.GLOB || !this.commands.isCmd(cmd.text)) {
 			// TODO REWIND ENOUGH TOKENS (use redirs.length)
-			return new ErrorWrapper('Unknown command: \'' + cmd.text + '\'');
+			// return new ErrorWrapper('Unknown command: \'' + cmd.text + '\'');
+			return this.ERROR(`Unknown command: "${cmd.text}"`);
 		}
 
+		var currentToken: Token;
 		while (this.tape.hasMore()) {
-			current = this.tape.next();
-			if (current.type === globMatcher.TOKENS.GLOB) {
-				args.push(ast.GLOB(current));
-			} else if (current.type === jsMatcher.TOKENS.JSTOKEN) {
-				args.push(ast.JS(current));
-			} else if (current.type === dQStringMatcher.TOKENS.DQSTRING) {
-				args.push(ast.DQSTRING(current));
+			currentToken = this.tape.next();
+			if (currentToken.type === globMatcher.TOKENS.GLOB) {
+				args.push(ast.GLOB(currentToken));
+			} else if (currentToken.type === jsMatcher.TOKENS.JSTOKEN) {
+				args.push(ast.JS(currentToken));
+			} else if (currentToken.type === dQStringMatcher.TOKENS.DQSTRING) {
+				args.push(ast.DQSTRING(currentToken));
 			} else {
 				this.tape.prev();
 				current = this.REDIRECTION();
@@ -115,7 +111,7 @@ export default class DescentParser {
 		}
 
 		this.firstCommand = false;
-		var node = ast.COMMAND(cmd.text, args, redirs);
+		var node: DescentParserNode = ast.COMMAND(cmd.text, args, redirs);
 
 		if (this.tape.hasMore() && this.tape.peek().type === completionParser.COMPLETION_TYPE) { // TODO TODO TODO
 			// TODO RETURN COMPLETION OBJECT CONTAINING AST NODE BUILT SO FAR
@@ -129,16 +125,15 @@ export default class DescentParser {
 		return node;
 	}
 
-	PIPELINE () {
-
-		var simple = this.SIMPLE_COMMAND();
+	PIPELINE (): DescentParserNode {
+		var simple: DescentParserNode = this.SIMPLE_COMMAND();
 
 		if (simple.err || !this.tape.hasMore()) {
 			return simple;
 		}
 
-		var next = this.tape.next();
-		var node;
+		var next: Token = this.tape.next();
+		var node: DescentParserNode;
 		if (next.type === chainMatcher.TOKENS.PIPE) {
 			node = this.PIPELINE();
 			if (node.err) {
@@ -154,24 +149,25 @@ export default class DescentParser {
 		return simple;
 	}
 
-	LIST () {
-		var pipeline = this.PIPELINE();
+	LIST (): DescentParserNode {
+		var pipeline: DescentParserNode = this.PIPELINE();
 		if (pipeline.err || !this.tape.hasMore()) {
 			return pipeline;
 		}
 
-		var next = this.tape.next();
-		if (next.type === chainMatcher.TOKENS.DPIPE || next.type === chainMatcher.TOKENS.DAMP) {
-			var listType = next.type;
-			next = this.LIST();
-			if (next.err) {
+		var nextToken: Token = this.tape.next();
+		var nextNode: DescentParserNode;
+		if (nextToken.type === chainMatcher.TOKENS.DPIPE || nextToken.type === chainMatcher.TOKENS.DAMP) {
+			var listType: symbol = nextToken.type;
+			nextNode = this.LIST();
+			if (nextNode.err) {
 				// no need to rewind more, recursed call should have rewinded
 				this.tape.prev();
 			} else {
 				if (listType === chainMatcher.TOKENS.DPIPE) {
-					return ast.OR_LIST(pipeline, next);
+					return ast.OR_LIST(pipeline, nextNode);
 				} else {
-					return ast.AND_LIST(pipeline, next);
+					return ast.AND_LIST(pipeline, nextNode);
 				}
 			}
 		} else {
@@ -187,18 +183,19 @@ export default class DescentParser {
 	 *
 	 * LIST AMP SUBSHELL
 	 */
-	SUBSHELL () {
-		var list = this.LIST();
+	SUBSHELL (): DescentParserNode {
+		var list: DescentParserNode = this.LIST();
 		if (list.err || !this.tape.hasMore()) {
 			return list;
 		}
-		var next = this.tape.next();
-		if (next.type === chainMatcher.TOKENS.AMP) {
-			next = this.SUBSHELL();
-			if (next.err) {
+		var nextToken: Token = this.tape.next();
+		var nextNode: DescentParserNode;
+		if (nextToken.type === chainMatcher.TOKENS.AMP) {
+			nextNode = this.SUBSHELL();
+			if (nextNode.err) {
 				return ast.SEQUENCE(list);
 			} else {
-				return ast.SEQUENCE(list, next);
+				return ast.SEQUENCE(list, nextToken);
 			}
 		} else {
 			this.tape.prev();
@@ -210,7 +207,7 @@ export default class DescentParser {
 	 * SUBSHELL EOF
 	 */
 	COMMAND_LINE (): DescentParserNode {
-		var subs = this.SUBSHELL();
+		var subs: DescentParserNode = this.SUBSHELL();
 		if (subs.err) {
 			return subs;
 		}
