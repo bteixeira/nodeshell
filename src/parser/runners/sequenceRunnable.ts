@@ -1,12 +1,13 @@
-import {Runnable} from '../runnableWrapperExecuterVisitor';
+import {Runnable, runnableCallback} from '../runnableWrapperExecuterVisitor';
+import {Stream} from 'stream';
 
 export default class Sequence implements Runnable {
 	constructor (
-		private _left,
-		private _right,
+		private _left: Runnable,
+		private _right: Runnable,
 	) {}
 
-	run (callback) {
+	run (callback: runnableCallback): void {
 		this._left.run(function noop () {});
 		if (this._right) {
 			this._right.run(callback);
@@ -15,7 +16,7 @@ export default class Sequence implements Runnable {
 		}
 	}
 
-	hasConfig (fd) {
+	hasConfig (fd: number): boolean {
 		if (this._right) {
 			return this._right.hasConfig(fd);
 		} else {
@@ -23,7 +24,7 @@ export default class Sequence implements Runnable {
 		}
 	}
 
-	configFd (fd, stream) {
+	configFd (fd: number, stream: Stream): void {
 		if (fd !== 0) {
 			this._left.configFd(fd, stream);
 		}

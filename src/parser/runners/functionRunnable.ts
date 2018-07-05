@@ -1,18 +1,17 @@
-import {Runnable} from '../runnableWrapperExecuterVisitor';
+import {Runnable, runnableCallback} from '../runnableWrapperExecuterVisitor';
 import {Stream} from 'stream';
 
 export default class FunctionRunnable implements Runnable {
-	private _stdio: (Stream | 'pipe')[] = [];
-	private pipes;
+	private stdio: (Stream | 'pipe')[] = [];
+	pipes = null;
 
-	constructor (private _fun) {
-	}
+	constructor (private fun) {}
 
-	run (cb) {
+	run (cb: runnableCallback): void {
 		// todo piping
 		var me = this;
 		this.pipes = [];
-		this._stdio.forEach((cfg, i: number) => {
+		this.stdio.forEach((cfg, i: number) => {
 			if (cfg === 'pipe') {
 				this.pipes[i] = (function () {
 					var j = i;
@@ -28,7 +27,7 @@ export default class FunctionRunnable implements Runnable {
 		});
 		var result;
 		setTimeout(() => {
-			result = me._fun(me.pipes);
+			result = me.fun(me.pipes);
 			/* close open streams, otherwise piped processes hang */
 			me.pipes.forEach(function (pipe) {
 				if (
@@ -45,11 +44,11 @@ export default class FunctionRunnable implements Runnable {
 	}
 
 	hasConfig (fd: number): boolean {
-		return typeof this._stdio[fd] !== 'undefined';
+		return typeof this.stdio[fd] !== 'undefined';
 	}
 
 	configFd (fd: number, config: Stream): void {
-		this._stdio[fd] = config;
+		this.stdio[fd] = config;
 	}
 
 }

@@ -1,24 +1,24 @@
 import {Stream} from 'stream';
 
-import {Runnable} from '../runnableWrapperExecuterVisitor';
+import {Runnable, runnableCallback} from '../runnableWrapperExecuterVisitor';
 
 export default class OrRunnable implements Runnable {
 	constructor (
-		private _left,
-		private _right
+		private left: Runnable,
+		private right: Runnable,
 	) {}
 
-	run (callback) {
-		this._left.run(function (status) {
+	run (callback: runnableCallback): void {
+		this.left.run(function (status) {
 			if (status !== 0) {
-				this._right.run(callback);
+				this.right.run(callback);
 			} else {
 				callback(status);
 			}
 		})
 	}
 
-	hasConfig (config: number): boolean {
+	hasConfig (fd: number): boolean {
 		throw new Error('Method not implemented');
 		return false;
 	}

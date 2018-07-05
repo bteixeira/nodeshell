@@ -1,13 +1,13 @@
-import {Runnable} from '../runnableWrapperExecuterVisitor';
+import {Runnable, runnableCallback} from '../runnableWrapperExecuterVisitor';
 import {Stream} from 'stream';
 
 export default class AndRunnable implements Runnable {
 	constructor (
-		private left,
-		private right,
+		private left: Runnable,
+		private right: Runnable,
 	) {}
 
-	run (callback): void {
+	run (callback: runnableCallback): void {
 		this.left.run((status: number) => {
 			if (status === 0) {
 				this.right.run(callback);

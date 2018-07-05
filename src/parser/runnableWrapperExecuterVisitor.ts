@@ -19,10 +19,14 @@ var superVisit = Visitor.prototype.visit;
 import * as globMatcher from '../tokenizer/matchers/globMatcher';
 import {Token} from '../tokenizer/commandLineTokenizer';
 
+export type runnableCallback = (result: any) => void;
+export type fdConfig = (Stream | 'pipe');
 export interface Runnable {
-	hasConfig: (config: number) => boolean;
-	configFd: (config: number, stream: Stream) => void;
-	run: (callback: (xxx: any) => void) => void; // TODO NAMING
+	pipes?: fdConfig[];
+
+	hasConfig: (fd: number) => boolean;
+	configFd: (fd: number, stream: fdConfig) => void;
+	run: (callback: runnableCallback) => void;
 }
 
 interface TokenGroup {
