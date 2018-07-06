@@ -1,4 +1,4 @@
-const rl = require('readline');
+import * as rl from 'readline';
 import WriterPanel from './writerPanel';
 import Panel from './panel';
 import {WriteStream} from 'tty';
@@ -19,18 +19,18 @@ export default class ColumnsLayout implements Panel {
 	constructor(
 		private children: Panel[],
 		private layout,
-		private stdout: WriteStream
+		private stdout: WriteStream,
 	) {
 		children.forEach(child => {
 			child.setParent(this);
 		});
 	}
 
-	getChildOffsetV(child: Panel): number {
+	getChildOffsetV (child: Panel): number {
 		return this.parent.getChildOffsetV(this);
 	}
 
-	getChildOffsetH(child: Panel): number {
+	getChildOffsetH (child: Panel): number {
 		var lt;
 		var sum: number = 0; // the sum of all widths of all children except the `auto`
 		var sumBefore: number; // the sum of the widths to the left of the child we're calculating
@@ -64,11 +64,11 @@ export default class ColumnsLayout implements Panel {
 		return this.parent.getChildOffsetH(this) + sumBefore;
 	}
 
-	getChildOffset(child: Panel): [number, number] {
+	getChildOffset (child: Panel): [number, number] {
 		return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
 	}
 
-	getChildWidth(child: Panel) {
+	getChildWidth (child: Panel) {
 		var sum = 0;
 		for (var i = 0; i < this.children.length; i++) {
 			var lt = this.layout[i];
@@ -87,11 +87,11 @@ export default class ColumnsLayout implements Panel {
 		return this.parent.getChildWidth(this) - sum;
 	}
 
-	getSpaceBelowChild(child: Panel) {
+	getSpaceBelowChild (child: Panel) {
 		return this.parent.getSpaceBelowChild(this);
 	}
 
-	getHeight(): number {
+	getHeight (): number {
 		var max = 0;
 		// TODO REPLACE WITH Array.reduce()
 		this.children.forEach(function (child) {
@@ -103,15 +103,15 @@ export default class ColumnsLayout implements Panel {
 		return max;
 	}
 
-	setParent(parent_: Panel) {
+	setParent (parent_: Panel) {
 		this.parent = parent_;
 	}
 
-	isFooter(child: Panel) {
+	isFooter (child: Panel) {
 		return this.parent.isFooter(this);
 	}
 
-	redrawBelowChild(child: Panel): void {
+	redrawBelowChild (child: Panel): void {
 		var me = this;
 		var height = this.getHeight();
 
@@ -122,7 +122,7 @@ export default class ColumnsLayout implements Panel {
 				var offsetThat = WriterPanel.active.getOffset();
 				var delta = [
 					offsetThis[0] - offsetThat[0],
-					offsetThis[1] - offsetThat[1]
+					offsetThis[1] - offsetThat[1],
 				];
 
 				// We actually want to jump to the last line, not the first
@@ -148,25 +148,25 @@ export default class ColumnsLayout implements Panel {
 		this.parent.redrawBelowChild(this);
 	}
 
-	rewrite(): void {
+	rewrite (): void {
 		this.children.forEach(function (child) {
 			child.rewrite();
 		});
 	}
 
-	reset(): void {
+	reset (): void {
 		this.children.forEach(function (child) {
 			child.reset();
 		});
 	}
 
-	setFooter(footer_: Panel): void {
+	setFooter (footer_: Panel): void {
 		this.children.forEach(function (child) {
 			child.setFooter(footer_);
 		});
 	}
 
-	reserveSpace(): void {
+	reserveSpace (): void {
 		throw new Error('NOT IMPLEMENTED')
 	}
 }

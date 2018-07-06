@@ -6,7 +6,7 @@ export default class CenterFooterLayout implements Panel {
 	constructor(
 		private center: Panel,
 		private footer: Panel,
-		private stdout: WriteStream
+		private stdout: WriteStream,
 	) {
 		center.setParent(this);
 		if (footer) {
@@ -14,31 +14,36 @@ export default class CenterFooterLayout implements Panel {
 		}
 	}
 
-	getChildOffsetV(child: Panel): number {
+	getChildOffsetV (child: Panel): number {
 		return 0;
 	}
-	getChildOffsetH(child: Panel): number {
+
+	getChildOffsetH (child: Panel): number {
 		return 0;
 	}
-	getChildOffset(child: Panel): [number, number] {
+
+	getChildOffset (child: Panel): [number, number] {
 		return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
 	}
-	getChildWidth(child: Panel): number {
+
+	getChildWidth (child: Panel): number {
 		return this.stdout.columns;
 	}
 
 	// TODO IT'S RETURNING ONLY SPACE AVAILABLE IN THIS PANEL, ie IT'S ASSUMING THAT THIS PANEL IS THE ROOT
-	getSpaceBelowChild(child: Panel): number {
+	getSpaceBelowChild (child: Panel): number {
 		if (child === this.center && this.footer) {
 			return this.footer.getHeight();
 		} else {
 			return 0;
 		}
 	}
-	isFooter(child: Panel): boolean {
+
+	isFooter (child: Panel): boolean {
 		return (child === this.footer);
 	}
-	reserveSpace(): void {
+
+	reserveSpace (): void {
 		var totalHeight: number = this.center.getHeight();
 		if (this.footer) {
 			totalHeight += this.footer.getHeight();
@@ -46,34 +51,36 @@ export default class CenterFooterLayout implements Panel {
 		this.stdout.write(new Array(totalHeight).join('\n'));
 		readline.moveCursor(this.stdout, 0, -totalHeight + 1);
 	}
-	redrawBelowChild(child: Panel): void {
+
+	redrawBelowChild (child: Panel): void {
 		if (child === this.center && this.footer) {
 			this.footer.rewrite();
 		}
 	}
-	rewrite(): void {
+
+	rewrite (): void {
 		this.center.rewrite();
 		if (this.footer) {
 			this.footer.rewrite();
 		}
 	}
 
-	reset(): void {
+	reset (): void {
 		this.center.reset();
 		if (this.footer) {
 			this.footer.reset();
 		}
 	}
 
-	setParent(parent: Panel): void {
+	setParent (parent: Panel): void {
 		throw new Error('This panel should not need a parent');
 	}
 
-	setFooter(footer) {
+	setFooter (footer) {
 		throw new Error('Not implemented');
 	}
 
-	getHeight(): number {
+	getHeight (): number {
 		throw new Error('Not implemented');
 		return -1;
 	}

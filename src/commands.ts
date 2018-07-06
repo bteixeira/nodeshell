@@ -11,10 +11,10 @@ export interface Options {
 export type Command = (...args: any[]) => any;
 
 export default class Commands {
-	public commands: any = {};
+	public commands: any = {}; // TODO
 	private parent: Commands;
 
-	constructor(options: Options = {}) {
+	constructor (options: Options = {}) {
 		if (!options.skipPath) {
 			this.addFromPath();
 		}
@@ -23,7 +23,7 @@ export default class Commands {
 		}
 	}
 
-	private static isExecutable(file: string): boolean {
+	private static isExecutable (file: string): boolean {
 		if (process.platform === 'win32') {
 			return /\.(exe|bat)$/.test(file);
 		}
@@ -36,7 +36,7 @@ export default class Commands {
 		return !!(stat && (stat.mode & 0o111)); // test for *any* of the execute bits
 	}
 
-	addFromPath(path_?: string): void {
+	addFromPath (path_?: string): void {
 		var me = this;
 		path_ = path_ || process.env.PATH;
 		var paths = path_.split(path.delimiter);
@@ -45,7 +45,7 @@ export default class Commands {
 		});
 	}
 
-	addFromDir(dir: string): void {
+	addFromDir (dir: string): void {
 		var me = this;
 		var files: string[];
 		try {
@@ -62,7 +62,7 @@ export default class Commands {
 		});
 	}
 
-	addFromFile(filename: string): void {
+	addFromFile (filename: string): void {
 		var basename = path.basename(filename);
 		if (process.platform === 'win32') {
 			basename = basename.substr(0, basename.lastIndexOf('.'));
@@ -70,21 +70,21 @@ export default class Commands {
 		this.addCommand(basename, Commands.makeCmd(filename), filename);
 	}
 
-	private static makeCmd(filename: string): Command {
+	private static makeCmd (filename: string): Command {
 		return function (args) {
 			return new ChildProcessWRapper(filename, args);
 		}
 	}
 
-	addCommand(name: string, body, path: string = '[builtin]'): void {
+	addCommand (name: string, body, path: string = '[builtin]'): void {
 		this.commands[name] = {runner: body, path: path};
 	}
 
-	isCmd(candidate: string): boolean {
+	isCmd (candidate: string): boolean {
 		return candidate in this.commands || (this.parent && this.parent.isCmd(candidate));
 	}
 
-	getCmd(name: string, args) {
+	getCmd (name: string, args) {
 		if (name in this.commands) {
 			return this.commands[name].runner(args);
 		} else if (this.parent) {
@@ -92,7 +92,7 @@ export default class Commands {
 		}
 	}
 
-	getCommandNames(): string[] {
+	getCommandNames (): string[] {
 		var names = Object.keys(this.commands);
 		if (this.parent) {
 			Array.prototype.push.apply(names, this.parent.getCommandNames());

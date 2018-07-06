@@ -21,7 +21,7 @@ class KeySpec {
 }
 
 export type handlerFunction = (ch: char, key: KeySpec) => void;
-type handlerBucket = {[key: string]: handlerFunction};
+type handlerBucket = { [key: string]: handlerFunction };
 
 export default class KeyHandler {
 	private bindings: handlerBucket[];

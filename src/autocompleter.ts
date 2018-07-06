@@ -16,14 +16,14 @@ export class Autocompleter {
 	private context: Object;
 	private commands: Commands;
 
-	constructor(line: LineReader, context: Object, commands: Commands) {
+	constructor (line: LineReader, context: Object, commands: Commands) {
 		this.lineReader = line;
 		this.context = context;
 		this.commands = commands;
 	}
 
 	// TODO FOR THIS TO BE MODULAR IT HAS TO BE ABLE TO DEFINE SETS OF COMPLETIONS. ALL THIS HAS TO BE MUCH MORE GENERIC.
-	complete(): void {
+	complete (): void {
 		const comps: Completions = this.getCompletions(this.lineReader.getLine(), this.lineReader.cursor);
 
 		if (!comps.completions.length) {
@@ -39,7 +39,7 @@ export class Autocompleter {
 	};
 
 	// TODO Current approach will not complete paths with . or .. which is very lacking
-	getCompletions(input: string, cursor: number): Completions {
+	getCompletions (input: string, cursor: number): Completions {
 		const idxDot = input.lastIndexOf('.', cursor);
 		const idxSpc = input.lastIndexOf(' ', cursor);// TODO CAN ACTUALLY BE ANY WHITESPACE, THIS WON'T FLY
 
@@ -61,7 +61,7 @@ export class Autocompleter {
 				}
 				return {
 					completions: comps,
-					length: prefix.length
+					length: prefix.length,
 				};
 			} catch (e) {
 				return {completions: [e.toString()], length: -1};
@@ -71,7 +71,7 @@ export class Autocompleter {
 			/* If begginning of input, either var or command */
 			return {
 				completions: this.getCommands(prefix).concat(this.getVars(prefix)),
-				length: prefix.length
+				length: prefix.length,
 			};
 		} else {
 			prefix = input.substring(idxSpc + 1, cursor);
@@ -81,12 +81,12 @@ export class Autocompleter {
 			return {
 				// TODO THIS DOES NOT EVEN COMPLETE PATHS, WHAT A DISGRACE
 				completions: this.getFiles(prefix).concat(this.getVars(prefix)),
-				length: prefix.length
+				length: prefix.length,
 			};
 		}
 	};
 
-	getFiles(prefix: string): string[] {
+	getFiles (prefix: string): string[] {
 		// TODO resolve prefix as a path relative to process.getCwd()
 		var idx = prefix.lastIndexOf(path.sep);
 		var dir = prefix.substring(0, idx);
@@ -104,20 +104,18 @@ export class Autocompleter {
 		if (fs.existsSync(dir)) {
 			files = fs.readdirSync(dir);
 		}
-		return files.
-				filter(file => (file.lastIndexOf(filePrefix, 0) === 0)).
-				map(file => (prefix.substring(0, idx + 1) + file));
+		return files.filter(file => (file.lastIndexOf(filePrefix, 0) === 0)).map(file => (prefix.substring(0, idx + 1) + file));
 	};
 
-	getCommands(prefix: string): string[] {
+	getCommands (prefix: string): string[] {
 		return Autocompleter.getProperties(this.commands.commands, prefix);
 	};
 
-	getVars(prefix: string): string[] {
+	getVars (prefix: string): string[] {
 		return Autocompleter.getProperties(this.context, prefix);
 	};
 
-	private static getProperties(obj: Object, prefix: string): string[] {
+	private static getProperties (obj: Object, prefix: string): string[] {
 		const props: string[] = [];
 		Object.keys(obj).forEach(p => {
 			if (p.lastIndexOf(prefix, 0) === 0) { // TODO WHY DO WE NEED TO PASS ZERO?

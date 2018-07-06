@@ -39,7 +39,7 @@ export function COMMAND (cmd: string, args: DescentParserNode[], redirs: Descent
 	};
 }
 
-export function PIPELINE (left, right: DescentParserNode): DescentParserNode {
+export function PIPELINE (left: DescentParserNode, right: DescentParserNode): DescentParserNode {
 	return {
 		type: 'PIPELINE',
 		left: left,
@@ -47,7 +47,7 @@ export function PIPELINE (left, right: DescentParserNode): DescentParserNode {
 	};
 }
 
-export function AND_LIST (left: DescentParserNode, right): DescentParserNode {
+export function AND_LIST (left: DescentParserNode, right: DescentParserNode): DescentParserNode {
 	return {
 		type: 'AND_LIST',
 		left: left,
@@ -55,7 +55,7 @@ export function AND_LIST (left: DescentParserNode, right): DescentParserNode {
 	};
 }
 
-export function OR_LIST (left: DescentParserNode, right): DescentParserNode {
+export function OR_LIST (left: DescentParserNode, right: DescentParserNode): DescentParserNode {
 	return {
 		type: 'OR_LIST',
 		left: left,
@@ -63,7 +63,7 @@ export function OR_LIST (left: DescentParserNode, right): DescentParserNode {
 	};
 }
 
-export function SEQUENCE (left: DescentParserNode, right?): DescentParserNode {
+export function SEQUENCE (left: DescentParserNode, right?: DescentParserNode): DescentParserNode {
 	return {
 		type: 'SEQUENCE',
 		left: left,

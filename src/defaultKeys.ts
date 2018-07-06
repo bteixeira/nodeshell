@@ -3,7 +3,7 @@ import KeyHandler from './keyhandler';
 import History from './history';
 import LineReader from './lineReader';
 
-module.exports = function (keyHandler: KeyHandler, lineReader: LineReader, history: History, complete: () => void) {
+export default function (keyHandler: KeyHandler, lineReader: LineReader, history: History, complete: () => void) {
 
 	keyHandler.bindDefault((ch: string, key) => {
 		if (ch && ch.length === 1) {

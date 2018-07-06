@@ -18,8 +18,8 @@ export function parseCmdLine (
 	lineReader: LineReader,
 	commands: Commands,
 	panel: WriterPanel,
-	insert: boolean = true
-) {
+	insert: boolean = true,
+): void {
 	const line: string = lineReader.getLine();
 	const idx: number = lineReader.cursor;
 	const chars: any[] = line.split('');
@@ -36,8 +36,8 @@ export function parseCmdLine (
 	// check if returned is completion
 	if (ret.type === COMPLETION) {
 		// if so, check completion type
-		// if command name, check possible commands for prefix
 		if (ret['completion-type'] === 'COMMAND-NAME') {
+			// if command name, check possible commands for prefix
 			const cmdNames: string[] = [];
 			commands.getCommandNames().forEach((cmd: string) => {
 				if (cmd.indexOf(ret.prefix) === 0) {
@@ -45,10 +45,8 @@ export function parseCmdLine (
 				}
 			});
 			completions = cmdNames;
-		}
-		// if command argument, check completion config including default, filtered by prefix
-		else if (ret['completion-type'] === 'COMMAND-ARGUMENT') {
-
+		} else if (ret['completion-type'] === 'COMMAND-ARGUMENT') {
+			// if command argument, check completion config including default, filtered by prefix
 			var config;
 			const cmd: string = ret.node.cmd;
 
@@ -62,10 +60,8 @@ export function parseCmdLine (
 				return arg.glob.text;
 			});
 			completions = getCompletionsFromValue(cmd, args, ret.prefix, config);
-
-		}
-		// otherwise, show error while completing
-		else {
+		} else {
+			// otherwise, show error while completing
 			throw 'UNKNOWN COMPLETION TYPE';
 		}
 	} else {
@@ -132,7 +128,12 @@ export function parseCmdLine (
 }
 
 
-function getCompletionsFromArray (cmdName: string, args: string[], prefix: string, array: any[]): string[] {
+function getCompletionsFromArray (
+	cmdName: string,
+	args: string[],
+	prefix: string,
+	array: any[],
+): string[] {
 	const result: string[] = [];
 	array.forEach(val => {
 		const comps: string[] = getCompletionsFromValue(cmdName, args, prefix, val);
@@ -141,7 +142,13 @@ function getCompletionsFromArray (cmdName: string, args: string[], prefix: strin
 	return result;
 }
 
-function getCompletionsFromObject (cmdName: string, args: string[], prefix: string, object: {[key: string]: any}, nest: number = 0) {
+function getCompletionsFromObject (
+	cmdName: string,
+	args: string[],
+	prefix: string,
+	object: {[key: string]: any},
+	nest: number = 0,
+): string[] {
 	const result: string[] = [];
 	if (nest === args.length) {
 		return Object.keys(object).filter((key: string) => (key.indexOf(prefix) === 0));
@@ -155,7 +162,13 @@ function getCompletionsFromObject (cmdName: string, args: string[], prefix: stri
 	return result;
 }
 
-function getCompletionsFromValue (cmdName: string, args: string[], prefix: string, val: any, nest?: number): string[] {
+function getCompletionsFromValue (
+	cmdName: string,
+	args: string[],
+	prefix: string,
+	val: any,
+	nest?: number,
+): string[] {
 	if (utils.isArray(val)) {
 		return getCompletionsFromArray(cmdName, args, prefix, val);
 	} else if (utils.isFunction(val)) {
@@ -167,11 +180,11 @@ function getCompletionsFromValue (cmdName: string, args: string[], prefix: strin
 	}
 }
 
-export function $dirName (cmd: string, args: string[], prefix: string) {
+export function $dirName (cmd: string, args: string[], prefix: string): string[] {
 	return $fileName(cmd, args, prefix).filter(file => fs.statSync(file).isDirectory());
 }
 
-export function $fileName (cmd: string, args: string[], prefix: string) {
+export function $fileName (cmd: string, args: string[], prefix: string): string[] {
 	const idx: number = prefix.lastIndexOf(path.sep);
 	var dir: string = prefix.substring(0, idx);
 	const filePrefix: string = prefix.substring(idx + 1);
@@ -201,4 +214,4 @@ var $default = $fileName;
 export type completionFunction = (cmd: string, args: string[], prefix: string) => string[];
 export type completionSpec = string | {[key: string]: completionSpec};
 
-export const cmdConfig: {[cmd: string]: any/*TODO ANY*/} = {};
+export const cmdConfig: {[cmd: string]: completionSpec} = {};

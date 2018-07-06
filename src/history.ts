@@ -5,13 +5,13 @@ class History {
 	private lineStack: string[];
 	private lineReader: LineReader;
 
-	constructor(lineReader: LineReader) {
+	constructor (lineReader: LineReader) {
 		this.index = -1;
 		this.lineStack = [];
 		this.lineReader = lineReader;
 	}
 
-	prev(): void {
+	prev (): void {
 		if (this.index < 0 && this.lineReader.getLine()) {
 			this.push();
 			this.index = 0;
@@ -23,7 +23,7 @@ class History {
 		}
 	}
 
-	next(): void {
+	next (): void {
 		if (this.index < 0 && this.lineReader.getLine()) {
 			this.push();
 			this.lineReader.deleteLine();
@@ -33,14 +33,14 @@ class History {
 		}
 	}
 
-	push(): void {
+	push (): void {
 		const line: string = this.lineReader.getLine().trim();
 		if (line) {
 			this.lineStack.unshift(line);
 		}
 	}
 
-	rewind(): void {
+	rewind (): void {
 		this.index = -1;
 	}
 }

@@ -49,7 +49,7 @@ process.on('SIGTSTP', function () {
 const lineReader: LineReader = new LineReader(new WriterPanel(stdout));
 const keyHandler: KeyHandler = new KeyHandler(stdin);
 
-function setLayout(spec: LayoutSpec) {
+function setLayout (spec: LayoutSpec) {
 	// TODO validate spec according to high-level strict rules
 	rootPanel = LayoutComposer.buildInit(spec, stdout);
 	lineReader.setWriter(rootPanel.prompt);
@@ -97,7 +97,7 @@ const extend = utils.extend;
 
 const ctx = vm.createContext(permanent);
 
-function inspect(what: any) {
+function inspect (what: any) {
 	if (what instanceof ErrorWrapper) {
 		return what.toString().red;
 	} else {
@@ -105,7 +105,7 @@ function inspect(what: any) {
 	}
 }
 
-function doneCB(result: any) {
+function doneCB (result: any) {
 	console.log(inspect(result));
 	// TODO MAKE READ-ONLY PROPERTIES INSTEAD
 	extend(ctx, permanent);
@@ -121,7 +121,7 @@ function doneCB(result: any) {
 var commands: Commands = createDefaultCommands(ctx);
 commands = new Commands({
 	parent: commands,
-	skipPath: true
+	skipPath: true,
 });
 const executerVisitor = new RWEVisitor(commands, ctx);
 
@@ -167,18 +167,19 @@ lineReader
 
 var history = new History(lineReader);
 
-function complete() {
+function complete () {
 	CompletionParser.parseCmdLine(lineReader, commands, rootPanel.completions);
 }
 
 defaultCmdConfig(CompletionParser);
-require('./defaultKeys')(keyHandler, lineReader, history, complete);
+import defaultKeys from './defaultKeys';
+defaultKeys(keyHandler, lineReader, history, complete);
 
 var rootPanel: Panel;
 
 setLayout({name: 'prompt'});
 
-function runUserFile() {
+function runUserFile () {
 	var NSH_FILE = '.nsh.js';
 	var home = utils.getUserHome();
 	utils.sourceSync(path.join(home, NSH_FILE), ctx);

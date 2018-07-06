@@ -4,7 +4,7 @@ import {char} from '../../tape';
 
 var lastActive: WriterPanel;
 var oldFooterHeight = 0;
-var rl = require('readline');
+import * as rl from 'readline';
 
 function saveCursor (stdout: WriteStream): void {
 	stdout.write('\0o33[s');

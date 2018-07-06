@@ -19,7 +19,7 @@ type PanelSet = {
 }
 
 export default {
-	buildInit(spec: LayoutSpec, stdout: WriteStream): Panel {
+	buildInit (spec: LayoutSpec, stdout: WriteStream): Panel {
 		const names: PanelSet = {};
 		const writers: WriterPanel[] = [];
 		var result: Panel;
@@ -107,5 +107,5 @@ export default {
 			result.name = spec.name;
 		}
 		return result;
-	}
+	},
 };

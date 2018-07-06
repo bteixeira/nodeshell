@@ -26,7 +26,7 @@ export default class Tape<T> {
 	private mark: number;
 	private marks: number[];
 
-	constructor(sequence: sequence<T>) {
+	constructor (sequence: sequence<T>) {
 		this.sequence = sequence;
 		this.pos = 0;
 		this.mark = 0;
@@ -40,7 +40,7 @@ export default class Tape<T> {
 	 * Returns the character at current position and moves the pointer one character forward.
 	 * @returns {string} the character at the current position
 	 */
-	next(): T {
+	next (): T {
 		if (!this.hasMore()) {
 			return Tape.EOF;
 		}
@@ -53,7 +53,7 @@ export default class Tape<T> {
 	 * Returns the character at current position and moves the pointer one character backward.
 	 * @returns {string} the character at the current position
 	 */
-	prev(): T {
+	prev (): T {
 		const c: T = this.peek();
 		this.pos = Math.max(this.pos - 1, 0);
 		return c;
@@ -64,7 +64,7 @@ export default class Tape<T> {
 	 * Returns the character at current position without changing the pointer.
 	 * @returns {string} the character at the current position
 	 */
-	peek(): T {
+	peek (): T {
 		return this.sequence[this.pos];
 	}
 
@@ -72,7 +72,7 @@ export default class Tape<T> {
 	 * Moves the pointer forward until the first character that matches the given pattern.
 	 * @param filter string of characters to match. Or RegExp object to use. Or filter function which takes one
 	 */
-	skipTo(filter): void {
+	skipTo (filter): void {
 		// TODO TYPEGUARDS
 		if (utils.isString(filter)) {
 			filter = new RegExp('[' + filter + ']');
@@ -92,21 +92,21 @@ export default class Tape<T> {
 	/**
 	 * Moves the pointer forward past all whitespace items.
 	 */
-	skipWhitespace(): void {
+	skipWhitespace (): void {
 		this.skipTo(/\S/);
 	}
 
 	/**
 	 * Moves the pointer forward to the next non-whitespace item.
 	 */
-	skipNonWhitespace(): void {
+	skipNonWhitespace (): void {
 		this.skipTo(/\s/);
 	}
 
 	/**
 	 * Sets the mark at the current position.
 	 */
-	setMark(): void {
+	setMark (): void {
 		this.mark = this.pos;
 	}
 
@@ -115,7 +115,7 @@ export default class Tape<T> {
 	 * position.
 	 * @returns {string} the substring between the mark and the current position
 	 */
-	getMarked(): sequence<T> {
+	getMarked (): sequence<T> {
 		return this.sequence.slice(this.mark, this.pos);
 	}
 
@@ -124,21 +124,21 @@ export default class Tape<T> {
 	 * @returns {boolean} true if there are still characters ahead of the current position; false if the pointer is at the
 	 *      end of the string.
 	 */
-	hasMore(): boolean {
+	hasMore (): boolean {
 		return this.pos < this.sequence.length;
 	}
 
 	/**
 	 * Stores the current mark position in the stack.
 	 */
-	pushMark(): void {
+	pushMark (): void {
 		this.marks.push(this.mark);
 	}
 
 	/**
 	 * Discards the current mark position and replaces it with the one at the top of the stack. Returns the discarded mark position.
 	 */
-	popMark(): number {
+	popMark (): number {
 		const old = this.mark;
 		this.mark = this.marks.pop();
 		return old;
@@ -147,11 +147,11 @@ export default class Tape<T> {
 	/**
 	 * Moves the cursor to the current mark position.
 	 */
-	rewindToMark(): void {
+	rewindToMark (): void {
 		this.pos = this.mark;
 	}
 
-	getMark(): number {
+	getMark (): number {
 		return this.mark;
 	}
 }

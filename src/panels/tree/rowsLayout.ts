@@ -3,13 +3,13 @@ import Panel from './panel';
 export default class RowsLayout implements Panel {
 	private parent: Panel;
 
-	constructor(private children: Panel[]) {
+	constructor (private children: Panel[]) {
 		children.forEach(child => {
 			child.setParent(this);
 		});
 	}
 
-	getChildOffsetV(child: Panel): number {
+	getChildOffsetV (child: Panel): number {
 		var i: number;
 		var sum: number = 0;
 
@@ -20,19 +20,19 @@ export default class RowsLayout implements Panel {
 		return sum + this.parent.getChildOffsetV(this);
 	}
 
-	getChildOffsetH(child: Panel): number {
+	getChildOffsetH (child: Panel): number {
 		return this.parent.getChildOffsetH(this);
 	}
 
-	getChildOffset(child: Panel): [number, number] {
+	getChildOffset (child: Panel): [number, number] {
 		return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
 	}
 
-	getChildWidth(child: Panel): number {
+	getChildWidth (child: Panel): number {
 		return this.parent.getChildWidth(this);
 	}
 
-	getSpaceBelowChild(child: Panel): number {
+	getSpaceBelowChild (child: Panel): number {
 		var i;
 		// Find the index of the child
 		for (i = 1; this.children[i - 1] !== child && i < this.children.length; i++) {
@@ -46,7 +46,7 @@ export default class RowsLayout implements Panel {
 		return sum;
 	}
 
-	getHeight(): number {
+	getHeight (): number {
 		var sum = 0;
 		// TODO REPLACE WITH Array.reduce()
 		this.children.forEach(function (child) {
@@ -55,15 +55,15 @@ export default class RowsLayout implements Panel {
 		return sum;
 	}
 
-	setParent(parent_: Panel): void {
+	setParent (parent_: Panel): void {
 		this.parent = parent_;
 	}
 
-	isFooter(): boolean {
+	isFooter (): boolean {
 		return this.parent.isFooter(this);
 	}
 
-	redrawBelowChild(child: Panel): void {
+	redrawBelowChild (child: Panel): void {
 		var found = false;
 		this.children.forEach(function (ch) {
 			if (found) {
@@ -76,25 +76,25 @@ export default class RowsLayout implements Panel {
 		this.parent.redrawBelowChild(this);
 	}
 
-	rewrite(): void {
+	rewrite (): void {
 		this.children.forEach(function (child) {
 			child.rewrite();
 		});
 	}
 
-	reset(): void {
+	reset (): void {
 		this.children.forEach(function (child) {
 			child.reset();
 		});
 	}
 
-	setFooter(footer_: Panel): void {
+	setFooter (footer_: Panel): void {
 		this.children.forEach(function (child) {
 			child.setFooter(footer_);
 		});
 	}
 
-	reserveSpace(): void {
+	reserveSpace (): void {
 		throw new Error('NOT IMPLEMENTED')
 	}
 }

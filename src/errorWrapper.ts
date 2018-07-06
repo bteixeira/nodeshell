@@ -1,7 +1,7 @@
 export default class ErrorWrapper {
 	public err: boolean = true;
 
-	constructor(private error) {
+	constructor (private error) {
 	}
 
 	toString = function () {

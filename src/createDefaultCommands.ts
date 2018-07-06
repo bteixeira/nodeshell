@@ -3,7 +3,7 @@ import {Context} from 'vm';
 
 import Commands from './commands';
 import ErrorWrapper from './errorWrapper';
-import FunctionRunnable from'./parser/runners/functionRunnable';
+import FunctionRunnable from './parser/runners/functionRunnable';
 import * as utils from './utils';
 
 export default function (context: Context) {

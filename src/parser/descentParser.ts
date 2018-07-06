@@ -195,7 +195,7 @@ export default class DescentParser {
 			if (nextNode.err) {
 				return ast.SEQUENCE(list);
 			} else {
-				return ast.SEQUENCE(list, nextToken);
+				return ast.SEQUENCE(list, nextNode);
 			}
 		} else {
 			this.tape.prev();

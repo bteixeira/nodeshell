@@ -4,7 +4,7 @@ import {Runnable} from '../../parser/runnableWrapperExecuterVisitor';
 type visitorMethod = (node: DescentParserNode) => Runnable;
 
 export default class Visitor {
-	visit(node: DescentParserNode, additional?) { // TODO
+	visit (node: DescentParserNode) {
 		const methodName: string = `visit${node.type}`;
 		const method: visitorMethod = this[methodName];
 		if (!method) {

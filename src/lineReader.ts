@@ -17,17 +17,17 @@ import {EventEmitter} from 'events';
  * @constructor
  */
 export default class LineReader extends EventEmitter {
-    writer: WriterPanel;
-    prompt: () => string;
-    _prompt: string;
-    _prompting: any;
-    _promptLength: number;
-    cursor: number;
-    prevRows: number;
-    line: any;
+	writer: WriterPanel;
+	prompt: () => string;
+	_prompt: string;
+	_prompting: any;
+	_promptLength: number;
+	cursor: number;
+	prevRows: number;
+	line: any;
 
-	constructor(writer: WriterPanel) {
-	    super();
+	constructor (writer: WriterPanel) {
+		super();
 		this.writer = writer;
 
 		this.setLine('').setPrompt(() => '>>> ').updatePrompt();
@@ -38,7 +38,7 @@ export default class LineReader extends EventEmitter {
 	 * Sets the prompt that will be displayed. Does not refresh the line.
 	 * @param prompt
 	 */
-	setPrompt(prompt: () => string) {
+	setPrompt (prompt: () => string) {
 		this.prompt = prompt;
 		return this;
 	};
@@ -55,7 +55,7 @@ export default class LineReader extends EventEmitter {
 	 *
 	 * @returns {{cols: number, rows: number}}
 	 */
-	getCursorPos() {
+	getCursorPos () {
 
 		//var columns = this.output.columns;
 		var columns = this.writer.getWidth ? this.writer.getWidth() : this.writer.columns;
@@ -77,20 +77,20 @@ export default class LineReader extends EventEmitter {
 		var rows = (cursorPos - cols) / columns + lineRows;
 		return {
 			cols: cols,
-			rows: rows
+			rows: rows,
 		};
 	};
 
 	/** TODO get rid of this, line reader does not need to know about accepting lines so move this out of here. That way we
 	 * can implement multi-line inputs.
 	 */
-	accept() {
+	accept () {
 		var line = this.line;
 		this.newLine();
 		this.emit('accept', line);
 	};
 
-	isEmpty() {
+	isEmpty () {
 		/* It's probably preferable to check the string length than to use countLength() */
 		return this.line.length === 0;
 	};
@@ -99,7 +99,7 @@ export default class LineReader extends EventEmitter {
 	 * Inserts text at the current cursor position. Moves the cursor accordingly.
 	 * @param str the string to insert
 	 */
-	insert(str: string): void {
+	insert (str: string): void {
 		//BUG: Problem when adding tabs with following content.
 		//     Perhaps the bug is in refreshLine(). Not sure.
 		//     A hack would be to insert spaces instead of literal '\t'.
@@ -131,7 +131,7 @@ export default class LineReader extends EventEmitter {
 	 * Move the cursor
 	 * @param dx the number of characters to move forward (negative numbers will cause the cursor to move backward)
 	 */
-	moveCursor(dx: number): void {
+	moveCursor (dx: number): void {
 		var oldcursor = this.cursor;
 		var oldPos = this.getCursorPos();
 		this.cursor += dx;
@@ -156,26 +156,26 @@ export default class LineReader extends EventEmitter {
 		}
 	};
 
-	moveToEnd() {
+	moveToEnd () {
 		this.moveCursor(+Infinity);
 	};
 
-	moveToStart() {
+	moveToStart () {
 		this.moveCursor(-Infinity);
 	};
 
-	moveLeft() {
+	moveLeft () {
 		this.moveCursor(-1);
 	};
 
-	moveRight() {
+	moveRight () {
 		this.moveCursor(1);
 	};
 
 	/**
 	 * Deletes the character to the left of the cursor.
 	 */
-	deleteLeft() {
+	deleteLeft () {
 		if (this.cursor > 0 && this.line.length > 0) {
 			this.line = this.line.slice(0, this.cursor - 1) +
 				this.line.slice(this.cursor, this.line.length);
@@ -189,14 +189,14 @@ export default class LineReader extends EventEmitter {
 	/**
 	 * Deletes the character to the right of the cursor.
 	 */
-	deleteRight() {
+	deleteRight () {
 		this.line = this.line.slice(0, this.cursor) +
 			this.line.slice(this.cursor + 1, this.line.length);
 		this.refreshLine();
 		this.emit('change');
 	};
 
-	moveWordLeft() {
+	moveWordLeft () {
 		if (this.cursor > 0) {
 			var leading = this.line.slice(0, this.cursor);
 			var match = leading.match(/([^\w\s]+|\w+|)\s*$/);
@@ -204,7 +204,7 @@ export default class LineReader extends EventEmitter {
 		}
 	};
 
-	moveWordRight() {
+	moveWordRight () {
 		if (this.cursor < this.line.length) {
 			var trailing = this.line.slice(this.cursor);
 			var match = trailing.match(/^(\s+|\W+|\w+)\s*/);
@@ -217,7 +217,7 @@ export default class LineReader extends EventEmitter {
 	/**
 	 * Deletes the word to the left of the cursor.
 	 */
-	deleteWordLeft() {
+	deleteWordLeft () {
 		if (this.cursor > 0) {
 			var leading = this.line.slice(0, this.cursor);
 			var match = leading.match(/([^\w\s]+|\w+|)\s*$/);
@@ -232,7 +232,7 @@ export default class LineReader extends EventEmitter {
 	/**
 	 * Deletes the word to the right of the cursor.
 	 */
-	deleteWordRight() {
+	deleteWordRight () {
 		if (this.cursor < this.line.length) {
 			var trailing = this.line.slice(this.cursor);
 			var match = trailing.match(/^(\s+|\W+|\w+)\s*/);
@@ -246,7 +246,7 @@ export default class LineReader extends EventEmitter {
 	/**
 	 * Deletes all characters to the left of the cursor.
 	 */
-	deleteLineLeft() {
+	deleteLineLeft () {
 		this.line = this.line.slice(this.cursor);
 		this.cursor = 0;
 		this.refreshLine();
@@ -256,7 +256,7 @@ export default class LineReader extends EventEmitter {
 	/**
 	 * Deletes all characters to the right of the cursor.
 	 */
-	deleteLineRight() {
+	deleteLineRight () {
 		this.line = this.line.slice(0, this.cursor);
 		this.refreshLine();
 		this.emit('change');
@@ -265,7 +265,7 @@ export default class LineReader extends EventEmitter {
 	/**
 	 * Deletes all characters on the line.
 	 */
-	deleteLine() {
+	deleteLine () {
 		this.line = '';
 		this.cursor = 0;
 		this.refreshLine();
@@ -276,7 +276,7 @@ export default class LineReader extends EventEmitter {
 	 * Gets the currently inserted text.
 	 * @returns {string}
 	 */
-	getLine() {
+	getLine () {
 		return this.line;
 	};
 
@@ -284,7 +284,7 @@ export default class LineReader extends EventEmitter {
 	 * Sets the current text. Moves the cursor to the end.
 	 * @param line
 	 */
-	setLine(line: string): LineReader {
+	setLine (line: string): LineReader {
 		this.line = line;
 		this.cursor = line.length;
 		this.emit('change');
@@ -294,7 +294,7 @@ export default class LineReader extends EventEmitter {
 	/**
 	 * Takes the line as accepted and moves the cursor down.
 	 */
-	newLine() {
+	newLine () {
 		this.moveToEnd();
 		//this.output.write('\r\n');
 		this.writer.write('\r\n');
@@ -309,14 +309,14 @@ export default class LineReader extends EventEmitter {
 	 * Go into continuation prompt. Used for multi-line inputs, i.e., when user pressed enter but has not finished the
 	 * command or expression
 	 */
-	startContinuation() {
+	startContinuation () {
 		// TODO
 	};
 
 	/**
 	 * Reevaluates the prompt and reprints the prompt and the inserted text.
 	 */
-	updatePrompt() {
+	updatePrompt () {
 
 		this._prompt = this.prompt();
 		var lines = this._prompt.split(/[\r\n]/);
@@ -329,7 +329,7 @@ export default class LineReader extends EventEmitter {
 	/**
 	 * Reprints the prompt and the currently inserted text. Can also be used to print a new prompt on a new line.
 	 */
-	refreshLine() {
+	refreshLine () {
 
 		if (!this._prompting) {
 			this.updatePrompt();
@@ -390,7 +390,7 @@ export default class LineReader extends EventEmitter {
 		this.prevRows = cursorPos.rows;
 	};
 
-	setWriter(writer: WriterPanel): void {
+	setWriter (writer: WriterPanel): void {
 		this.writer = writer;
 	};
 
@@ -399,7 +399,7 @@ export default class LineReader extends EventEmitter {
 	 * http://en.wikipedia.org/wiki/ANSI_escape_code#Sequence_elements
 	 * @param str
 	 */
-	static countLength(str: string) {
+	static countLength (str: string) {
 		var ch;
 		var length = 0;
 		var status = 0; // 0 = normal | 1 = escape char found in the previous loop | 2 = inside multi-char escape sequence
