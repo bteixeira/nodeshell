@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import ChildProcessWRapper from './parser/runners/childProcessWrapper';
+import {Runnable} from './parser/runnableWrapperExecuterVisitor'
 
 export interface Options {
 	skipPath?: boolean;
@@ -84,7 +85,7 @@ export default class Commands {
 		return candidate in this.commands || (this.parent && this.parent.isCmd(candidate));
 	}
 
-	getCmd (name: string, args) {
+	getCmd (name: string, args: Runnable[]) {
 		if (name in this.commands) {
 			return this.commands[name].runner(args);
 		} else if (this.parent) {

@@ -1,11 +1,11 @@
 import {Runnable, runnableCallback} from '../runnableWrapperExecuterVisitor';
-import {Stream} from 'stream';
+import {Duplex, Stream} from 'stream';
 
 export default class FunctionRunnable implements Runnable {
 	private stdio: (Stream | 'pipe')[] = [];
 	pipes = null;
 
-	constructor (private fun) {}
+	constructor (private fun: (stdio: Duplex[]) => void) {}
 
 	run (cb: runnableCallback): void {
 		// todo piping

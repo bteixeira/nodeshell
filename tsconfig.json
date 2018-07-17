@@ -5,7 +5,9 @@
 		"module": "commonjs",
 		"moduleResolution": "node",
 		"sourceMap": true,
-		"target": "ES6"
+		"target": "ES6",
+		"noImplicitAny": true,
+		"pretty": false
 	},
 	"include": [
 		"./src/**/*"
