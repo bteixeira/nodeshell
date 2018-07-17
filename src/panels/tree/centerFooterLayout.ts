@@ -76,7 +76,7 @@ export default class CenterFooterLayout implements Panel {
 		throw new Error('This panel should not need a parent');
 	}
 
-	setFooter (footer) {
+	setFooter (footer: Panel) {
 		throw new Error('Not implemented');
 	}
 

@@ -18,7 +18,8 @@ export function run (tape: Tape<char>): Token {
 	tape.setMark();
 
 	var c = tape.next();
-	var type, fd;
+	var type: symbol;
+	var fd;
 
 	if (/\d/.test(c)) {
 		while (/\d/.test(tape.peek())) {
@@ -67,6 +68,6 @@ export function run (tape: Tape<char>): Token {
 		type: type,
 		text: text as string,
 		pos: pos,
-		fd: fd,
+		fd: fd as string,
 	};
 }

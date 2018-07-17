@@ -18,7 +18,7 @@ export default class ColumnsLayout implements Panel {
 
 	constructor(
 		private children: Panel[],
-		private layout,
+		private layout: (number | 'auto')[],
 		private stdout: WriteStream,
 	) {
 		children.forEach(child => {
@@ -47,12 +47,12 @@ export default class ColumnsLayout implements Panel {
 				// otherwise, the `auto` child has been found before and we must iterate to the end to know how wide it is
 				childFound = true;
 				sumBefore = sum;
-				sum += lt;
+				sum += lt as number;
 			} else {
 				if (lt === 'auto') {
 					autoFound = true;
 				} else {
-					sum += lt;
+					sum += lt as number;
 				}
 			}
 		}
@@ -68,7 +68,7 @@ export default class ColumnsLayout implements Panel {
 		return [this.getChildOffsetV(child), this.getChildOffsetH(child)];
 	}
 
-	getChildWidth (child: Panel) {
+	getChildWidth (child: Panel): number {
 		var sum = 0;
 		for (var i = 0; i < this.children.length; i++) {
 			var lt = this.layout[i];
@@ -87,7 +87,7 @@ export default class ColumnsLayout implements Panel {
 		return this.parent.getChildWidth(this) - sum;
 	}
 
-	getSpaceBelowChild (child: Panel) {
+	getSpaceBelowChild (child: Panel): number {
 		return this.parent.getSpaceBelowChild(this);
 	}
 
@@ -107,7 +107,7 @@ export default class ColumnsLayout implements Panel {
 		this.parent = parent_;
 	}
 
-	isFooter (child: Panel) {
+	isFooter (child: Panel): boolean {
 		return this.parent.isFooter(this);
 	}
 

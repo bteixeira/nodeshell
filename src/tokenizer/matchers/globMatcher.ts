@@ -4,7 +4,7 @@ import {Token} from '../commandLineTokenizer';
 import * as completionParser from '../../parser/completionParser';
 import {char, sequence, default as Tape} from '../../tape';
 
-const ESCAPABLES = {
+const ESCAPABLES: {[escapable: string]: string} = {
 	'0': '\0',
 	'n': '\n',
 	'r': '\r',

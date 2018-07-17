@@ -14,7 +14,7 @@ export default function (context: Context) {
 		cd: cd,
 		stub: stub,
 		exit: exit,
-		all: function (args) {
+		all: function (args: string[]) {
 			return new FunctionRunnable(function (stdio) {
 				commands.getCommandNames().forEach(function (command) {
 					stdio[1].write(command + '\n');
@@ -22,7 +22,7 @@ export default function (context: Context) {
 
 			});
 		},
-		source: function (args) {
+		source: function (args: string[]) {
 			var filename = args.length && args[0];
 			return new FunctionRunnable(function (stdio) {
 				return utils.sourceSync(filename, context);
@@ -41,7 +41,7 @@ export default function (context: Context) {
 
 var cd = (function () {
 	var previous = process.cwd();
-	return function cd (args) {
+	return function cd (args: string[]) {
 		var dir = args[0] || utils.getUserHome();
 		if (dir === '-') {
 			dir = previous;
@@ -65,9 +65,9 @@ function stub (args: string[]) {
 	});
 }
 
-function exit (args) {
+function exit (args: string[]) {
 	var status = args[0];
 	return new FunctionRunnable(function (stdio) {
-		process.exit(status);
+		process.exit(Number(status));
 	});
 }

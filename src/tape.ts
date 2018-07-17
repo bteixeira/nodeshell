@@ -80,7 +80,7 @@ export default class Tape<T> {
 		if (!utils.isFunction(filter)) {
 			/* Assumed to be regex */
 			var re = filter;
-			filter = function (item) {
+			filter = (item: T) => {
 				return re.test(item);
 			}
 		}

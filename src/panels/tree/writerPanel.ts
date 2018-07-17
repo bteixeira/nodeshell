@@ -88,7 +88,7 @@ function iterateEscapedString (str: string, operator: sequenceOperator) {
  *
  * returns: the calculated width of the first chunk.
  */
-function splitBufferAt (buf, width: number, target) {
+function splitBufferAt (buf: string, width: number, target: string[]) {
 	// TODO!
 	// TODO! DO THIS FIRST!
 
@@ -282,7 +282,7 @@ export default class WriterPanel implements Panel {
 		}
 	}
 
-	superWrite2 (buf) {
+	superWrite2 (buf: string) {
 		var active = WriterPanel.active;
 		if (active !== this) {
 			this.activate();
