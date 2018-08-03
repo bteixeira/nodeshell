@@ -18,6 +18,7 @@ var superVisit = Visitor.prototype.visit;
 
 import * as globMatcher from '../tokenizer/matchers/globMatcher';
 import {Token} from '../tokenizer/commandLineTokenizer';
+import ValueRunnable from './runners/valueRunnable'
 
 export type runnableCallback = (result: any) => void;
 export type fdConfig = (Stream | 'pipe');
@@ -63,13 +64,13 @@ export default class ExecuterVisitor extends Visitor {
 		var me = this;
 		node.args.forEach((node: DescentParserNode) => {
 			const runner: Runnable = me.visit(node);
-			if (node.type === 'GLOB' || node.type === 'DQSTRING') {
+			// if (node.type === 'GLOB' || node.type === 'DQSTRING') {
 				args.push(runner); // Push the runner, push, push the runner
-			} else if (node.type === 'JS') {
-				runner.run((res) => {
-					args.push(res);
-				});
-			}
+			// } else if (node.type === 'JS') {
+			// 	runner.run((res) => {
+			// 		args.push(res);
+			// 	});
+			// }
 		});
 		const runner = this.commandSet.getCmd(node.cmd, args);
 		node.redirs.forEach(function (redir) {
@@ -161,7 +162,7 @@ export default class ExecuterVisitor extends Visitor {
 		return new SequenceRunnable(left, right);
 	}
 
-	visitGLOB (glob: DescentParserNode): string[] {
+	visitGLOB (glob: DescentParserNode): Runnable {
 		var subTokens: Token[] = glob.glob.subTokens;
 
 		/* If the first token is ~ then expand it to home dir if it is alone or if it is followed by a path separator */
@@ -236,7 +237,7 @@ export default class ExecuterVisitor extends Visitor {
 			return new RegExp(re);
 		}
 
-		return extracted;
+		return new ValueRunnable(extracted);
 	}
 
 	visitJS (token: DescentParserNode): Runnable {
@@ -258,8 +259,9 @@ export default class ExecuterVisitor extends Visitor {
 		}
 	}
 
-	visitDQSTRING (dqstring: DescentParserNode) {
-		return vm.runInNewContext(dqstring.token.text);
+	visitDQSTRING (dqstring: DescentParserNode): Runnable {
+		const value = vm.runInNewContext(dqstring.token.text);
+		return new ValueRunnable(value);
 	}
 
 // OVERRIDE VISIT()

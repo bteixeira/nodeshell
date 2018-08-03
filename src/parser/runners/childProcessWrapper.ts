@@ -14,11 +14,13 @@ export default class ChildProcessWrapper implements Runnable {
 
 	constructor (
 		private path: string,
-		private args: string[],
+		private args: Runnable[],
 	) {}
 
 	run (callback: runnableCallback): void {
+		const me = this;
 		var n = 0;
+		var m = this.args.length;
 		var waitable: Stream[] = []; // file streams which have to be listened to for the 'open' event before launching the child
 						   // process
 		this.stdio.forEach(function (stream) {
@@ -31,13 +33,25 @@ export default class ChildProcessWrapper implements Runnable {
 			}
 		});
 
-		var me = this;
+		const argValues: any[] = []; // TODO CONFIRM ANY
+
+		this.args.forEach((arg: Runnable) => {
+			arg.run(result => {
+				m -= 1;
+				if (result.length) { // TODO TEST ARRAY
+					argValues.push(...result);
+				} else {
+					argValues.push(result); // TODO MAYBE THE TWO ARE EQUIVALENT
+				}
+				verify();
+			});
+		});
 
 		function verify () {
-			if (n === waitable.length) {
-				var child = me.child = cp.spawn(me.path, me.args, {stdio: /*'inherit'*/ me.stdio});
+			if (n === waitable.length && m === 0 && !me.child) {
+				var child = me.child = cp.spawn(me.path, argValues, {stdio: /*'inherit'*/ me.stdio});
 				me.started = true;
-				child.on('exit', function (status) {
+				child.on('exit', (status: number) => {
 					callback(status);
 				});
 				me.pipes = child.stdio;

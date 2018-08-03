@@ -12,4 +12,5 @@ export default class Visitor {
 		}
 		return method.apply(this, Array.prototype.slice.call(arguments));
 	}
+	// [key: string]: visitorMethod // Will break if methods with a different signature are added
 }
