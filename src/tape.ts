@@ -19,6 +19,9 @@ export type sequence<T> = {
 	[key: number]: T;
 }
 
+type filterFunc<T> = (item: T) => boolean;
+type filter<T> = (string | RegExp | filterFunc<T>);
+
 // TODO USE GENERICS FOR TAPE
 export default class Tape<T> {
 	private sequence: sequence<T>;
@@ -72,19 +75,19 @@ export default class Tape<T> {
 	 * Moves the pointer forward until the first character that matches the given pattern.
 	 * @param filter string of characters to match. Or RegExp object to use. Or filter function which takes one
 	 */
-	skipTo (filter): void {
-		// TODO TYPEGUARDS
+	skipTo (filter: filter<T>): void {
 		if (utils.isString(filter)) {
 			filter = new RegExp('[' + filter + ']');
 		}
-		if (!utils.isFunction(filter)) {
+		// if (!utils.isFunction(filter)) {
+		if (filter instanceof RegExp) {
 			/* Assumed to be regex */
-			var re = filter;
+			const re: RegExp = filter;
 			filter = (item: T) => {
-				return re.test(item);
+				return re.test(item.toString());
 			}
 		}
-		while (!filter(this.peek()) && this.hasMore()) {
+		while (!(filter as filterFunc<T>)(this.peek()) && this.hasMore()) {
 			this.next();
 		}
 	}
