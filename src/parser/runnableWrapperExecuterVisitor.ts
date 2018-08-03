@@ -21,7 +21,7 @@ import {Token} from '../tokenizer/commandLineTokenizer';
 import ValueRunnable from './runners/valueRunnable'
 
 export type runnableCallback = (result: any) => void;
-export type fdConfig = (Stream | 'pipe');
+export type fdConfig = (Stream | number | 'pipe');
 export interface Runnable {
 	pipes?: fdConfig[];
 
@@ -72,7 +72,7 @@ export default class ExecuterVisitor extends Visitor {
 			// 	});
 			// }
 		});
-		const runner = this.commandSet.getCmd(node.cmd, args);
+		const runner: Runnable = this.commandSet.getCmd(node.cmd, args);
 		node.redirs.forEach(function (redir) {
 			var direction = redir.direction.type.toString();
 			var fd = redir.direction.number;
@@ -103,12 +103,12 @@ export default class ExecuterVisitor extends Visitor {
 				if (!utils.isNumber(fd)) {
 					fd = 1;
 				}
-				runner.configFd(fd, target);
+				runner.configFd(fd, Number(target.text));
 			} else if (direction === 'LTAMP') {
 				if (!utils.isNumber(fd)) {
 					fd = 0;
 				}
-				runner.configFd(fd, target);
+				runner.configFd(fd, Number(target.text));
 			}
 
 			// TODO MUST DETECT DUPLICATE FDs AND OPEN DUPLEX STREAM FOR THEM (e.g., "somecommand 7>thefile 7<thefile")

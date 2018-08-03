@@ -85,7 +85,7 @@ export default class Commands {
 		return candidate in this.commands || (this.parent && this.parent.isCmd(candidate));
 	}
 
-	getCmd (name: string, args: Runnable[]) {
+	getCmd (name: string, args: Runnable[]): Runnable {
 		if (name in this.commands) {
 			return this.commands[name].runner(args);
 		} else if (this.parent) {

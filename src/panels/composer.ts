@@ -22,13 +22,13 @@ export default {
 	buildInit (spec: LayoutSpec, stdout: WriteStream): Panel {
 		const names: PanelSet = {};
 		const writers: WriterPanel[] = [];
-		var result: Panel;
+		var panel: Panel;
 
 		if (!spec || !Object.keys(spec).length) {
 			// Single Writer layout ...
 			const writerPanel = new WriterPanel(stdout);
-			result = new CenterFooterLayout(writerPanel, null, stdout);
-			result.prompt = writerPanel;
+			panel = new CenterFooterLayout(writerPanel, null, stdout);
+			panel.prompt = writerPanel;
 			//}
 
 			/* TODO
@@ -47,19 +47,19 @@ export default {
 		} else {
 			// Center only layout ...
 			const built: Panel = this.build(spec, names, writers, stdout);
-			result = new CenterFooterLayout(built, null, stdout);
+			panel = new CenterFooterLayout(built, null, stdout);
 		}
 
 		for (var n in names) {
-			result[n] = names[n];
+			panel[n] = names[n];
 		}
-		result.writers = writers;
+		panel.writers = writers;
 		/**/
 
-		result.prompt.calculateWidth();
-		result.prompt.activate();
+		panel.prompt.calculateWidth();
+		panel.prompt.activate();
 
-		return result;
+		return panel;
 	},
 
 	build: function (spec: LayoutSpec, names: PanelSet, writers: WriterPanel[], stdout: WriteStream): Panel {
