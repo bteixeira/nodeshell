@@ -63,7 +63,6 @@ export default class Tape<T> {
 	}
 
 	/**
-	 *
 	 * Returns the character at current position without changing the pointer.
 	 * @returns {string} the character at the current position
 	 */
