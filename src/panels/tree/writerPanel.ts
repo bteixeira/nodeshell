@@ -276,8 +276,7 @@ export default class WriterPanel implements Panel {
 			}
 		}
 
-
-		if (active !== this) {
+		if (active && active !== this) {
 			active.activate();
 		}
 	}
@@ -322,11 +321,13 @@ export default class WriterPanel implements Panel {
 
 	moveCursor (dx: number, dy: number = 0): void {
 		var col_ = this.col + dx;
+		const width = this.getWidth()
+
 		if (col_ < 1) {
 			col_ = 1;
 			dx = -this.col + 1;
-		} else if (col_ > this.parent.getChildWidth(this)) {
-			col_ = this.parent.getChildWidth(this);
+		} else if (col_ > width) {
+			col_ = width;
 			dx = col_ - this.col;
 		}
 		this.col = col_;
@@ -427,6 +428,9 @@ export default class WriterPanel implements Panel {
 	}
 
 	getOffset () {
+		if (!this.parent) {
+			return [0, 0];
+		}
 		var offset = this.parent.getChildOffset(this);
 		return [offset[0] + this.row - 1, offset[1] + this.col - 1];
 	}
@@ -440,11 +444,15 @@ export default class WriterPanel implements Panel {
 	}
 
 	calculateWidth (): void {
-		this.columns = this.parent.getChildWidth(this);
+		this.columns = this.getWidth();
 	}
 
 	isFooter (): boolean {
-		return this.parent.isFooter(this);
+		if (this.parent) {
+			return this.parent.isFooter(this);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -469,7 +477,11 @@ export default class WriterPanel implements Panel {
 	}
 
 	getWidth () {
-		return this.parent.getChildWidth(this);
+		if (this.parent) {
+			return this.parent.getChildWidth(this);
+		} else {
+			return this.stdout.columns;
+		}
 	}
 
 	clearScreenDown () {

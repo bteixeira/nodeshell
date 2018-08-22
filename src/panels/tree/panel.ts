@@ -11,7 +11,7 @@ export default interface Panel {
 
 	getChildOffsetV: (Panel: Panel) => number;
 	getChildOffsetH: (Panel: Panel) => number;
-	getChildOffset: (Panel: Panel) => [number, number]; // LENGTH === 2
+	getChildOffset: (Panel: Panel) => [number, number];
 	getChildWidth: (Panel: Panel) => number;
 
 	/**

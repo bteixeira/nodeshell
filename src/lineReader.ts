@@ -58,7 +58,7 @@ export default class LineReader extends EventEmitter {
 	getCursorPos () {
 
 		//var columns = this.output.columns;
-		var columns = this.writer.getWidth ? this.writer.getWidth() : this.writer.columns;
+		var columns = this.writer.getWidth();
 
 		var lines = this._prompt.split(/[\r\n]/);
 		var lineCols: number;
