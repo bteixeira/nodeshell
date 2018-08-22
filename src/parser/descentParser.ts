@@ -20,13 +20,17 @@ export default class DescentParser {
 	) {
 	}
 
-	ERROR (expected?: any/*TODO ANY*/): DescentParserNode {
+	ERROR (expected?: (Symbol | Symbol[]), message?: string): DescentParserNode {
+		if (!(expected instanceof Array)) {
+			expected = [expected];
+		}
 		return {
 			type: 'ERROR',
 			err: true,
 			pos: this.tape.pos,
 			token: this.tape.peek(),
 			expected: expected,
+			message: message,
 		};
 	}
 
@@ -39,10 +43,10 @@ export default class DescentParser {
 
 		const first: Token = this.tape.next(); // contains direction and possibly fd
 
-		const allowed = redirMatcher.TOKENS;
-		if (!(<any>Object).values(allowed).includes(first.type)) {
+		const allowedTypes = (<any>Object).values(redirMatcher.TOKENS);
+		if (!allowedTypes.includes(first.type)) {
 			this.tape.prev();
-			return this.ERROR(allowed);
+			return this.ERROR(allowedTypes);
 		}
 		if (!this.tape.hasMore()) {
 			this.tape.prev();
@@ -86,8 +90,7 @@ export default class DescentParser {
 			};
 		} else if (cmd.type !== globMatcher.TOKENS.GLOB || !this.commands.isCmd(cmd.text)) {
 			// TODO REWIND ENOUGH TOKENS (use redirs.length)
-			// return new ErrorWrapper('Unknown command: \'' + cmd.text + '\'');
-			return this.ERROR(`Unknown command: "${cmd.text}"`);
+			return this.ERROR(null, `Unknown command: "${cmd.text}"`);
 		}
 
 		var currentToken: Token;
@@ -212,7 +215,7 @@ export default class DescentParser {
 			return subs;
 		}
 		if (this.tape.hasMore()) {
-			return this.ERROR('EOF');
+			return this.ERROR(Symbol('EOF'));
 		}
 		return subs;
 	}

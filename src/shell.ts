@@ -153,7 +153,11 @@ lineReader
 			runner.run(function (result) {
 				if (result instanceof ErrorWrapper) {
 					// Magic! If line is ambiguous and could have been both a command and JS, but both errored, show both errors
-					console.log(inspect(err));
+					if (err.message) {
+						console.log(err.message.red);
+					} else {
+						console.log(inspect(err));
+					}
 				}
 				doneCB(result);
 			});
@@ -195,6 +199,3 @@ rootPanel.writers.forEach(function (writer) {
 });
 
 lineReader.refreshLine();
-lineReader.on('change', function () {
-	CompletionParser.parseCmdLine(lineReader, commands, rootPanel.completions, false);
-});

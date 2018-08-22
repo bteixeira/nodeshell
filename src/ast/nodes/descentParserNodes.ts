@@ -14,7 +14,8 @@ export interface DescentParserNode {
 	token?: Token;
 	err?: boolean;
 	pos?: number;
-	expected?: any; // TODO ANY
+	expected?: Symbol[];
+	message?: string;
 	'completion-type'?: string;
 	prefix?: string;
 	node?: DescentParserNode;
