@@ -81,6 +81,9 @@ export default class DescentParser {
 		} while (!current.err);
 
 		var cmd: Token = this.tape.next();
+		if (cmd === Tape.EOF) {
+			return this.ERROR(globMatcher.TOKENS.GLOB);
+		}
 		if (cmd.type === completionParser.COMPLETION_TYPE) { ////TODO TODO TODO
 			// TODO RETURN COMPLETION OBJECT FOR COMMAND NAME
 			return {
