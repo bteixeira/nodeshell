@@ -1,9 +1,9 @@
-import {Runnable, runnableCallback} from '../runnableWrapperExecuterVisitor';
+import {fdConfig, Runnable, runnableCallback} from '../runnableWrapperExecuterVisitor';
 import {Stream} from 'stream';
 import WriteStream = NodeJS.WriteStream;
 
 export default class PipeRunnable implements Runnable {
-	pipes = null;
+	pipes?: fdConfig[];
 
 	constructor (
 		private left: Runnable,

@@ -1,5 +1,5 @@
-import {Runnable, runnableCallback} from '../runnableWrapperExecuterVisitor';
-import {Duplex, Stream} from 'stream';
+import {fdConfig, Runnable, runnableCallback} from '../runnableWrapperExecuterVisitor';
+import {Duplex, Stream, Writable} from 'stream';
 
 export default class FunctionRunnable implements Runnable {
 	private stdio: (Stream | 'pipe')[] = [];
@@ -29,14 +29,14 @@ export default class FunctionRunnable implements Runnable {
 		setTimeout(() => {
 			result = me.fun(me.pipes);
 			/* close open streams, otherwise piped processes hang */
-			me.pipes.forEach(function (pipe) {
+			me.pipes.forEach((pipe: Stream) => {
 				if (
 					pipe !== process.stdout &&
 					pipe !== process.stderr &&
 					pipe !== process.stdin &&
-					pipe.end
+					pipe instanceof Writable
 				) {
-					pipe.end();
+					(pipe as Writable).end();
 				}
 			});
 			cb(result);
