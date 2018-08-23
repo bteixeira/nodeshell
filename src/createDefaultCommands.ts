@@ -5,6 +5,7 @@ import Commands from './commands';
 import ErrorWrapper from './errorWrapper';
 import FunctionRunnable from './parser/runners/functionRunnable';
 import * as utils from './utils';
+import {Runnable} from './parser/runnableWrapperExecuterVisitor'
 
 export default function (context: Context) {
 
@@ -29,30 +30,51 @@ export default function (context: Context) {
 			});
 		},
 	};
-	for (var p in  builtins) {
-		if (builtins.hasOwnProperty(p)) {
-			commands.addCommand(p, builtins[p]);
-		}
-	}
-
+	Object.keys(builtins).forEach((key: string) => {
+		commands.addCmd(key, builtins[key]);
+	});
 	return commands;
-
 };
 
 var cd = (function () {
-	var previous = process.cwd();
-	return function cd (args: string[]) {
-		var dir = args[0] || utils.getUserHome();
-		if (dir === '-') {
-			dir = previous;
-		}
+	var previousDir: string = process.cwd();
+	return function cd (args: Runnable[]) {
 		return new FunctionRunnable(function (stdio) {
-			try {
-				var tmp = process.cwd();
-				process.chdir(dir);
-				previous = tmp;
-			} catch (ex) {
-				return new ErrorWrapper(ex);
+			var m = args.length;
+			const argValues: any[] = []; // TODO CONFIRM ANY
+
+			/* All arguments are executed even if only the first result is used */
+			args.forEach((arg: Runnable) => {
+				arg.run(result => {
+					m -= 1;
+					if (result instanceof Array) { // TODO TEST ARRAY
+						argValues.push(...result);
+					} else {
+						argValues.push(result); // TODO MAYBE THE TWO ARE EQUIVALENT
+					}
+					verify();
+				});
+			});
+
+			function verify () {
+				if (m === 0) {
+					var dir = argValues[0] || utils.getUserHome();
+					if (dir === '-') {
+						dir = previousDir;
+					}
+					try {
+						var tmp = process.cwd();
+						process.chdir(dir);
+						/* We postpone updating `previousDir` because `chdir` may throw */
+						previousDir = tmp;
+					} catch (ex) {
+						return new ErrorWrapper(ex);
+					}
+				}
+			}
+
+			if (args.length === 0) {
+				verify();
 			}
 		});
 	};

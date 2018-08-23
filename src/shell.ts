@@ -80,7 +80,7 @@ const permanent = {
 			if (ast.type !== 'COMMAND') {
 				throw 'Alias body must be a valid command name';
 			}
-			commands.addCommand(handle, function () {
+			commands.addCmd(handle, function () {
 
 			}, '[alias]');
 		},
@@ -143,14 +143,14 @@ lineReader
 		process.stdin.pause();
 		readline.clearScreenDown(process.stdout);
 		paused = true;
-		var runner: Runnable;
+		var runnable: Runnable;
 		var err: DescentParserNode;
-		var ast: DescentParserNode = defaultLineParser.parseCmdLine(line, commands);
-		if (ast.err && ast.firstCommand) {
-			err = ast;
-			ast = defaultLineParser.parseJS(line);
-			runner = executerVisitor.visit(ast);
-			runner.run(function (result) {
+		var rootNode: DescentParserNode = defaultLineParser.parseCmdLine(line, commands);
+		if (rootNode.err && rootNode.firstCommand) {
+			err = rootNode;
+			rootNode = defaultLineParser.parseJS(line);
+			runnable = executerVisitor.visit(rootNode);
+			runnable.run(function (result) {
 				if (result instanceof ErrorWrapper) {
 					// Magic! If line is ambiguous and could have been both a command and JS, but both errored, show both errors
 					if (err.message) {
@@ -161,11 +161,11 @@ lineReader
 				}
 				doneCB(result);
 			});
-		} else if (ast.err) {
-			doneCB(ast);
+		} else if (rootNode.err) {
+			doneCB(rootNode);
 		} else {
-			runner = executerVisitor.visit(ast);
-			runner.run(doneCB);
+			runnable = executerVisitor.visit(rootNode);
+			runnable.run(doneCB);
 		}
 	});
 

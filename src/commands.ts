@@ -68,7 +68,7 @@ export default class Commands {
 		if (process.platform === 'win32') {
 			basename = basename.substr(0, basename.lastIndexOf('.'));
 		}
-		this.addCommand(basename, Commands.makeCmd(filename), filename);
+		this.addCmd(basename, Commands.makeCmd(filename), filename);
 	}
 
 	private static makeCmd (filename: string): Command {
@@ -77,7 +77,7 @@ export default class Commands {
 		}
 	}
 
-	addCommand (name: string, body, path: string = '[builtin]'): void {
+	addCmd (name: string, body, path: string = '[builtin]'): void {
 		this.commands[name] = {runner: body, path: path};
 	}
 
@@ -85,11 +85,11 @@ export default class Commands {
 		return candidate in this.commands || (this.parent && this.parent.isCmd(candidate));
 	}
 
-	getCmd (name: string, args: Runnable[]): Runnable {
+	getCmdRunnable (name: string, args: Runnable[]): Runnable {
 		if (name in this.commands) {
 			return this.commands[name].runner(args);
 		} else if (this.parent) {
-			return this.parent.getCmd(name, args);
+			return this.parent.getCmdRunnable(name, args);
 		}
 	}
 

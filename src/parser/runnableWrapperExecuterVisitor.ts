@@ -31,7 +31,7 @@ export interface Runnable {
 }
 
 interface TokenGroup {
-	glob: boolean;
+	globbing: boolean;
 	group: Token[];
 }
 
@@ -72,7 +72,7 @@ export default class ExecuterVisitor extends Visitor {
 			// 	});
 			// }
 		});
-		const runner: Runnable = this.commandSet.getCmd(node.cmd, args);
+		const runner: Runnable = this.commandSet.getCmdRunnable(node.cmd, args);
 		node.redirs.forEach(function (redir) {
 			var direction = redir.direction.type.toString();
 			var fd = redir.direction.number;
@@ -172,24 +172,30 @@ export default class ExecuterVisitor extends Visitor {
 
 		/* First phase: transform the subtoken list into another one with literal path components and globbed path components */
 		var tokenGroups: TokenGroup[] = [];
-		var group: Token[] = [];
-		var globbing: boolean = false;
+		var tokenGroup: TokenGroup = {
+			globbing: false,
+			group: [],
+		};
 		subTokens.forEach((subToken: Token, i: number) => {
-			group.push(subToken);
+			tokenGroup.group.push(subToken);
+			/* If this is a separator or the last subtoken, close the current group */
 			if (subToken.type === globMatcher.SUBTOKENS.SEPARATOR || i === subTokens.length - 1) {
 				var lastGroup: TokenGroup = tokenGroups[tokenGroups.length - 1];
-				if (lastGroup && !globbing && !lastGroup.glob) {
-					lastGroup.group = lastGroup.group.concat(group);
+				if (
+					lastGroup &&
+					!tokenGroup.globbing &&
+					!lastGroup.globbing
+				) {
+					lastGroup.group = lastGroup.group.concat(tokenGroup.group);
 				} else {
-					tokenGroups.push({
-						glob: globbing,
-						group: group,
-					});
-					globbing = false;
+					tokenGroups.push(tokenGroup);
 				}
-				group = [];
+				tokenGroup = {
+					globbing: false,
+					group: [],
+				};
 			} else if (subToken.type === globMatcher.SUBTOKENS.STAR || subToken.type === globMatcher.SUBTOKENS.QUESTION) {
-				globbing = true;
+				tokenGroup.globbing = true;
 			}
 		});
 
@@ -200,7 +206,7 @@ export default class ExecuterVisitor extends Visitor {
 		var regex: RegExp;
 		var dirs: string[];
 		tokenGroups.forEach(function (tokenGroup, i) {
-			if (tokenGroup.glob) {
+			if (tokenGroup.globbing) {
 				regex = buildRegex(tokenGroup.group);
 				aux = [];
 				extracted.forEach((extr: string) => {

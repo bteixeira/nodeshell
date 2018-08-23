@@ -5,7 +5,7 @@ import * as cp from 'child_process';
 
 import {Runnable, runnableCallback} from '../runnableWrapperExecuterVisitor';
 
-export default class ChildProcessWrapper implements Runnable {
+export default class ChildProcessRunnable implements Runnable {
 	private started = false;
 	private stdio: Stream[] = [];
 	private child: ChildProcess;
@@ -34,6 +34,8 @@ export default class ChildProcessWrapper implements Runnable {
 		});
 
 		const argValues: any[] = []; // TODO CONFIRM ANY
+
+		// TODO USE PROMISES INSTEAD OF MANUAL MANAGEMENT
 
 		this.args.forEach((arg: Runnable) => {
 			arg.run(result => {
