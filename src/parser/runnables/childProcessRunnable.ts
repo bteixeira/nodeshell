@@ -3,7 +3,7 @@ import {ChildProcess} from 'child_process';
 import * as fs from 'fs';
 import * as cp from 'child_process';
 
-import {Runnable, runnableCallback} from '../runnableWrapperExecuterVisitor';
+import {Runnable, runnableCallback} from './runnable'
 
 export default class ChildProcessRunnable implements Runnable {
 	private started = false;

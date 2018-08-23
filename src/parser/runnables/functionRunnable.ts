@@ -1,5 +1,6 @@
-import {fdConfig, Runnable, runnableCallback} from '../runnableWrapperExecuterVisitor';
+import {fdConfig} from '../runnableWrapperExecuterVisitor';
 import {Duplex, Stream, Writable} from 'stream';
+import {Runnable, runnableCallback} from './runnable'
 
 export default class FunctionRunnable implements Runnable {
 	private stdio: (Stream | 'pipe')[] = [];

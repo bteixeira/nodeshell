@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import ChildProcessWRapper from './parser/runners/childProcessWrapper';
-import {Runnable} from './parser/runnableWrapperExecuterVisitor'
+import ChildProcessWRapper from './parser/runnables/childProcessRunnable';
+import {Runnable} from './parser/runnables/runnable'
 
 export interface Options {
 	skipPath?: boolean;

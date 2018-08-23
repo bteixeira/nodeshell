@@ -7,7 +7,8 @@ import 'colors';
 
 import KeyHandler from './keyhandler';
 import LineReader from './lineReader';
-import RWEVisitor, {Runnable} from './parser/runnableWrapperExecuterVisitor';
+import RWEVisitor from './parser/runnableWrapperExecuterVisitor';
+import {Runnable} from './parser/runnables/runnable'
 import LayoutComposer, {LayoutSpec} from './panels/composer';
 import ErrorWrapper from './errorWrapper';
 import History from './history';

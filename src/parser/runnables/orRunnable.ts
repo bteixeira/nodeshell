@@ -1,6 +1,6 @@
 import {Stream} from 'stream';
 
-import {Runnable, runnableCallback} from '../runnableWrapperExecuterVisitor';
+import {Runnable, runnableCallback} from './runnable'
 
 export default class OrRunnable implements Runnable {
 	constructor (

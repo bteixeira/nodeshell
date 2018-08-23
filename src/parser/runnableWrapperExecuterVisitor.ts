@@ -9,26 +9,19 @@ import ErrorWrapper from '../errorWrapper';
 import {Stream} from 'stream';
 import {DescentParserNode} from '../ast/nodes/descentParserNodes';
 
-import AndRunnable from './runners/andRunnable';
-import OrRunnable from './runners/orRunnable';
-import PipeRunnable from './runners/pipeRunnable';
-import SequenceRunnable from './runners/sequenceRunnable';
+import AndRunnable from './runnables/andRunnable';
+import OrRunnable from './runnables/orRunnable';
+import PipeRunnable from './runnables/pipeRunnable';
+import SequenceRunnable from './runnables/sequenceRunnable';
 
 var superVisit = Visitor.prototype.visit;
 
 import * as globMatcher from '../tokenizer/matchers/globMatcher';
 import {Token} from '../tokenizer/commandLineTokenizer';
-import ValueRunnable from './runners/valueRunnable'
+import ValueRunnable from './runnables/valueRunnable'
+import {Runnable} from './runnables/runnable'
 
-export type runnableCallback = (result: any) => void;
 export type fdConfig = (Stream | number | 'pipe');
-export interface Runnable {
-	pipes?: fdConfig[];
-
-	hasConfig: (fd: number) => boolean;
-	configFd: (fd: number, stream: fdConfig) => void;
-	run: (callback: runnableCallback) => void;
-}
 
 interface TokenGroup {
 	globbing: boolean;

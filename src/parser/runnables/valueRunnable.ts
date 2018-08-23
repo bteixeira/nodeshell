@@ -1,4 +1,4 @@
-import {Runnable, runnableCallback} from '../runnableWrapperExecuterVisitor';
+import {Runnable, runnableCallback} from './runnable'
 import {Stream} from 'stream';
 
 export default class ValueRunnable<T> implements Runnable {
