@@ -16,13 +16,13 @@ import WriterPanel from './panels/tree/writerPanel';
 import Panel from './panels/tree/panel';
 import CommandSet from './commandSet';
 
-import createDefaultCommands from './createDefaultCommands';
-import defaultCommandCompletions from './defaultCommandCompletions';
+import defaultCommands from './config/defaultCommands';
+import defaultCommandCompletions from './config/defaultCommandCompletions';
+import defaultKeyBindings from './config/defaultKeyBindings';
 import * as utils from './utils';
 import * as defaultLineParser from './parser/defaultLineParser';
 import * as CompletionParser from './parser/completionParser';
 import {DescentParserNode} from './ast/nodes/descentParserNodes';
-import defaultKeys from './config/defaultKeys';
 
 
 
@@ -71,9 +71,9 @@ const permanent: {[prop: string]: any} = {
 };
 const extend = utils.extend;
 const ctx = vm.createContext(permanent);
-const commands = new CommandSet(createDefaultCommands());
+const commands = new CommandSet(defaultCommands());
 const executerVisitor = new RWEVisitor(commands, ctx);
-var history = new History(lineReader);
+const history = new History(lineReader);
 
 
 
@@ -168,7 +168,7 @@ lineReader
 		}
 	});
 defaultCommandCompletions(CompletionParser);
-defaultKeys(keyHandler, lineReader, history, () => {
+defaultKeyBindings(keyHandler, lineReader, history, () => {
 	CompletionParser.parseCmdLine(lineReader, commands, rootPanel.completions);
 });
 setLayout({name: 'prompt'});

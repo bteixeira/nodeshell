@@ -14,7 +14,7 @@ export type commandSpec = {
  * Keeps track of available commands by name.
  */
 export default class CommandSet {
-	public commands: {[name: string]: commandSpec} = {}; // TODO
+	public commands: {[name: string]: commandSpec} = {};
 
 	constructor (private parent?: CommandSet) {
 	}

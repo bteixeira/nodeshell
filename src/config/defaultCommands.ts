@@ -1,8 +1,8 @@
-import CommandSet, {commandHandler} from './commandSet';
-import ErrorWrapper from './errorWrapper';
-import FunctionRunnable from './parser/runnables/functionRunnable';
-import * as utils from './utils';
-import {Runnable} from './parser/runnables/runnable'
+import CommandSet, {commandHandler} from '../commandSet';
+import ErrorWrapper from '../errorWrapper';
+import FunctionRunnable from '../parser/runnables/functionRunnable';
+import * as utils from '../utils';
+import {Runnable} from '../parser/runnables/runnable'
 
 export default function () {
 	const commands = new CommandSet();
@@ -29,7 +29,7 @@ export default function () {
 	return commands;
 };
 
-var cd = (function () {
+const cd = (function () {
 	var previousDir: string = process.cwd();
 	return function cd (...args: Runnable[]) {
 		return new FunctionRunnable(function (stdio) {

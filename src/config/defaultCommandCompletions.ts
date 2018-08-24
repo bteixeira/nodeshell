@@ -1,5 +1,5 @@
 import * as cp from 'child_process';
-import {completionFunction} from './parser/completionParser';
+import {completionFunction} from '../parser/completionParser';
 
 const $branch: completionFunction = function (cmd, args, prefix) {
 	try {
