@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 import LineReader from './lineReader';
-import Commands from './commandSet';
+import CommandSet from './commandSet';
 import * as utils from './utils';
 
 class Completions {
@@ -14,9 +14,9 @@ class Completions {
 export class Autocompleter {
 	private lineReader: LineReader;
 	private context: Object;
-	private commands: Commands;
+	private commands: CommandSet;
 
-	constructor (line: LineReader, context: Object, commands: Commands) {
+	constructor (line: LineReader, context: Object, commands: CommandSet) {
 		this.lineReader = line;
 		this.context = context;
 		this.commands = commands;

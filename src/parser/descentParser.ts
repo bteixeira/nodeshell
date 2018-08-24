@@ -1,4 +1,4 @@
-import Commands from '../commandSet';
+import CommandSet from '../commandSet';
 import {Token} from '../tokenizer/commandLineTokenizer';
 import Tape from '../tape';
 
@@ -15,7 +15,7 @@ export default class DescentParser {
 	public firstCommand: boolean = true;
 
 	constructor (
-		private commands: Commands,
+		private commands: CommandSet,
 		private tape: Tape<Token>
 	) {
 	}

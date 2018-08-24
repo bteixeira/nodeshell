@@ -1,7 +1,7 @@
 import * as util from 'util';
 import {Context} from 'vm';
 
-import Commands from './commandSet';
+import CommandSet, {commandHandler} from './commandSet';
 import ErrorWrapper from './errorWrapper';
 import FunctionRunnable from './parser/runnables/functionRunnable';
 import * as utils from './utils';
@@ -9,26 +9,26 @@ import {Runnable} from './parser/runnables/runnable'
 
 export default function (context: Context) {
 
-	var commands = new Commands();
+	var commands = new CommandSet();
 
-	var builtins = {
+	const builtins: {[command: string]: commandHandler} = {
 		cd: cd,
-		stub: stub,
-		exit: exit,
-		all: function (args: string[]) {
+		// stub: stub,
+		// exit: exit,
+		all: function (...args: Runnable[]) {
 			return new FunctionRunnable(function (stdio) {
 				commands.getCommandNames().forEach(function (command) {
 					stdio[1].write(command + '\n');
 				});
-
 			});
 		},
-		source: function (args: string[]) {
-			var filename = args.length && args[0];
-			return new FunctionRunnable(function (stdio) {
-				return utils.sourceSync(filename, context);
-			});
-		},
+		// TODO IF THIS COMMAND IS STILL NEEDED THEN PORT THE ARGS TO USE RUNNABLES
+		// source: function (args: string[]) {
+		// 	var filename = args.length && args[0];
+		// 	return new FunctionRunnable(function (stdio) {
+		// 		return utils.sourceSync(filename, context);
+		// 	});
+		// },
 	};
 	Object.keys(builtins).forEach((key: string) => {
 		commands.addCmd(key, builtins[key]);
@@ -38,7 +38,7 @@ export default function (context: Context) {
 
 var cd = (function () {
 	var previousDir: string = process.cwd();
-	return function cd (args: Runnable[]) {
+	return function cd (...args: Runnable[]) {
 		return new FunctionRunnable(function (stdio) {
 			var m = args.length;
 			const argValues: any[] = []; // TODO CONFIRM ANY
@@ -80,16 +80,17 @@ var cd = (function () {
 	};
 }());
 
-function stub (args: string[]) {
-	return new FunctionRunnable(function (stdio) {
-		stdio[1].write('This is simply a stub command.\n');
-		stdio[1].write('You gave me these arguments:\n' + util.inspect(args) + '\n');
-	});
-}
-
-function exit (args: string[]) {
-	var status = args[0];
-	return new FunctionRunnable(function (stdio) {
-		process.exit(Number(status));
-	});
-}
+// TODO NEED TO PORT THESE TO USE RUNNABLE ARGUMENTS
+// function stub (args: string[]) {
+// 	return new FunctionRunnable(function (stdio) {
+// 		stdio[1].write('This is simply a stub command.\n');
+// 		stdio[1].write('You gave me these arguments:\n' + util.inspect(args) + '\n');
+// 	});
+// }
+//
+// function exit (args: string[]) {
+// 	var status = args[0];
+// 	return new FunctionRunnable(function (stdio) {
+// 		process.exit(Number(status));
+// 	});
+// }

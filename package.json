@@ -9,7 +9,7 @@
 	"scripts": {
 		"test": "node -r source-map-support/register scripts/test.js",
 		"start": "node -r source-map-support/register dist/shell",
-		"debug": "node --inspect -r source-map-support/register dist/shell"
+		"debug": "node --inspect-brk -r source-map-support/register dist/shell"
 	},
 	"repository": {
 		"type": "git",

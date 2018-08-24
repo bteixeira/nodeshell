@@ -14,10 +14,10 @@ import ErrorWrapper from './errorWrapper';
 import History from './history';
 import WriterPanel from './panels/tree/writerPanel';
 import Panel from './panels/tree/panel';
-import Commands from './commandSet';
+import CommandSet from './commandSet';
 
 import createDefaultCommands from './createDefaultCommands';
-import defaultCmdConfig from './defaultCmdConfig';
+import defaultCommandCompletions from './defaultCommandCompletions';
 import * as utils from './utils';
 import * as defaultLineParser from './parser/defaultLineParser';
 import * as CompletionParser from './parser/completionParser';
@@ -56,8 +56,9 @@ const permanent: {[prop: string]: any} = {
 			if (ast.type !== 'COMMAND') {
 				throw 'Alias body must be a valid command name';
 			}
-			commands.addCmd(handle, function () {
-
+			commands.addCmd(handle, function (args) {
+				// TODO BRING BACK ALIASES
+				return null;
 			}, '[alias]');
 		},
 		home: __dirname,
@@ -70,8 +71,8 @@ const permanent: {[prop: string]: any} = {
 };
 const extend = utils.extend;
 const ctx = vm.createContext(permanent);
-var commands: Commands = createDefaultCommands(ctx);
-commands = new Commands({
+var commands: CommandSet = createDefaultCommands(ctx);
+commands = new CommandSet({
 	parent: commands,
 	skipPath: true,
 });
@@ -170,7 +171,7 @@ lineReader
 			runnable.run(doneCB);
 		}
 	});
-defaultCmdConfig(CompletionParser);
+defaultCommandCompletions(CompletionParser);
 defaultKeys(keyHandler, lineReader, history, () => {
 	CompletionParser.parseCmdLine(lineReader, commands, rootPanel.completions);
 });

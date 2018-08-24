@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import Tape from '../tape';
-import Commands from '../commandSet';
+import CommandSet from '../commandSet';
 import WriterPanel from '../panels/tree/writerPanel';
 import LineReader from '../lineReader';
 import commandLineTokenizer from '../tokenizer/commandLineTokenizer';
@@ -16,7 +16,7 @@ export const COMPLETION_TYPE = Symbol(COMPLETION);
 
 export function parseCmdLine (
 	lineReader: LineReader,
-	commands: Commands,
+	commands: CommandSet,
 	panel: WriterPanel,
 	insert: boolean = true,
 ): void {

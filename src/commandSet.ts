@@ -9,9 +9,9 @@ export interface Options {
 	parent?: CommandSet;
 }
 
-export type commandHandler = (...args: any[]) => any;
+export type commandHandler = (...args: Runnable[]) => Runnable;
 export type commandSpec = {
-	runner: any;
+	runner: commandHandler;
 	path: string;
 };
 
@@ -75,13 +75,13 @@ export default class CommandSet {
 	}
 
 	private static makeCmd (filename: string): commandHandler {
-		return function (args) {
+		return function (...args: Runnable[]) {
 			return new ChildProcessWRapper(filename, args);
 		}
 	}
 
-	addCmd (name: string, body, path: string = '[builtin]'): void {
-		this.commands[name] = {runner: body, path: path};
+	addCmd (name: string, handler: commandHandler, path: string = '[builtin]'): void {
+		this.commands[name] = {runner: handler, path: path};
 	}
 
 	isCmd (candidate: string): boolean {
@@ -90,7 +90,7 @@ export default class CommandSet {
 
 	getCmdRunnable (name: string, args: Runnable[]): Runnable {
 		if (name in this.commands) {
-			return this.commands[name].runner(args);
+			return this.commands[name].runner(...args);
 		} else if (this.parent) {
 			return this.parent.getCmdRunnable(name, args);
 		}

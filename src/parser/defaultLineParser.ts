@@ -1,12 +1,12 @@
 import Tape from '../tape';
-import Commands from '../commandSet';
+import CommandSet from '../commandSet';
 import commandLineTokenizer from '../tokenizer/commandLineTokenizer';
 import DescentParser from './descentParser';
 import {DescentParserNode} from '../ast/nodes/descentParserNodes';
 
 import * as ast from '../ast/nodes/descentParserNodes';
 
-export function parseCmdLine (line: string, commands: Commands): DescentParserNode {
+export function parseCmdLine (line: string, commands: CommandSet): DescentParserNode {
 	const tokens = commandLineTokenizer(line);
 	const parser = new DescentParser(commands, new Tape(tokens));
 	var ret = parser.COMMAND_LINE();
