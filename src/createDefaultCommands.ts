@@ -1,17 +1,13 @@
-import * as util from 'util';
-import {Context} from 'vm';
-
 import CommandSet, {commandHandler} from './commandSet';
 import ErrorWrapper from './errorWrapper';
 import FunctionRunnable from './parser/runnables/functionRunnable';
 import * as utils from './utils';
 import {Runnable} from './parser/runnables/runnable'
 
-export default function (context: Context) {
-
-	var commands = new CommandSet();
-
-	const builtins: {[command: string]: commandHandler} = {
+export default function () {
+	const commands = new CommandSet();
+	commands.addFromPath(process.env.PATH);
+	commands.addAll({
 		cd: cd,
 		// stub: stub,
 		// exit: exit,
@@ -29,9 +25,6 @@ export default function (context: Context) {
 		// 		return utils.sourceSync(filename, context);
 		// 	});
 		// },
-	};
-	Object.keys(builtins).forEach((key: string) => {
-		commands.addCmd(key, builtins[key]);
 	});
 	return commands;
 };

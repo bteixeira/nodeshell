@@ -71,11 +71,7 @@ const permanent: {[prop: string]: any} = {
 };
 const extend = utils.extend;
 const ctx = vm.createContext(permanent);
-var commands: CommandSet = createDefaultCommands(ctx);
-commands = new CommandSet({
-	parent: commands,
-	skipPath: true,
-});
+const commands = new CommandSet(createDefaultCommands());
 const executerVisitor = new RWEVisitor(commands, ctx);
 var history = new History(lineReader);
 

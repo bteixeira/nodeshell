@@ -4,11 +4,6 @@ import * as path from 'path';
 import ChildProcessWRapper from './parser/runnables/childProcessRunnable';
 import {Runnable} from './parser/runnables/runnable'
 
-export interface Options {
-	skipPath?: boolean;
-	parent?: CommandSet;
-}
-
 export type commandHandler = (...args: Runnable[]) => Runnable;
 export type commandSpec = {
 	runner: commandHandler;
@@ -20,15 +15,8 @@ export type commandSpec = {
  */
 export default class CommandSet {
 	public commands: {[name: string]: commandSpec} = {}; // TODO
-	private parent: CommandSet;
 
-	constructor (options: Options = {}) {
-		if (!options.skipPath) {
-			this.addFromPath();
-		}
-		if (options.parent) {
-			this.parent = options.parent;
-		}
+	constructor (private parent?: CommandSet) {
 	}
 
 	private static isExecutable (file: string): boolean {
@@ -44,7 +32,7 @@ export default class CommandSet {
 		return !!(stat && (stat.mode & 0o111)); // test for *any* of the execute bits
 	}
 
-	addFromPath (path_: string = process.env.PATH): void {
+	addFromPath (path_: string): void {
 		path_.split(path.delimiter).forEach((dir: string) => {
 			this.addFromDir(dir)
 		});
@@ -82,6 +70,12 @@ export default class CommandSet {
 
 	addCmd (name: string, handler: commandHandler, path: string = '[builtin]'): void {
 		this.commands[name] = {runner: handler, path: path};
+	}
+
+	addAll (commands: {[command: string]: commandHandler}): void {
+		Object.keys(commands).forEach((key: string) => {
+			this.addCmd(key, commands[key]);
+		});
 	}
 
 	isCmd (candidate: string): boolean {
