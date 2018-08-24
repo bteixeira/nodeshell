@@ -1,7 +1,7 @@
 import * as util from 'util';
 import {Context} from 'vm';
 
-import Commands from './commands';
+import Commands from './commandSet';
 import ErrorWrapper from './errorWrapper';
 import FunctionRunnable from './parser/runnables/functionRunnable';
 import * as utils from './utils';

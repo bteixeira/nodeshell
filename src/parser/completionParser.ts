@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import Tape from '../tape';
-import Commands from '../commands';
+import Commands from '../commandSet';
 import WriterPanel from '../panels/tree/writerPanel';
 import LineReader from '../lineReader';
 import commandLineTokenizer from '../tokenizer/commandLineTokenizer';

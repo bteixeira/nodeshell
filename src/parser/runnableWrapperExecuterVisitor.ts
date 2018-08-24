@@ -4,7 +4,7 @@ import {Context} from 'vm';
 
 import * as utils from '../utils';
 import Visitor from '../ast/visitors/visitor';
-import Commands from '../commands';
+import Commands from '../commandSet';
 import ErrorWrapper from '../errorWrapper';
 import {Stream} from 'stream';
 import {DescentParserNode} from '../ast/nodes/descentParserNodes';

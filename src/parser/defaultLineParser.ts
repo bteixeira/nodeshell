@@ -1,5 +1,5 @@
 import Tape from '../tape';
-import Commands from '../commands';
+import Commands from '../commandSet';
 import commandLineTokenizer from '../tokenizer/commandLineTokenizer';
 import DescentParser from './descentParser';
 import {DescentParserNode} from '../ast/nodes/descentParserNodes';

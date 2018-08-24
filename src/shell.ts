@@ -14,7 +14,7 @@ import ErrorWrapper from './errorWrapper';
 import History from './history';
 import WriterPanel from './panels/tree/writerPanel';
 import Panel from './panels/tree/panel';
-import Commands from './commands';
+import Commands from './commandSet';
 
 import createDefaultCommands from './createDefaultCommands';
 import defaultCmdConfig from './defaultCmdConfig';
@@ -22,42 +22,17 @@ import * as utils from './utils';
 import * as defaultLineParser from './parser/defaultLineParser';
 import * as CompletionParser from './parser/completionParser';
 import {DescentParserNode} from './ast/nodes/descentParserNodes';
+import defaultKeys from './config/defaultKeys';
+
+
 
 const stdin: ReadStream = process.stdin as ReadStream;
 const stdout: WriteStream = process.stdout as WriteStream;
-
 var paused: boolean = false;
-
-process.on('SIGINT', () => {
-	console.log('\nSIGINT'.blue.bold);
-	if (!paused) {
-		console.log();
-		lineReader.refreshLine();
-	}
-});
-process.on('SIGCHLD', function () {
-	if (paused) {
-		console.log('\nSIGCHLD -- job management is not supported, please manage child process with signals'.blue.bold);
-		lineReader.refreshLine();
-		process.stdin.resume();
-		process.stdin.setRawMode(true);
-		paused = false;
-	}
-});
-process.on('SIGTSTP', function () {
-});
-
+var rootPanel: Panel;
 const lineReader: LineReader = new LineReader(new WriterPanel(stdout));
 const keyHandler: KeyHandler = new KeyHandler(stdin);
-
-function setLayout (spec: LayoutSpec) {
-	// TODO validate spec according to high-level strict rules
-	rootPanel = LayoutComposer.buildInit(spec, stdout);
-	lineReader.setWriter(rootPanel.prompt);
-	permanent.nsh.layout = rootPanel; // Not so permanent after all...
-}
-
-const permanent = {
+const permanent: {[prop: string]: any} = {
 	process: process,
 	Buffer: Buffer,
 	setTimeout: setTimeout,
@@ -93,10 +68,43 @@ const permanent = {
 		layout: null,
 	},
 };
-
 const extend = utils.extend;
-
 const ctx = vm.createContext(permanent);
+var commands: Commands = createDefaultCommands(ctx);
+commands = new Commands({
+	parent: commands,
+	skipPath: true,
+});
+const executerVisitor = new RWEVisitor(commands, ctx);
+var history = new History(lineReader);
+
+
+
+process.on('SIGINT', () => {
+	console.log('\nSIGINT'.blue.bold);
+	if (!paused) {
+		console.log();
+		lineReader.refreshLine();
+	}
+});
+process.on('SIGCHLD', function () {
+	if (paused) {
+		console.log('\nSIGCHLD -- job management is not supported, please manage child process with signals'.blue.bold);
+		lineReader.refreshLine();
+		process.stdin.resume();
+		process.stdin.setRawMode(true);
+		paused = false;
+	}
+});
+process.on('SIGTSTP', function () {
+});
+
+function setLayout (spec: LayoutSpec) {
+	// TODO validate spec according to high-level strict rules
+	rootPanel = LayoutComposer.buildInit(spec, stdout);
+	lineReader.setWriter(rootPanel.prompt);
+	permanent.nsh.layout = rootPanel;
+}
 
 function inspect (what: any) {
 	if (what instanceof ErrorWrapper) {
@@ -118,13 +126,6 @@ function doneCB (result: any) {
 	process.stdin.setRawMode(true);
 	paused = false;
 }
-
-var commands: Commands = createDefaultCommands(ctx);
-commands = new Commands({
-	parent: commands,
-	skipPath: true,
-});
-const executerVisitor = new RWEVisitor(commands, ctx);
 
 lineReader
 	.setPrompt(function () {
@@ -169,19 +170,10 @@ lineReader
 			runnable.run(doneCB);
 		}
 	});
-
-var history = new History(lineReader);
-
-function complete () {
-	CompletionParser.parseCmdLine(lineReader, commands, rootPanel.completions);
-}
-
 defaultCmdConfig(CompletionParser);
-import defaultKeys from './defaultKeys';
-defaultKeys(keyHandler, lineReader, history, complete);
-
-var rootPanel: Panel;
-
+defaultKeys(keyHandler, lineReader, history, () => {
+	CompletionParser.parseCmdLine(lineReader, commands, rootPanel.completions);
+});
 setLayout({name: 'prompt'});
 
 function runUserFile () {

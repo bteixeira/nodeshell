@@ -6,14 +6,21 @@ import {Runnable} from './parser/runnables/runnable'
 
 export interface Options {
 	skipPath?: boolean;
-	parent?: Commands;
+	parent?: CommandSet;
 }
 
-export type Command = (...args: any[]) => any;
+export type commandHandler = (...args: any[]) => any;
+export type commandSpec = {
+	runner: any;
+	path: string;
+};
 
-export default class Commands {
-	public commands: any = {}; // TODO
-	private parent: Commands;
+/**
+ * Keeps track of available commands by name.
+ */
+export default class CommandSet {
+	public commands: {[name: string]: commandSpec} = {}; // TODO
+	private parent: CommandSet;
 
 	constructor (options: Options = {}) {
 		if (!options.skipPath) {
@@ -37,17 +44,13 @@ export default class Commands {
 		return !!(stat && (stat.mode & 0o111)); // test for *any* of the execute bits
 	}
 
-	addFromPath (path_?: string): void {
-		var me = this;
-		path_ = path_ || process.env.PATH;
-		var paths = path_.split(path.delimiter);
-		paths.forEach(function (dir) {
-			me.addFromDir(dir)
+	addFromPath (path_: string = process.env.PATH): void {
+		path_.split(path.delimiter).forEach((dir: string) => {
+			this.addFromDir(dir)
 		});
 	}
 
 	addFromDir (dir: string): void {
-		var me = this;
 		var files: string[];
 		try {
 			files = fs.readdirSync(dir);
@@ -57,8 +60,8 @@ export default class Commands {
 		}
 		files.forEach(file => {
 			file = path.resolve(dir, file);
-			if (Commands.isExecutable(file)) {
-				me.addFromFile(file);
+			if (CommandSet.isExecutable(file)) {
+				this.addFromFile(file);
 			}
 		});
 	}
@@ -68,10 +71,10 @@ export default class Commands {
 		if (process.platform === 'win32') {
 			basename = basename.substr(0, basename.lastIndexOf('.'));
 		}
-		this.addCmd(basename, Commands.makeCmd(filename), filename);
+		this.addCmd(basename, CommandSet.makeCmd(filename), filename);
 	}
 
-	private static makeCmd (filename: string): Command {
+	private static makeCmd (filename: string): commandHandler {
 		return function (args) {
 			return new ChildProcessWRapper(filename, args);
 		}
@@ -94,9 +97,9 @@ export default class Commands {
 	}
 
 	getCommandNames (): string[] {
-		var names = Object.keys(this.commands);
+		const names = Object.keys(this.commands);
 		if (this.parent) {
-			Array.prototype.push.apply(names, this.parent.getCommandNames());
+			names.push(...this.parent.getCommandNames());
 		}
 		return names;
 	}

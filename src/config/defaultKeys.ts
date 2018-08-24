@@ -1,10 +1,14 @@
 import * as readline from 'readline';
-import KeyHandler from './keyhandler';
-import History from './history';
-import LineReader from './lineReader';
+import KeyHandler from '../keyhandler';
+import History from '../history';
+import LineReader from '../lineReader';
 
-export default function (keyHandler: KeyHandler, lineReader: LineReader, history: History, complete: () => void) {
-
+export default function (
+	keyHandler: KeyHandler,
+	lineReader: LineReader,
+	history: History,
+	completionHandler: () => void,
+) {
 	keyHandler.bindDefault((ch: string, key) => {
 		if (ch && ch.length === 1) {
 			lineReader.insert(ch);
@@ -68,7 +72,7 @@ export default function (keyHandler: KeyHandler, lineReader: LineReader, history
 	});
 
 	keyHandler.bind(['TAB'], () => {
-		complete();
+		completionHandler();
 	});
 
 	keyHandler.bind(['CTRL+L'], () => {

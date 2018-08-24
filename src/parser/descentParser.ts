@@ -1,4 +1,4 @@
-import Commands from '../commands';
+import Commands from '../commandSet';
 import {Token} from '../tokenizer/commandLineTokenizer';
 import Tape from '../tape';
 
