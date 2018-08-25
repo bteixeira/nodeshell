@@ -1,7 +1,7 @@
 import {Runnable, runnableCallback} from './runnable'
 import {Stream} from 'stream';
 
-export default class Sequence implements Runnable {
+export default class SequenceRunnable implements Runnable {
 	constructor (
 		private _left: Runnable,
 		private _right: Runnable,

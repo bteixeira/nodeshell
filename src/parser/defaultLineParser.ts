@@ -9,11 +9,11 @@ import * as ast from '../ast/nodes/descentParserNodes';
 export function parseCmdLine (line: string, commands: CommandSet): DescentParserNode {
 	const tokens = commandLineTokenizer(line);
 	const parser = new DescentParser(commands, new Tape(tokens));
-	var ret = parser.COMMAND_LINE();
-	if (parser.firstCommand && ret.err) {
-		ret.firstCommand = true;
+	const node = parser.COMMAND_LINE();
+	if (parser.firstCommand && node.err) {
+		node.firstCommand = true;
 	}
-	return ret;
+	return node;
 }
 
 export function parseJS (line: string): DescentParserNode {

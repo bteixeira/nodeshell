@@ -12,13 +12,12 @@ export default class PipeRunnable implements Runnable {
 	) {}
 
 	run (callback: runnableCallback): void {
-		var left = this.left, right = this.right;
-		left.configFd(1, 'pipe');
-		right.configFd(0, 'pipe');
-		left.run(function () {});
-		right.run(callback);
-		(left.pipes[1] as Stream).pipe(right.pipes[0] as WriteStream);
-		this.pipes = [left.pipes[0], right.pipes[1], right.pipes[2]];
+		this.left.configFd(1, 'pipe');
+		this.right.configFd(0, 'pipe');
+		this.left.run(function () {});
+		this.right.run(callback);
+		(this.left.pipes[1] as Stream).pipe(this.right.pipes[0] as WriteStream);
+		this.pipes = [this.left.pipes[0], this.right.pipes[1], this.right.pipes[2]];
 	}
 
 	configFd (fd: number, config: Stream): void {

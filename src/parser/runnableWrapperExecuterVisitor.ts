@@ -28,7 +28,7 @@ interface TokenGroup {
 	group: Token[];
 }
 
-export default class ExecuterVisitor extends Visitor {
+export default class RunnableWrapperExecuterVisitor extends Visitor {
 
 	constructor (private commandSet: CommandSet, private context: Context) {
 		super();
@@ -54,16 +54,9 @@ export default class ExecuterVisitor extends Visitor {
 //        has a method to know, before running, if an fd is supposed to be redirected/inputted
 
 		var args: Runnable[] = [];
-		var me = this;
 		node.args.forEach((node: DescentParserNode) => {
-			const runner: Runnable = me.visit(node);
-			// if (node.type === 'GLOB' || node.type === 'DQSTRING') {
-				args.push(runner); // Push the runner, push, push the runner
-			// } else if (node.type === 'JS') {
-			// 	runner.run((res) => {
-			// 		args.push(res);
-			// 	});
-			// }
+			const runner: Runnable = this.visit(node);
+			args.push(runner); // Push the runner, push, push the runner
 		});
 		const runner: Runnable = this.commandSet.getCmdRunnable(node.cmd, args);
 		node.redirs.forEach(function (redir) {
