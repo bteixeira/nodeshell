@@ -65,6 +65,26 @@ const permanent: {[prop: string]: any} = {
 				// TODO 2 WHEN BARRIER IS REACHED...
 					// TODO 3 INVOKE commands.addCmd(argValues.concat(args), streams, callback)
 
+				var n: number = rootNode.args.length;
+				var argValues: any[] = [];
+
+				if (n === 0) {
+					runCommand();
+				} else {
+					rootNode.args.forEach((arg, i) => {
+						executerVisitor.visit(arg, stdio, (value) => {
+							n -= 1;
+							argValues[i] = value;
+							if (n === 0) {
+								runCommand();
+							}
+						});
+					});
+				}
+
+				function runCommand () {
+					commands.runCmd(rootNode.cmd, argValues.concat(args), streams, callback);
+				}
 			}, '[alias]');
 		},
 		home: __dirname,
