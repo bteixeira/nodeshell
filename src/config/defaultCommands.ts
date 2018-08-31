@@ -1,8 +1,9 @@
-import CommandSet, {commandHandler} from '../commandSet';
+import CommandSet, {xxxCommandThing} from '../commandSet';
 import ErrorWrapper from '../errorWrapper';
-import FunctionRunnable from '../parser/runnables/functionRunnable';
 import * as utils from '../utils';
-import {Runnable} from '../parser/runnables/runnable'
+import WriteStream = NodeJS.WriteStream;
+import {Stream} from 'stream'
+import {executionCallback} from '../ast/visitors/executerVisitor'
 
 export default function () {
 	const commands = new CommandSet();
@@ -11,12 +12,11 @@ export default function () {
 		cd: cd,
 		// stub: stub,
 		// exit: exit,
-		all: function (...args: Runnable[]) {
-			return new FunctionRunnable(function (stdio) {
-				commands.getCommandNames().forEach(function (command) {
-					stdio[1].write(command + '\n');
-				});
+		all: function (args: string[], streams, callback) {
+			commands.getCommandNames().forEach((command: string) => {
+				(streams[1] as WriteStream).write(command + '\n');
 			});
+			callback(undefined); // TODO STREAM MIGHT NOT HAVE BEEN FLUSHED YET
 		},
 		// TODO IF THIS COMMAND IS STILL NEEDED THEN PORT THE ARGS TO USE RUNNABLES
 		// source: function (args: string[]) {
@@ -31,45 +31,19 @@ export default function () {
 
 const cd = (function () {
 	var previousDir: string = process.cwd();
-	return function cd (...args: Runnable[]) {
-		return new FunctionRunnable(function (stdio) {
-			var m = args.length;
-			const argValues: any[] = []; // TODO CONFIRM ANY
-
-			/* All arguments are executed even if only the first result is used */
-			args.forEach((arg: Runnable) => {
-				arg.run(result => {
-					m -= 1;
-					if (result instanceof Array) { // TODO TEST ARRAY
-						argValues.push(...result);
-					} else {
-						argValues.push(result); // TODO MAYBE THE TWO ARE EQUIVALENT
-					}
-					verify();
-				});
-			});
-
-			function verify () {
-				if (m === 0) {
-					var dir = argValues[0] || utils.getUserHome();
-					if (dir === '-') {
-						dir = previousDir;
-					}
-					try {
-						var tmp = process.cwd();
-						process.chdir(dir);
-						/* We postpone updating `previousDir` because `chdir` may throw */
-						previousDir = tmp;
-					} catch (ex) {
-						return new ErrorWrapper(ex);
-					}
-				}
-			}
-
-			if (args.length === 0) {
-				verify();
-			}
-		});
+	return function cd (args: string[], streams: Stream[], callback: executionCallback) {
+		var dir: string = args[0] || utils.getUserHome();
+		if (dir === '-') {
+			dir = previousDir;
+		}
+		try {
+			var tmp = process.cwd();
+			process.chdir(dir);
+			previousDir = tmp;
+			callback(undefined); /* undefined, could also return 0 to comply with bash */
+		} catch (ex) {
+			callback(new ErrorWrapper(ex));
+		}
 	};
 }());
 

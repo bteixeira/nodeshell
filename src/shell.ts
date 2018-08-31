@@ -7,8 +7,7 @@ import 'colors';
 
 import KeyHandler from './keyhandler';
 import LineReader from './lineReader';
-import RWEVisitor from './parser/runnableWrapperExecuterVisitor';
-import {Runnable} from './parser/runnables/runnable'
+import ExecuterVisitor, {executionCallback} from './ast/visitors/executerVisitor';
 import LayoutComposer, {LayoutSpec} from './panels/composer';
 import ErrorWrapper from './errorWrapper';
 import History from './history';
@@ -23,11 +22,14 @@ import * as utils from './utils';
 import * as defaultLineParser from './parser/defaultLineParser';
 import * as CompletionParser from './parser/completionParser';
 import {DescentParserNode} from './ast/nodes/descentParserNodes';
+import {Stream} from 'stream';
 
 
 
 const stdin: ReadStream = process.stdin as ReadStream;
-const stdout: WriteStream = process.stdout as WriteStream;
+const stdout: WriteStream = process.stdout as WriteStream; // TODO SHOULD BE Stream.Writable, WriterPanel MUST STOP DEPENDING ON .columns TO CHANGE THIS
+const stderr: WriteStream = process.stderr as WriteStream;
+const stdio: Stream[] = [stdin, stdout, stderr];
 var paused: boolean = false;
 var rootPanel: Panel;
 const lineReader: LineReader = new LineReader(new WriterPanel(stdout));
@@ -49,16 +51,21 @@ const permanent: {[prop: string]: any} = {
 		utils: utils,
 		completion: CompletionParser,
 		alias: function (handle: string, body: string) {
-			var ast = defaultLineParser.parseCmdLine(body, commands);
-			if (ast.err) {
-				throw ast.err;
+			const rootNode: DescentParserNode = defaultLineParser.parseCmdLine(body, commands);
+			if (rootNode.err) {
+				throw rootNode.err;
 			}
-			if (ast.type !== 'COMMAND') {
+			if (rootNode.type !== 'COMMAND') {
 				throw 'Alias body must be a valid command name';
+				// TODO ALIAS BODY COULD BE ANYTHING
 			}
-			commands.addCmd(handle, function (args) {
+			commands.addCmd(handle, (args: string[], streams: Stream[], callback: executionCallback) => {
 				// TODO BRING BACK ALIASES
-				return null;
+
+				// TODO 1 HAVE THE VISITOR VISIT EACH ARGUMENT CHILD NODE, STORE THE VALUES
+				// TODO 2 WHEN BARRIER IS REACHED...
+					// TODO 3 INVOKE commands.addCmd(argValues.concat(args), streams, callback)
+
 			}, '[alias]');
 		},
 		home: __dirname,
@@ -72,7 +79,7 @@ const permanent: {[prop: string]: any} = {
 const extend = utils.extend;
 const ctx = vm.createContext(permanent);
 const commands = new CommandSet(defaultCommands());
-const executerVisitor = new RWEVisitor(commands, ctx);
+const executerVisitor = new ExecuterVisitor(commands, ctx);
 const history = new History(lineReader);
 
 
@@ -142,14 +149,12 @@ lineReader
 		process.stdin.pause();
 		readline.clearScreenDown(process.stdout);
 		paused = true;
-		var runnable: Runnable;
 		var err: DescentParserNode;
 		var rootNode: DescentParserNode = defaultLineParser.parseCmdLine(line, commands);
 		if (rootNode.err && rootNode.firstCommand) {
 			err = rootNode;
 			rootNode = defaultLineParser.parseJS(line);
-			runnable = executerVisitor.visit(rootNode);
-			runnable.run(function (result) {
+			executerVisitor.visit(rootNode, stdio, result => {
 				if (result instanceof ErrorWrapper) {
 					// Magic! If line is ambiguous and could have been both a command and JS, but both errored, show both errors
 					if (err.message) {
@@ -163,8 +168,7 @@ lineReader
 		} else if (rootNode.err) {
 			doneCB(rootNode);
 		} else {
-			runnable = executerVisitor.visit(rootNode);
-			runnable.run(doneCB);
+			executerVisitor.visit(rootNode, stdio, doneCB);
 		}
 	});
 defaultCommandCompletions(CompletionParser);

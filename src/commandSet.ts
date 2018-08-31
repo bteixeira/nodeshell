@@ -1,12 +1,13 @@
 import * as fs from 'fs';
+import {Stats} from 'fs';
 import * as path from 'path';
+import {executionCallback} from "./ast/visitors/executerVisitor";
+import {Stream} from "stream";
+import tmpChildProcessRunner from "./runProcess";
 
-import ChildProcessWRapper from './parser/runnables/childProcessRunnable';
-import {Runnable} from './parser/runnables/runnable'
-
-export type commandHandler = (...args: Runnable[]) => Runnable;
+export type xxxCommandThing = (args: string[], streams: Stream[], callback: executionCallback) => void;
 export type commandSpec = {
-	runner: commandHandler;
+	run: xxxCommandThing;
 	path: string;
 };
 
@@ -20,11 +21,12 @@ export default class CommandSet {
 	}
 
 	private static isExecutable (file: string): boolean {
+		var stat: Stats;
 		if (process.platform === 'win32') {
 			return /\.(exe|bat)$/.test(file);
 		}
 		try {
-			var stat = fs.statSync(file);
+			stat = fs.statSync(file);
 		} catch (ex) {
 			/* Broken symlink will throw this */
 			return false;
@@ -62,17 +64,28 @@ export default class CommandSet {
 		this.addCmd(basename, CommandSet.makeCmd(filename), filename);
 	}
 
-	private static makeCmd (filename: string): commandHandler {
-		return function (...args: Runnable[]) {
-			return new ChildProcessWRapper(filename, args);
+	private static makeCmd (filename: string): xxxCommandThing {
+		return function (args: string[], streams, callback) {
+			tmpChildProcessRunner(filename, args, streams, callback);
 		}
 	}
 
-	addCmd (name: string, handler: commandHandler, path: string = '[builtin]'): void {
-		this.commands[name] = {runner: handler, path: path};
+	runCmd (name: string, args: string[], streams: Stream[], callback: executionCallback): void {
+		if (name in this.commands) {
+			this.commands[name].run(args, streams, callback);
+		} else if (this.parent) {
+			this.parent.runCmd(name, args, streams, callback);
+		} else {
+			throw new Error(`Unknown command "${name}"`);
+		}
+
 	}
 
-	addAll (commands: {[command: string]: commandHandler}): void {
+	addCmd (name: string, handler: xxxCommandThing, path: string = '[builtin]'): void {
+		this.commands[name] = {run: handler, path};
+	}
+
+	addAll (commands: {[command: string]: xxxCommandThing}): void {
 		Object.keys(commands).forEach((key: string) => {
 			this.addCmd(key, commands[key]);
 		});
@@ -80,14 +93,6 @@ export default class CommandSet {
 
 	isCmd (candidate: string): boolean {
 		return candidate in this.commands || (this.parent && this.parent.isCmd(candidate));
-	}
-
-	getCmdRunnable (name: string, args: Runnable[]): Runnable {
-		if (name in this.commands) {
-			return this.commands[name].runner(...args);
-		} else if (this.parent) {
-			return this.parent.getCmdRunnable(name, args);
-		}
 	}
 
 	getCommandNames (): string[] {
