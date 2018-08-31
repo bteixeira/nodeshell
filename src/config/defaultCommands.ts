@@ -1,5 +1,4 @@
 import CommandSet, {xxxCommandThing} from '../commandSet';
-import ErrorWrapper from '../errorWrapper';
 import * as utils from '../utils';
 import WriteStream = NodeJS.WriteStream;
 import {Stream} from 'stream'
@@ -42,7 +41,7 @@ const cd = (function () {
 			previousDir = tmp;
 			callback(undefined); /* undefined, could also return 0 to comply with bash */
 		} catch (ex) {
-			callback(new ErrorWrapper(ex));
+			callback(new Error(ex));
 		}
 	};
 }());

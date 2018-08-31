@@ -1,12 +1,13 @@
 import * as vm from 'vm';
-import * as fs from 'fs';
 import {Context} from 'vm';
+import * as fs from 'fs';
+import {PassThrough, Stream} from 'stream';
+
 import * as utils from '../../utils';
+import * as globMatcher from '../../tokenizer/matchers/globMatcher';
 import Visitor from './visitor';
 import CommandSet from '../../commandSet';
-import {PassThrough, Stream} from 'stream';
 import {DescentParserNode} from '../nodes/descentParserNodes';
-import * as globMatcher from '../../tokenizer/matchers/globMatcher';
 import {Token} from '../../tokenizer/commandLineTokenizer';
 
 interface TokenGroup {
@@ -218,9 +219,12 @@ export default class ExecuterVisitor extends Visitor {
 	}
 
 	visitJS(token: DescentParserNode, streams: Stream[], callback: executionCallback): void {
-		const context: Context = this.context;
-		var result = vm.runInContext(token.token.text, context);
-		callback(result);
+		try {
+			var result = vm.runInContext(token.token.text, this.context);
+			callback(result);
+		} catch (e) {
+			callback(new Error(e)); /* Exceptions thrown from VM must be wrapped to enable `instanceof` */
+		}
 	}
 
 	visitDQSTRING(dqstring: DescentParserNode, streams: Stream[], callback: executionCallback): void {

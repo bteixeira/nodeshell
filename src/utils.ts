@@ -4,11 +4,10 @@ import * as path from 'path';
 import {Context} from 'vm';
 
 import * as extend from 'extend';
-import ErrorWrapper from './errorWrapper';
 
 export function sourceSync (filename: string, context: Context) {
 	if (!fs.existsSync(filename)) {
-		return new ErrorWrapper('No such file: ' + filename);
+		return new Error('No such file: ' + filename);
 	}
 	const contents: string = fs.readFileSync(filename).toString();
 	return vm.runInContext(contents, context);

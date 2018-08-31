@@ -9,7 +9,6 @@ import KeyHandler from './keyhandler';
 import LineReader from './lineReader';
 import ExecuterVisitor, {executionCallback} from './ast/visitors/executerVisitor';
 import LayoutComposer, {LayoutSpec} from './panels/composer';
-import ErrorWrapper from './errorWrapper';
 import History from './history';
 import WriterPanel from './panels/tree/writerPanel';
 import Panel from './panels/tree/panel';
@@ -111,7 +110,7 @@ function setLayout (spec: LayoutSpec) {
 }
 
 function inspect (what: any) {
-	if (what instanceof ErrorWrapper) {
+	if (what instanceof Error) {
 		return what.toString().red;
 	} else {
 		return util.inspect.call(this, what, {colors: true});
@@ -152,10 +151,11 @@ lineReader
 		var err: DescentParserNode;
 		var rootNode: DescentParserNode = defaultLineParser.parseCmdLine(line, commands);
 		if (rootNode.err && rootNode.firstCommand) {
+			/* Immediately failed parsing for CMD, try JS */
 			err = rootNode;
 			rootNode = defaultLineParser.parseJS(line);
 			executerVisitor.visit(rootNode, stdio, result => {
-				if (result instanceof ErrorWrapper) {
+				if (result instanceof Error) {
 					// Magic! If line is ambiguous and could have been both a command and JS, but both errored, show both errors
 					if (err.message) {
 						console.log(err.message.red);
@@ -166,8 +166,10 @@ lineReader
 				doneCB(result);
 			});
 		} else if (rootNode.err) {
+			/* Failed CMD parsing later on, can not recover */
 			doneCB(rootNode);
 		} else {
+			/* Succeeded in CMD parsing, execute */
 			executerVisitor.visit(rootNode, stdio, doneCB);
 		}
 	});
