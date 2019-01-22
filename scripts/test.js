@@ -22,7 +22,7 @@ function allFiles (root, callback) {
 var src = {};
 
 allFiles('src', filename => {
-	if (/\.js$/.test(filename)) {
+	if (/\.ts$/.test(filename)) {
 		src[path.resolve(filename)] = true;
 	}
 });
@@ -31,7 +31,7 @@ allFiles('src', filename => {
 var mocha = new Mocha;
 
 allFiles('test', filename => {
-	if (/\.js$/.test(filename)) {
+	if (/\.ts$/.test(filename)) {
 		mocha.addFile(filename);
 	}
 });
