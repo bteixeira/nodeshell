@@ -23,8 +23,6 @@ import * as CompletionParser from './parser/completionParser';
 import {DescentParserNode} from './ast/nodes/descentParserNodes';
 import {Stream} from 'stream';
 
-
-
 const stdin: ReadStream = process.stdin as ReadStream;
 const stdout: WriteStream = process.stdout as WriteStream; // TODO SHOULD BE Stream.Writable, WriterPanel MUST STOP DEPENDING ON .columns TO CHANGE THIS
 const stderr: WriteStream = process.stderr as WriteStream;
@@ -100,8 +98,6 @@ const ctx = vm.createContext(permanent);
 const commands = new CommandSet(defaultCommands());
 const executerVisitor = new ExecuterVisitor(commands, ctx);
 const history = new History(lineReader);
-
-
 
 process.on('SIGINT', () => {
 	console.log('\nSIGINT'.blue.bold);

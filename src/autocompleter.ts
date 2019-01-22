@@ -24,7 +24,7 @@ export class Autocompleter {
 
 	// TODO FOR THIS TO BE MODULAR IT HAS TO BE ABLE TO DEFINE SETS OF COMPLETIONS. ALL THIS HAS TO BE MUCH MORE GENERIC.
 	complete (): void {
-		const comps: Completions = this.getCompletions(this.lineReader.getLine(), this.lineReader.cursor);
+		const comps: Completions = this.getCompletions(this.lineReader.getLine(), this.lineReader.getCursorPosition());
 
 		if (!comps.completions.length) {
 			return

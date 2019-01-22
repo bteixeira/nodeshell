@@ -21,7 +21,7 @@ export function parseCmdLine (
 	insert: boolean = true,
 ): void {
 	const line: string = lineReader.getLine();
-	const idx: number = lineReader.cursor;
+	const idx: number = lineReader.getCursorPosition();
 	const chars: any[] = line.split('');
 
 	chars.splice(idx, 0, COMPLETION);

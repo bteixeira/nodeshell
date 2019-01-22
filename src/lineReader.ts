@@ -1,4 +1,4 @@
-import WriterPanel from "./panels/tree/writerPanel";
+import WriterPanel from './panels/tree/writerPanel';
 import {EventEmitter} from 'events';
 
 /**
@@ -12,26 +12,19 @@ import {EventEmitter} from 'events';
  * code might change in the future. Readline provides way too much functionality that in Nsh should be somewhere else,
  * and that's why we've written this class instead of reusing Readline. Some exported features of Readline are still
  * called from here.
- *
- * @param writer
- * @constructor
  */
 export default class LineReader extends EventEmitter {
-	writer: WriterPanel;
-	prompt: () => string;
-	_prompt: string;
-	_prompting: any;
-	_promptLength: number;
-	cursor: number;
-	prevRows: number;
-	line: any;
+	private promptGenerator: () => string;
+	private currentPrompt: string;
+	private isPrompting: boolean;
+	private cursorPosition: number;
+	private prevRows: number;
+	private currentText: string;
 
-	constructor (writer: WriterPanel) {
+	constructor (private writer: WriterPanel) {
 		super();
-		this.writer = writer;
-
 		this.setLine('').setPrompt(() => '>>> ').updatePrompt();
-		this._prompting = false;
+		this.isPrompting = false;
 	}
 
 	/**
@@ -39,13 +32,19 @@ export default class LineReader extends EventEmitter {
 	 * @param prompt
 	 */
 	setPrompt (prompt: () => string) {
-		this.prompt = prompt;
+		this.promptGenerator = prompt;
 		return this;
 	};
+
+	getCursorPosition (): number {
+		return this.cursorPosition;
+	}
 
 	/**
 	 * Returns the current two-dimension cursor position starting from the line where the prompt is. This is *not* the
 	 * cursor position on the screen.
+	 *
+	 * TODO FIND SOME BETTER EXAMPLES
 	 *
 	 * EXAMPLE 1:
 	 * prompt is "IS IT NOW?", inserted text is "uga bugah", the console has 20 columns and the cursor is at the end -- result is {cols: 19, rows: 0}
@@ -55,12 +54,9 @@ export default class LineReader extends EventEmitter {
 	 *
 	 * @returns {{cols: number, rows: number}}
 	 */
-	getCursorPos () {
-
-		//var columns = this.output.columns;
+	getCursorCoords (): {cols: number, rows: number} {
 		var columns = this.writer.getWidth();
-
-		var lines = this._prompt.split(/[\r\n]/);
+		var lines = this.currentPrompt.split(/[\r\n]/);
 		var lineCols: number;
 		var lineRows = 0;
 
@@ -72,7 +68,7 @@ export default class LineReader extends EventEmitter {
 
 		lineRows -= 1;
 
-		var cursorPos = this.cursor + lineCols;
+		var cursorPos = this.cursorPosition + lineCols;
 		var cols = cursorPos % columns;
 		var rows = (cursorPos - cols) / columns + lineRows;
 		return {
@@ -85,14 +81,14 @@ export default class LineReader extends EventEmitter {
 	 * can implement multi-line inputs.
 	 */
 	accept () {
-		var line = this.line;
+		var text = this.currentText;
 		this.newLine();
-		this.emit('accept', line);
+		this.emit('accept', text);
 	};
 
 	isEmpty () {
 		/* It's probably preferable to check the string length than to use countLength() */
-		return this.line.length === 0;
+		return this.currentText.length === 0;
 	};
 
 	/**
@@ -103,19 +99,19 @@ export default class LineReader extends EventEmitter {
 		//BUG: Problem when adding tabs with following content.
 		//     Perhaps the bug is in refreshLine(). Not sure.
 		//     A hack would be to insert spaces instead of literal '\t'.
-		if (this.cursor < this.line.length) {
-			var begin = this.line.slice(0, this.cursor);
-			var end = this.line.slice(this.cursor, this.line.length);
-			this.line = begin + str + end;
+		if (this.cursorPosition < this.currentText.length) {
+			var begin = this.currentText.slice(0, this.cursorPosition);
+			var end = this.currentText.slice(this.cursorPosition, this.currentText.length);
+			this.currentText = begin + str + end;
 
 			// TODO this should probably be countLength(str) and not str.length, confirm
-			this.cursor += str.length;
+			this.cursorPosition += str.length;
 
 			this.refreshLine();
 		} else {
-			this.line += str;
-			this.cursor += str.length; // TODO again, this should probably be countLength(str) and not str.length, confirm
-			if (this.getCursorPos().cols === 0) {
+			this.currentText += str;
+			this.cursorPosition += str.length; // TODO again, this should probably be countLength(str) and not str.length, confirm
+			if (this.getCursorCoords().cols === 0) {
 				this.refreshLine();
 			} else {
 				//this.output.write(str);
@@ -132,24 +128,23 @@ export default class LineReader extends EventEmitter {
 	 * @param dx the number of characters to move forward (negative numbers will cause the cursor to move backward)
 	 */
 	moveCursor (dx: number): void {
-		var oldcursor = this.cursor;
-		var oldPos = this.getCursorPos();
-		this.cursor += dx;
+		var oldcursor = this.cursorPosition;
+		var oldPos = this.getCursorCoords();
+		this.cursorPosition += dx;
 
 		// bounds check
-		if (this.cursor < 0) {
-			this.cursor = 0;
+		if (this.cursorPosition < 0) {
+			this.cursorPosition = 0;
 		}
-		if (this.cursor > this.line.length) {
-			this.cursor = this.line.length;
+		if (this.cursorPosition > this.currentText.length) {
+			this.cursorPosition = this.currentText.length;
 		}
 
-		var newPos = this.getCursorPos();
+		var newPos = this.getCursorCoords();
 
 		// check if cursors are in the same line
 		if (oldPos.rows === newPos.rows) {
-			//readline.moveCursor(this.output, this.cursor - oldcursor, 0);
-			this.writer.moveCursor(this.cursor - oldcursor, 0);
+			this.writer.moveCursor(this.cursorPosition - oldcursor, 0);
 			this.prevRows = newPos.rows;
 		} else {
 			this.refreshLine();
@@ -176,11 +171,11 @@ export default class LineReader extends EventEmitter {
 	 * Deletes the character to the left of the cursor.
 	 */
 	deleteLeft () {
-		if (this.cursor > 0 && this.line.length > 0) {
-			this.line = this.line.slice(0, this.cursor - 1) +
-				this.line.slice(this.cursor, this.line.length);
+		if (this.cursorPosition > 0 && this.currentText.length > 0) {
+			this.currentText = this.currentText.slice(0, this.cursorPosition - 1) +
+				this.currentText.slice(this.cursorPosition, this.currentText.length);
 
-			this.cursor--;
+			this.cursorPosition--;
 			this.refreshLine();
 			this.emit('change');
 		}
@@ -190,40 +185,39 @@ export default class LineReader extends EventEmitter {
 	 * Deletes the character to the right of the cursor.
 	 */
 	deleteRight () {
-		this.line = this.line.slice(0, this.cursor) +
-			this.line.slice(this.cursor + 1, this.line.length);
+		this.currentText = this.currentText.slice(0, this.cursorPosition) +
+			this.currentText.slice(this.cursorPosition + 1, this.currentText.length);
 		this.refreshLine();
 		this.emit('change');
 	};
 
 	moveWordLeft () {
-		if (this.cursor > 0) {
-			var leading = this.line.slice(0, this.cursor);
+		if (this.cursorPosition > 0) {
+			var leading = this.currentText.slice(0, this.cursorPosition);
 			var match = leading.match(/([^\w\s]+|\w+|)\s*$/);
 			this.moveCursor(-match[0].length);
 		}
 	};
 
 	moveWordRight () {
-		if (this.cursor < this.line.length) {
-			var trailing = this.line.slice(this.cursor);
+		if (this.cursorPosition < this.currentText.length) {
+			var trailing = this.currentText.slice(this.cursorPosition);
 			var match = trailing.match(/^(\s+|\W+|\w+)\s*/);
 			this.moveCursor(match[0].length);
 		}
 	};
-
 
 // TODO RULES FOR WORD BOUNDARIES AND HOW MUCH TO DELETE ARE NOT CONSISTENT AND GENERALLY SUCK. IMPROVE THIS (still using node's code)
 	/**
 	 * Deletes the word to the left of the cursor.
 	 */
 	deleteWordLeft () {
-		if (this.cursor > 0) {
-			var leading = this.line.slice(0, this.cursor);
+		if (this.cursorPosition > 0) {
+			var leading = this.currentText.slice(0, this.cursorPosition);
 			var match = leading.match(/([^\w\s]+|\w+|)\s*$/);
 			leading = leading.slice(0, leading.length - match[0].length);
-			this.line = leading + this.line.slice(this.cursor, this.line.length);
-			this.cursor = leading.length;
+			this.currentText = leading + this.currentText.slice(this.cursorPosition, this.currentText.length);
+			this.cursorPosition = leading.length;
 			this.refreshLine();
 			this.emit('change');
 		}
@@ -233,10 +227,10 @@ export default class LineReader extends EventEmitter {
 	 * Deletes the word to the right of the cursor.
 	 */
 	deleteWordRight () {
-		if (this.cursor < this.line.length) {
-			var trailing = this.line.slice(this.cursor);
+		if (this.cursorPosition < this.currentText.length) {
+			var trailing = this.currentText.slice(this.cursorPosition);
 			var match = trailing.match(/^(\s+|\W+|\w+)\s*/);
-			this.line = this.line.slice(0, this.cursor) +
+			this.currentText = this.currentText.slice(0, this.cursorPosition) +
 				trailing.slice(match[0].length);
 			this.refreshLine();
 			this.emit('change');
@@ -247,8 +241,8 @@ export default class LineReader extends EventEmitter {
 	 * Deletes all characters to the left of the cursor.
 	 */
 	deleteLineLeft () {
-		this.line = this.line.slice(this.cursor);
-		this.cursor = 0;
+		this.currentText = this.currentText.slice(this.cursorPosition);
+		this.cursorPosition = 0;
 		this.refreshLine();
 		this.emit('change');
 	};
@@ -257,7 +251,7 @@ export default class LineReader extends EventEmitter {
 	 * Deletes all characters to the right of the cursor.
 	 */
 	deleteLineRight () {
-		this.line = this.line.slice(0, this.cursor);
+		this.currentText = this.currentText.slice(0, this.cursorPosition);
 		this.refreshLine();
 		this.emit('change');
 	};
@@ -266,8 +260,8 @@ export default class LineReader extends EventEmitter {
 	 * Deletes all characters on the line.
 	 */
 	deleteLine () {
-		this.line = '';
-		this.cursor = 0;
+		this.currentText = '';
+		this.cursorPosition = 0;
 		this.refreshLine();
 		this.emit('change');
 	};
@@ -277,7 +271,7 @@ export default class LineReader extends EventEmitter {
 	 * @returns {string}
 	 */
 	getLine () {
-		return this.line;
+		return this.currentText;
 	};
 
 	/**
@@ -285,8 +279,8 @@ export default class LineReader extends EventEmitter {
 	 * @param line
 	 */
 	setLine (line: string): LineReader {
-		this.line = line;
-		this.cursor = line.length;
+		this.currentText = line;
+		this.cursorPosition = line.length;
 		this.emit('change');
 		return this;
 	};
@@ -298,10 +292,10 @@ export default class LineReader extends EventEmitter {
 		this.moveToEnd();
 		//this.output.write('\r\n');
 		this.writer.write('\r\n');
-		this.line = '';
-		this.cursor = 0;
+		this.currentText = '';
+		this.cursorPosition = 0;
 		this.prevRows = 0;
-		this._prompting = false;
+		this.isPrompting = false;
 		this.emit('change');
 	};
 
@@ -317,12 +311,9 @@ export default class LineReader extends EventEmitter {
 	 * Reevaluates the prompt and reprints the prompt and the inserted text.
 	 */
 	updatePrompt () {
-
-		this._prompt = this.prompt();
-		var lines = this._prompt.split(/[\r\n]/);
+		this.currentPrompt = this.promptGenerator();
+		var lines = this.currentPrompt.split(/[\r\n]/);
 		var lastLine = lines[lines.length - 1];
-		this._promptLength = LineReader.countLength(lastLine);
-
 		return this;
 	};
 
@@ -330,15 +321,14 @@ export default class LineReader extends EventEmitter {
 	 * Reprints the prompt and the currently inserted text. Can also be used to print a new prompt on a new line.
 	 */
 	refreshLine () {
-
-		if (!this._prompting) {
+		if (!this.isPrompting) {
 			this.updatePrompt();
-			this._prompting = true;
+			this.isPrompting = true;
 		}
 		//var columns = this.output.columns;
 		var columns = this.writer.getWidth ? this.writer.getWidth() : this.writer.columns;
 
-		var line = this._prompt + this.line;
+		var line = this.currentPrompt + this.currentText;
 		var lines = line.split(/[\r\n]/);
 		var lineCols;
 		var lineRows = 0;
@@ -350,7 +340,7 @@ export default class LineReader extends EventEmitter {
 		});
 
 		// cursor position
-		var cursorPos = this.getCursorPos();
+		var cursorPos = this.getCursorCoords();
 
 		// first move to the bottom of the current line, based on cursor pos
 		var prevRows = this.prevRows || 0;
