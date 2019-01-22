@@ -2,7 +2,6 @@ import * as readline from 'readline';
 import {ReadStream} from 'tty';
 import {char} from './tape';
 
-const MODIFIERS: string[] = 'ctrl meta shift'.split(' ');
 const KEYS: string[] = 'escape f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 tab backspace enter return insert delete home end pageup pagedown up down left right'.split(' ');
 const CONVERSIONS: { [key: string]: string } = {
 	'esc': 'escape',
@@ -16,7 +15,7 @@ const CONVERSIONS: { [key: string]: string } = {
 class KeySpec {
 	ctrl: boolean = false;
 	shift: boolean = false;
-	meta: boolean;
+	meta: boolean = false;
 	name?: string;
 }
 
@@ -104,7 +103,7 @@ function normalizeKey (keyCode: string): KeySpec {
 			part = CONVERSIONS[part];
 		}
 
-		if (MODIFIERS.indexOf(part) !== -1) {
+		if (part === 'ctrl' || part === 'shift' || part === 'meta') {
 			/* Apply modifiers */
 			key[part] = true;
 		} else if (KEYS.indexOf(part) !== -1 || part.length === 1) {
