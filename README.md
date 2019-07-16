@@ -25,9 +25,10 @@ How to get it and run it
 ------------------------
 
 ```
-git clone https://github.com/bteixeira/nodeshell.git && cd nodeshell
+git clone https://github.com/bteixeira/nodeshell.git
+cd nodeshell
 npm install
-tsc
+npx tsc
 npm start
 ```
 
